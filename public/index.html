@@ -115,18 +115,12 @@
                   <p class="eyebrow" data-i18n="reviewBrowser">Review browser</p>
                   <h3 id="review-title" data-i18n="selectedReviews">Selected Reviews</h3>
                 </div>
-              </div>
-              <div class="review-toolbar review-toolbar-tabs">
-                <div class="control-field">
+                <div class="control-field panel-heading-toggle">
                   <span data-i18n="reviewMode">View</span>
                   <div id="review-tab-toggle" class="lang-toggle review-toggle-group" aria-label="Review tab">
                     <button class="lang-pill" type="button" data-tab="browse" data-i18n="reviewTabBrowse">Review Browser</button>
                     <button class="lang-pill" type="button" data-tab="saved" data-i18n="reviewTabSaved">Saved Reviews</button>
                   </div>
-                </div>
-                <div class="saved-review-actions">
-                  <button id="saved-reviews-clear-button" class="hidden" type="button" data-i18n="unsaveShown">Unsave Shown</button>
-                  <button id="saved-reviews-download-button" class="hidden" type="button" data-i18n="downloadSavedCsv">Download Saved CSV</button>
                 </div>
               </div>
               <div class="review-toolbar review-toolbar-language">
@@ -134,6 +128,10 @@
                   <span data-i18n="language">Language</span>
                   <select id="review-language-selection"></select>
                 </label>
+                <div class="saved-review-actions">
+                  <button id="saved-reviews-clear-button" class="hidden" type="button" data-i18n="unsaveShown">Unsave Shown</button>
+                  <button id="saved-reviews-download-button" class="hidden" type="button" data-i18n="downloadSavedCsv">Download Saved CSV</button>
+                </div>
               </div>
               <div class="review-toolbar review-toolbar-search">
                 <label class="control-field review-search">

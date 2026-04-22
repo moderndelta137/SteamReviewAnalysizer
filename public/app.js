@@ -114,6 +114,7 @@ const I18N = {
     wordCloudEmpty: "No useful keywords found for this selection.",
     wordCloudReady: "Analyzed {reviews} reviews and surfaced {terms} keywords.",
     wordPreferenceLabel: "Word Preference",
+    wordPreferencePlaceholder: "term or phrase",
     allowWord: "Allow",
     banWord: "Ban",
     languageBreakdown: "Language breakdown",
@@ -289,6 +290,7 @@ const I18N = {
     keywordSearch: "キーワード検索",
     search: "検索",
     searchPlaceholder: "キーワード",
+    wordPreferencePlaceholder: "語句またはフレーズ",
     searchSummaryLead: "検索結果",
     resultSummaryLead: "レビュー結果",
     searchCount: "ヒット数",
@@ -632,7 +634,8 @@ function populateReviewFilterSelects() {
 }
 
 function updateToggleButtons(container, activeValue, attribute) {
-  container.querySelectorAll(`[data-${attribute}]`).forEach((button) => {
+  const attrName = attribute.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`);
+  container.querySelectorAll(`[data-${attrName}]`).forEach((button) => {
     button.classList.toggle("active", button.dataset[attribute] === activeValue);
   });
 }
@@ -682,10 +685,22 @@ function applyTranslations() {
     document.querySelectorAll('[data-i18n="wordCloudTitle"]').forEach((node) => {
       node.textContent = "ワードクラウド";
     });
+    document.querySelectorAll('[data-lang="ja"]').forEach((node) => {
+      node.textContent = "日本語";
+    });
+    if (els.wordAllowButton) els.wordAllowButton.textContent = "許可";
+    if (els.wordBanButton) els.wordBanButton.textContent = "除外";
+  } else {
+    document.querySelectorAll('[data-lang="ja"]').forEach((node) => {
+      node.textContent = "日本語";
+    });
+    if (els.wordAllowButton) els.wordAllowButton.textContent = "Allow";
+    if (els.wordBanButton) els.wordBanButton.textContent = "Ban";
   }
 
   els.appidInput.placeholder = t("appInputPlaceholder");
   els.reviewSearchInput.placeholder = t("searchPlaceholder");
+  els.wordPreferenceInput.placeholder = t("wordPreferencePlaceholder");
 
   updateToggleButtons(els.uiLanguageToggle, state.currentUiLanguage, "lang");
   updateToggleButtons(els.chartTypeToggle, state.chartType, "chart");
