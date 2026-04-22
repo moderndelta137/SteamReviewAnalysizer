@@ -1,0 +1,13 @@
+{
+  "name": "steam-review-analysizer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Steam review analyzer site with SteamScout-style review breakdowns",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.15.2"
+  }
+}

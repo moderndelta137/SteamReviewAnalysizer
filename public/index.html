@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Steam Review Analysizer</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="site-shell">
+      <header class="topbar">
+        <div class="brand-block">
+          <div class="eyebrow" data-i18n="brandEyebrow">Steam review intelligence</div>
+          <h1 data-i18n="brandTitle">Steam Review Analysizer</h1>
+        </div>
+        <div class="toolbar">
+          <div class="toolbar-label">
+            <span data-i18n="uiLanguage">UI Language</span>
+            <button id="ui-language-toggle" class="lang-toggle" type="button" aria-label="Toggle UI language">
+              <span class="lang-pill" data-lang="ja">日本語</span>
+              <span class="lang-pill" data-lang="en">EN</span>
+            </button>
+          </div>
+          <form id="fetch-form" class="search-form">
+            <input id="appid-input" type="text" placeholder="Enter Steam AppID or game name" />
+            <button id="fetch-button" type="submit" data-i18n="fetchReviews">Fetch Reviews</button>
+          </form>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section id="fetch-state-panel" class="fetch-state-panel">
+          <div class="fetch-state-row">
+            <strong id="fetch-state-title" data-i18n="fetchIdleTitle">Ready</strong>
+            <span id="fetch-state-text" class="status-text" data-i18n="fetchIdleBody">Enter an AppID or game name to begin.</span>
+          </div>
+          <div class="progress-track">
+            <div id="fetch-progress-bar" class="progress-bar"></div>
+          </div>
+          <div class="fetch-actions">
+            <div id="cache-timestamp" class="status-text" data-i18n="cacheTimestampEmpty">No cache loaded yet.</div>
+            <div class="fetch-buttons">
+              <button id="refresh-cache-button" type="button" data-i18n="refreshCache">Refresh Cache</button>
+              <button id="download-csv-button" type="button" data-i18n="downloadCsv">Download CSV</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="deployment-note" class="deploy-note hidden"></section>
+
+        <section class="hero-panel">
+          <div id="app-hero" class="app-hero empty">
+            <div class="hero-copy">
+              <p class="eyebrow" data-i18n="replicaEyebrow">Replica build</p>
+              <h2 data-i18n="heroTitle">Load a Steam app and inspect review volume by language.</h2>
+              <p data-i18n="heroBody">
+                This first pass mirrors SteamScout's core flow: app details, language breakdown,
+                review browsing, CSV export, and playtime buckets.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section id="workspace-section" class="workspace-grid hidden">
+          <article id="reviews-section" class="panel workspace-panel analysis-panel">
+            <div class="workspace-tabs" id="analysis-tab-toggle" aria-label="Analysis panel tabs">
+              <button class="workspace-tab" type="button" data-analysis-tab="wordcloud" data-i18n="wordCloudTitle">Rule-Based Review Keywords</button>
+              <button class="workspace-tab" type="button" data-analysis-tab="reviews" data-i18n="reviewTabBrowse">Review Browser</button>
+            </div>
+
+            <section id="analysis-panel-wordcloud" class="workspace-body">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow" data-i18n="wordCloudEyebrow">Word cloud</p>
+                  <h3 data-i18n="wordCloudTitle">Rule-Based Review Keywords</h3>
+                </div>
+                <div id="status-text" class="status-text"></div>
+              </div>
+              <div class="word-cloud-controls">
+                <label class="control-field">
+                  <span data-i18n="language">Language</span>
+                  <select id="word-language-selection"></select>
+                </label>
+                <div class="control-field">
+                  <span data-i18n="wordCloudSentiment">Sentiment</span>
+                  <div id="word-sentiment-toggle" class="lang-toggle review-toggle-group" aria-label="Word cloud sentiment">
+                    <button class="lang-pill" type="button" data-word-sentiment="all" data-i18n="sentimentAll">All</button>
+                    <button class="lang-pill" type="button" data-word-sentiment="positive" data-i18n="filterPositive">Positive</button>
+                    <button class="lang-pill" type="button" data-word-sentiment="negative" data-i18n="filterNegative">Negative</button>
+                    <button class="lang-pill" type="button" data-word-sentiment="saved" data-i18n="savedOnly">Saved</button>
+                  </div>
+                </div>
+                <button id="generate-word-cloud-button" type="button" data-i18n="generateWordCloud">Generate</button>
+              </div>
+              <div class="word-cloud-preferences">
+                <label class="control-field word-cloud-preference-input">
+                  <span data-i18n="wordPreferenceLabel">Word Preference</span>
+                  <input id="word-preference-input" type="text" placeholder="term or phrase" />
+                </label>
+                <button id="word-allow-button" type="button" data-i18n="allowWord">Allow</button>
+                <button id="word-ban-button" type="button" data-i18n="banWord">Ban</button>
+              </div>
+              <div id="word-preference-list" class="word-preference-list"></div>
+              <div id="word-cloud-status" class="status-text"></div>
+              <div id="word-cloud-container" class="word-cloud-container"></div>
+              <div id="word-cloud-top-list" class="word-cloud-top-list"></div>
+              <div class="word-cloud-footnote" data-i18n="wordCloudFootnote">
+                Uses stop-word filtering, game-term filtering, document frequency, and phrase extraction.
+              </div>
+            </section>
+
+            <section id="analysis-panel-reviews" class="workspace-body hidden">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow" data-i18n="reviewBrowser">Review browser</p>
+                  <h3 id="review-title" data-i18n="selectedReviews">Selected Reviews</h3>
+                </div>
+              </div>
+              <div class="review-toolbar review-toolbar-tabs">
+                <div class="control-field">
+                  <span data-i18n="reviewMode">View</span>
+                  <div id="review-tab-toggle" class="lang-toggle review-toggle-group" aria-label="Review tab">
+                    <button class="lang-pill" type="button" data-tab="browse" data-i18n="reviewTabBrowse">Review Browser</button>
+                    <button class="lang-pill" type="button" data-tab="saved" data-i18n="reviewTabSaved">Saved Reviews</button>
+                  </div>
+                </div>
+                <div class="saved-review-actions">
+                  <button id="saved-reviews-clear-button" class="hidden" type="button" data-i18n="unsaveShown">Unsave Shown</button>
+                  <button id="saved-reviews-download-button" class="hidden" type="button" data-i18n="downloadSavedCsv">Download Saved CSV</button>
+                </div>
+              </div>
+              <div class="review-toolbar review-toolbar-language">
+                <label class="control-field">
+                  <span data-i18n="language">Language</span>
+                  <select id="review-language-selection"></select>
+                </label>
+              </div>
+              <div class="review-toolbar review-toolbar-search">
+                <label class="control-field review-search">
+                  <span data-i18n="keywordSearch">Keyword Search</span>
+                  <input id="review-search-input" type="text" placeholder="keyword" />
+                </label>
+                <button id="review-search-button" type="button" data-i18n="search">Search</button>
+              </div>
+              <div class="review-toolbar review-toolbar-sort">
+                <div class="control-field">
+                  <span data-i18n="sortBy">Sort By</span>
+                  <div id="review-sort-toggle" class="lang-toggle review-toggle-group" aria-label="Review sort">
+                    <button class="lang-pill" type="button" data-sort="date" data-i18n="sortDate">Newest</button>
+                    <button class="lang-pill" type="button" data-sort="playtime" data-i18n="sortPlaytime">Playtime</button>
+                    <button class="lang-pill" type="button" data-sort="length" data-i18n="sortLength">Length</button>
+                  </div>
+                </div>
+              </div>
+              <div class="review-toolbar review-toolbar-filters">
+                <div class="control-field">
+                  <span data-i18n="filters">Filters</span>
+                  <div id="review-sentiment-toggle" class="lang-toggle review-toggle-group" aria-label="Review sentiment filter">
+                    <button class="lang-pill" type="button" data-sentiment="all" data-i18n="sentimentAll">All</button>
+                    <button class="lang-pill" type="button" data-sentiment="positive" data-i18n="filterPositive">Positive</button>
+                    <button class="lang-pill" type="button" data-sentiment="negative" data-i18n="filterNegative">Negative</button>
+                  </div>
+                </div>
+                <div class="control-field">
+                  <span data-i18n="savedFilter">Saved State</span>
+                  <div id="review-saved-toggle" class="lang-toggle review-toggle-group" aria-label="Review saved filter">
+                    <button class="lang-pill" type="button" data-saved-filter="all" data-i18n="savedAll">All</button>
+                    <button class="lang-pill" type="button" data-saved-filter="saved" data-i18n="savedOnly">Saved</button>
+                    <button class="lang-pill" type="button" data-saved-filter="unsaved" data-i18n="unsavedOnly">Unsaved</button>
+                  </div>
+                </div>
+                <label class="control-field">
+                  <span data-i18n="playtimeFilter">Playtime Filter</span>
+                  <select id="review-playtime-filter"></select>
+                </label>
+                <label class="control-field">
+                  <span data-i18n="lengthFilter">Length Filter</span>
+                  <select id="review-length-filter"></select>
+                </label>
+              </div>
+              <div id="search-summary" class="status-text"></div>
+              <div id="paging-label" class="paging-label"></div>
+              <div id="reviews-list" class="reviews-list"></div>
+            </section>
+          </article>
+
+          <article class="panel workspace-panel data-panel">
+            <div class="workspace-tabs" id="data-tab-toggle" aria-label="Data panel tabs">
+              <button class="workspace-tab" type="button" data-data-tab="distribution" data-i18n="reviewShare">Review Share</button>
+              <button class="workspace-tab" type="button" data-data-tab="playtime" data-i18n="reviewDistributionByPlaytime">Review Distribution by Playtime</button>
+            </div>
+
+            <section id="data-panel-distribution" class="workspace-body">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow" data-i18n="distribution">Distribution</p>
+                  <h3 data-i18n="reviewShare">Review Share</h3>
+                </div>
+                <div class="toolbar-label">
+                  <span data-i18n="chartType">Chart Type</span>
+                  <button id="chart-type-toggle" class="lang-toggle" type="button" aria-label="Toggle chart type">
+                    <span class="lang-pill" data-chart="bar" data-i18n="barChart">Bar chart</span>
+                    <span class="lang-pill" data-chart="pie" data-i18n="pieChart">Pie chart</span>
+                  </button>
+                </div>
+              </div>
+              <div id="chart-container" class="chart-container"></div>
+            </section>
+
+            <section id="data-panel-playtime" class="workspace-body hidden">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow" data-i18n="hoursPlayed">Hours played</p>
+                  <h3 data-i18n="reviewDistributionByPlaytime">Review Distribution by Playtime</h3>
+                </div>
+              </div>
+              <div class="playtime-actions">
+                <label class="control-field">
+                  <span data-i18n="language">Language</span>
+                  <select id="playtime-language-selection"></select>
+                </label>
+                <button id="playtime-load-button" type="button" data-i18n="load">Load</button>
+              </div>
+              <div id="playtime-cutoff-controls" class="playtime-cutoff-controls"></div>
+              <div id="playtime-status" class="playtime-status"></div>
+              <div id="playtime-chart" class="playtime-chart"></div>
+            </section>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script src="./config.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
