@@ -90,6 +90,7 @@
               <button class="workspace-tab" type="button" data-analysis-tab="wordcloud" data-i18n="wordCloudTitle">Rule-Based Review Keywords</button>
               <button class="workspace-tab" type="button" data-analysis-tab="reviews" data-i18n="reviewTabBrowse">Review Browser</button>
               <button class="workspace-tab" type="button" data-analysis-tab="timeline" data-i18n="reviewTimeline">Timeline</button>
+              <button class="workspace-tab" type="button" data-analysis-tab="topics" data-i18n="topicClusters">Topic Clusters</button>
             </div>
 
             <section id="analysis-panel-wordcloud" class="workspace-body">
@@ -191,6 +192,12 @@
                     <button class="lang-pill" type="button" data-saved-filter="unsaved" data-i18n="unsavedOnly">Unsaved</button>
                   </div>
                 </div>
+              </div>
+              <div class="review-toolbar review-toolbar-select-filters">
+                <label class="control-field">
+                  <span data-i18n="topicFilter">Topic Filter</span>
+                  <select id="review-topic-filter"></select>
+                </label>
                 <label class="control-field">
                   <span data-i18n="playtimeFilter">Playtime Filter</span>
                   <select id="review-playtime-filter"></select>
@@ -229,6 +236,31 @@
               </div>
               <div id="timeline-keyword-list" class="word-preference-list hidden"></div>
               <div id="timeline-chart" class="timeline-chart"></div>
+            </section>
+
+            <section id="analysis-panel-topics" class="workspace-body hidden">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow" data-i18n="topicClustersEyebrow">Topic clusters</p>
+                  <h3 data-i18n="topicClusters">Topic Clusters</h3>
+                </div>
+                <div id="topic-status" class="status-text"></div>
+              </div>
+              <div class="topic-controls">
+                <label class="control-field">
+                  <span data-i18n="language">Language</span>
+                  <select id="topic-language-selection"></select>
+                </label>
+                <div class="control-field">
+                  <span data-i18n="topicSource">Source</span>
+                  <div id="topic-source-toggle" class="lang-toggle review-toggle-group" aria-label="Topic source">
+                    <button class="lang-pill" type="button" data-topic-source="all" data-i18n="topicSourceAll">All Reviews</button>
+                    <button class="lang-pill" type="button" data-topic-source="saved" data-i18n="topicSourceSaved">Saved Reviews</button>
+                  </div>
+                </div>
+              </div>
+              <div id="topic-chart" class="topic-chart"></div>
+              <div id="topic-details" class="topic-details"></div>
             </section>
           </article>
 

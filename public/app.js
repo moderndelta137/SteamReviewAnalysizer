@@ -113,6 +113,98 @@ const WORD_KEEP_VERBS = new Set([
   "crash","crashes","crashed","stutter","stutters","stuttering","freeze","freezes","frozen","lag","lags",
   "stuck","drop","drops","dropped","optimize","optimized","optimize","grind","grinding",
 ]);
+const TOPIC_TAGS_VERSION = 1;
+const TOPIC_CLUSTER_CACHE_VERSION = 1;
+const TOPIC_DEFINITIONS = [
+  {
+    id: "performance",
+    labels: { en: "Performance", ja: "パフォーマンス" },
+    keywords: {
+      en: ["performance", "fps", "frame drop", "frame drops", "framerate", "stutter", "stuttering", "lag", "optimiz", "slowdown"],
+      ja: ["fps", "フレーム", "処理落ち", "カクつ", "ラグ", "重い", "最適化", "パフォーマンス"],
+      zh: ["帧率", "掉帧", "卡顿", "性能", "优化", "延迟", "很卡"],
+    },
+    severity: ["crash", "freeze", "stutter", "掉帧", "卡顿", "処理落ち"],
+    color: "#66c0f4",
+  },
+  {
+    id: "stability",
+    labels: { en: "Stability / Bugs", ja: "安定性 / バグ" },
+    keywords: {
+      en: ["crash", "crashes", "bug", "bugs", "glitch", "glitches", "freeze", "broken", "softlock"],
+      ja: ["クラッシュ", "バグ", "不具合", "フリーズ", "壊れ", "進行不能"],
+      zh: ["崩溃", "闪退", "bug", "漏洞", "卡死", "坏档", "进度卡住"],
+    },
+    severity: ["crash", "broken", "softlock", "崩溃", "闪退", "進行不能", "クラッシュ"],
+    color: "#df5563",
+  },
+  {
+    id: "gameplay",
+    labels: { en: "Combat / Gameplay", ja: "戦闘 / ゲームプレイ" },
+    keywords: {
+      en: ["combat", "gameplay", "boss", "weapon", "weapons", "build", "enemy", "enemies", "mechanic", "mechanics"],
+      ja: ["戦闘", "ゲームプレイ", "ボス", "武器", "ビルド", "敵", "ギミック"],
+      zh: ["战斗", "玩法", "boss", "武器", "流派", "敌人", "机制"],
+    },
+    severity: ["broken mechanic", "糟糕", "バランス"],
+    color: "#79e39f",
+  },
+  {
+    id: "uiux",
+    labels: { en: "UI / UX", ja: "UI / UX" },
+    keywords: {
+      en: ["ui", "ux", "menu", "hud", "interface", "inventory", "map", "tutorial"],
+      ja: ["ui", "メニュー", "hud", "インターフェース", "インベントリ", "マップ", "チュートリアル"],
+      zh: ["界面", "ui", "菜单", "背包", "地图", "引导", "提示"],
+    },
+    severity: ["unusable", "見づら", "不好用"],
+    color: "#f2c14e",
+  },
+  {
+    id: "story",
+    labels: { en: "Story / Characters", ja: "ストーリー / キャラ" },
+    keywords: {
+      en: ["story", "plot", "character", "characters", "writing", "ending", "dialogue"],
+      ja: ["ストーリー", "シナリオ", "キャラ", "キャラクター", "会話", "エンディング"],
+      zh: ["剧情", "角色", "对白", "结局", "叙事", "文本"],
+    },
+    severity: ["bad writing", "薄い", "尴尬"],
+    color: "#a98bff",
+  },
+  {
+    id: "audio",
+    labels: { en: "Audio / Music", ja: "音 / 音楽" },
+    keywords: {
+      en: ["music", "soundtrack", "audio", "sound", "voice", "voices"],
+      ja: ["音楽", "サントラ", "音", "ボイス", "音声"],
+      zh: ["音乐", "配乐", "音效", "声音", "语音"],
+    },
+    severity: ["audio bug", "ノイズ", "没声音"],
+    color: "#f39c6b",
+  },
+  {
+    id: "localization",
+    labels: { en: "Localization", ja: "翻訳 / ローカライズ" },
+    keywords: {
+      en: ["translation", "localization", "typo", "english text"],
+      ja: ["翻訳", "ローカライズ", "誤字", "英文"],
+      zh: ["翻译", "本地化", "错字", "机翻"],
+    },
+    severity: ["machine translation", "机翻", "誤訳"],
+    color: "#8fd4ff",
+  },
+  {
+    id: "value",
+    labels: { en: "Price / Value", ja: "価格 / コスパ" },
+    keywords: {
+      en: ["price", "value", "worth", "expensive", "discount", "sale"],
+      ja: ["価格", "値段", "コスパ", "高い", "セール"],
+      zh: ["价格", "性价比", "值不值", "太贵", "折扣"],
+    },
+    severity: ["overpriced", "高すぎ", "太贵"],
+    color: "#ffd166",
+  },
+];
 
 const I18N = {
   en: {
@@ -180,6 +272,7 @@ const I18N = {
     resolvedGame: "Matched {name} ({appid})",
     loadedLanguages: "Loaded {loaded} / {total} languages",
     loadedTotalReviews: "Loaded {count} total reviews",
+    loadingLanguageReviews: "Loading {language} reviews: {pages} pages, {reviews} reviews",
     noReviews: "No reviews found for this selection.",
     requestFailed: "Request failed",
     appNotFound: "App not found",
@@ -229,6 +322,7 @@ const I18N = {
     summaryPositiveRate: "Positive rate",
     searchEmpty: "Enter a keyword to search reviews.",
     searchLoading: "Loading reviews for search...",
+    scanningKeywordMatches: 'Scanning "{keyword}" across {reviews} reviews...',
     searchNoMatch: "No matching reviews found.",
     downloadCsv: "Download CSV",
     sortBy: "Sort By",
@@ -307,6 +401,7 @@ const I18N = {
     loadingAppDetails: "アプリ詳細を読み込み中...",
     loadedLanguages: "{loaded} / {total} 言語を読み込みました",
     loadedTotalReviews: "合計 {count} 件のレビューを読み込みました",
+    loadingLanguageReviews: "{language} のレビューを読み込み中: {pages}ページ / {reviews}件",
     noReviews: "この条件ではレビューが見つかりませんでした。",
     requestFailed: "リクエスト失敗",
     appNotFound: "アプリが見つかりません",
@@ -343,6 +438,7 @@ const I18N = {
     summaryPositiveRate: "好評率",
     searchEmpty: "検索キーワードを入力してください。",
     searchLoading: "検索用レビューを読み込み中...",
+    scanningKeywordMatches: '"{keyword}" を {reviews} 件のレビューから検索中...',
     searchNoMatch: "一致するレビューが見つかりませんでした。",
     downloadCsv: "CSV ダウンロード",
     sortBy: "並び替え",
@@ -406,11 +502,184 @@ const ROMAN_NUMERALS = new Map([
   ["x", "10"],
 ]);
 
+const LANGUAGE_FLAGS = {
+  arabic: "🇸🇦",
+  bulgarian: "🇧🇬",
+  schinese: "🇨🇳",
+  tchinese: "🇹🇼",
+  czech: "🇨🇿",
+  danish: "🇩🇰",
+  dutch: "🇳🇱",
+  english: "🇺🇸",
+  finnish: "🇫🇮",
+  french: "🇫🇷",
+  german: "🇩🇪",
+  greek: "🇬🇷",
+  hungarian: "🇭🇺",
+  indonesian: "🇮🇩",
+  italian: "🇮🇹",
+  japanese: "🇯🇵",
+  koreana: "🇰🇷",
+  norwegian: "🇳🇴",
+  polish: "🇵🇱",
+  portuguese: "🇵🇹",
+  brazilian: "🇧🇷",
+  romanian: "🇷🇴",
+  russian: "🇷🇺",
+  spanish: "🇪🇸",
+  latam: "🌎",
+  swedish: "🇸🇪",
+  thai: "🇹🇭",
+  turkish: "🇹🇷",
+  ukrainian: "🇺🇦",
+  vietnamese: "🇻🇳",
+};
+
+const ACTIVE_TOPIC_DEFINITIONS = [
+  {
+    id: "performance",
+    labels: { en: "Performance", ja: "パフォーマンス" },
+    keywords: {
+      en: ["performance", "fps", "frame drop", "frame drops", "framerate", "frame rate", "stutter", "stuttering", "lag", "optimization", "optimize", "slowdown"],
+      ja: ["fps", "フレーム", "フレームレート", "カクつき", "ラグ", "重い", "最適化", "パフォーマンス"],
+      zh: ["帧数", "帧率", "掉帧", "卡顿", "延迟", "优化", "性能"],
+    },
+    severity: ["crash", "freeze", "stutter", "掉帧", "卡顿", "カクつき"],
+    color: "#66c0f4",
+  },
+  {
+    id: "stability",
+    labels: { en: "Stability / Bugs", ja: "安定性 / バグ" },
+    keywords: {
+      en: ["crash", "crashes", "bug", "bugs", "glitch", "glitches", "freeze", "freezes", "broken", "softlock", "unplayable"],
+      ja: ["クラッシュ", "バグ", "不具合", "フリーズ", "壊れて", "進行不能"],
+      zh: ["崩溃", "闪退", "bug", "故障", "卡死", "冻结", "无法游玩"],
+    },
+    severity: ["crash", "broken", "softlock", "崩溃", "闪退", "進行不能", "クラッシュ"],
+    color: "#df5563",
+  },
+  {
+    id: "gameplay",
+    labels: { en: "Combat / Gameplay", ja: "戦闘 / ゲームプレイ" },
+    keywords: {
+      en: ["combat", "gameplay", "boss", "weapon", "weapons", "build", "enemy", "enemies", "mechanic", "mechanics"],
+      ja: ["戦闘", "ゲームプレイ", "ボス", "武器", "ビルド", "敵", "ギミック"],
+      zh: ["战斗", "玩法", "boss", "武器", "build", "敌人", "机制"],
+    },
+    severity: ["broken mechanic", "unfair", "理不尽"],
+    color: "#79e39f",
+  },
+  {
+    id: "uiux",
+    labels: { en: "UI / UX", ja: "UI / UX" },
+    keywords: {
+      en: ["ui", "ux", "menu", "hud", "interface", "inventory", "map", "tutorial"],
+      ja: ["ui", "メニュー", "hud", "インターフェース", "インベントリ", "マップ", "チュートリアル"],
+      zh: ["ui", "菜单", "界面", "背包", "地图", "教程"],
+    },
+    severity: ["unusable", "confusing", "看不懂"],
+    color: "#f2c14e",
+  },
+  {
+    id: "story",
+    labels: { en: "Story / Characters", ja: "ストーリー / キャラクター" },
+    keywords: {
+      en: ["story", "plot", "character", "characters", "writing", "ending", "dialogue"],
+      ja: ["ストーリー", "シナリオ", "キャラ", "キャラクター", "会話", "エンディング"],
+      zh: ["剧情", "故事", "角色", "人物", "对话", "结局"],
+    },
+    severity: ["bad writing", "awful", "ひどい"],
+    color: "#a98bff",
+  },
+  {
+    id: "audio",
+    labels: { en: "Audio / Music", ja: "音 / 音楽" },
+    keywords: {
+      en: ["music", "soundtrack", "audio", "sound", "voice", "voices"],
+      ja: ["音楽", "サントラ", "音", "ボイス", "音声"],
+      zh: ["音乐", "配乐", "音频", "声音", "配音"],
+    },
+    severity: ["audio bug", "no sound", "音割れ"],
+    color: "#f39c6b",
+  },
+  {
+    id: "localization",
+    labels: { en: "Localization", ja: "翻訳 / ローカライズ" },
+    keywords: {
+      en: ["translation", "localization", "typo", "english text"],
+      ja: ["翻訳", "ローカライズ", "誤字", "英語のまま"],
+      zh: ["翻译", "本地化", "错字", "英文没翻"],
+    },
+    severity: ["machine translation", "wrong translation", "翻訳ミス"],
+    color: "#8fd4ff",
+  },
+  {
+    id: "value",
+    labels: { en: "Price / Value", ja: "価格 / コスパ" },
+    keywords: {
+      en: ["price", "value", "worth", "expensive", "discount", "sale"],
+      ja: ["価格", "値段", "コスパ", "高い", "セール"],
+      zh: ["价格", "性价比", "值不值", "太贵", "折扣"],
+    },
+    severity: ["overpriced", "too expensive", "高すぎる"],
+    color: "#ffd166",
+  },
+];
+
+const TOPIC_UI_TEXT = {
+  en: {
+    topicClusters: "Topic Clusters",
+    topicClustersEyebrow: "Topic clusters",
+    topicSource: "Source",
+    topicSourceAll: "All Reviews",
+    topicSourceSaved: "Saved Reviews",
+    topicStatusLoading: "Analyzing topic clusters...",
+    topicStatusEmpty: "No topic matches found for this selection.",
+    topicStatusReady: "{topics} topics found across {reviews} reviews.",
+    topicShare: "Mention share",
+    topicTrendUp: "Up trend",
+    topicTrendDown: "Down trend",
+    topicTrendFlat: "Stable",
+    topicPriorityHigh: "High priority",
+    topicPriorityMedium: "Medium priority",
+    topicPriorityLow: "Low priority",
+    topicFilter: "Topic Filter",
+    topicAll: "All topics",
+  },
+  ja: {
+    topicClusters: "トピッククラスタ",
+    topicClustersEyebrow: "トピッククラスタ",
+    topicSource: "対象",
+    topicSourceAll: "すべてのレビュー",
+    topicSourceSaved: "保存レビュー",
+    topicStatusLoading: "トピックを分析中...",
+    topicStatusEmpty: "この条件ではトピックが見つかりませんでした。",
+    topicStatusReady: "{reviews}件のレビューから{topics}件のトピックを抽出しました。",
+    topicShare: "言及率",
+    topicTrendUp: "増加傾向",
+    topicTrendDown: "減少傾向",
+    topicTrendFlat: "横ばい",
+    topicPriorityHigh: "高優先度",
+    topicPriorityMedium: "中優先度",
+    topicPriorityLow: "低優先度",
+    topicFilter: "トピック",
+    topicAll: "すべてのトピック",
+  },
+};
+
 const state = {
   currentAppId: null,
   currentUiLanguage: "ja",
   analysisTab: "wordcloud",
   dataTab: "distribution",
+  topicLanguage: "all",
+  topicSource: "all",
+  topicRows: [],
+  topicLastRenderKey: "",
+  topicTagCache: new Map(),
+  topicTagCacheAppId: null,
+  topicClusterCache: new Map(),
+  topicClusterCacheAppId: null,
   timelineMode: "reviews",
   timelineKeywords: [],
   chartType: "bar",
@@ -428,14 +697,17 @@ const state = {
   groupDetails: new Map(),
   reviewCache: new Map(),
   cursorCache: new Map(),
+  collectedReviewsCache: new Map(),
   supportedLanguages: [],
   activeSearchRegex: null,
   reviewBaseReviews: [],
   reviewSourceReviews: [],
   reviewDisplayedReviews: [],
+  reviewRenderPending: false,
+  reviewRenderToken: 0,
   reviewSearchStats: null,
   reviewSort: "date",
-  reviewFilters: { sentiment: "all", saved: "all", playtime: "all", length: "all" },
+  reviewFilters: { sentiment: "all", saved: "all", playtime: "all", length: "all", topic: "all" },
   reviewTab: "browse",
   savedReviews: [],
   playtimeCutoffs: [...DEFAULT_PLAYTIME_CUTOFFS],
@@ -475,6 +747,7 @@ const els = {
   analysisPanelWordcloud: document.getElementById("analysis-panel-wordcloud"),
   analysisPanelReviews: document.getElementById("analysis-panel-reviews"),
   analysisPanelTimeline: document.getElementById("analysis-panel-timeline"),
+  analysisPanelTopics: document.getElementById("analysis-panel-topics"),
   dataPanelDistribution: document.getElementById("data-panel-distribution"),
   dataPanelPlaytime: document.getElementById("data-panel-playtime"),
   statusText: document.getElementById("status-text"),
@@ -488,6 +761,11 @@ const els = {
   wordCloudStatus: document.getElementById("word-cloud-status"),
   wordCloudContainer: document.getElementById("word-cloud-container"),
   wordCloudTopList: document.getElementById("word-cloud-top-list"),
+  topicLanguageSelection: document.getElementById("topic-language-selection"),
+  topicSourceToggle: document.getElementById("topic-source-toggle"),
+  topicStatus: document.getElementById("topic-status"),
+  topicChart: document.getElementById("topic-chart"),
+  topicDetails: document.getElementById("topic-details"),
   chartContainer: document.getElementById("chart-container"),
   chartTypeToggle: document.getElementById("chart-type-toggle"),
   reviewsList: document.getElementById("reviews-list"),
@@ -516,6 +794,7 @@ const els = {
   reviewSavedToggle: document.getElementById("review-saved-toggle"),
   reviewPlaytimeFilter: document.getElementById("review-playtime-filter"),
   reviewLengthFilter: document.getElementById("review-length-filter"),
+  reviewTopicFilter: document.getElementById("review-topic-filter"),
   reviewTabToggle: document.getElementById("review-tab-toggle"),
 };
 
@@ -549,6 +828,74 @@ function getPositiveRateColor(positiveRate, minRate, maxRate) {
   return sentimentScale >= 0.5
     ? mixColor(STEAM_NEUTRAL, STEAM_POSITIVE, (sentimentScale - 0.5) / 0.5)
     : mixColor(STEAM_NEGATIVE, STEAM_NEUTRAL, sentimentScale / 0.5);
+}
+
+function topicText(key) {
+  return TOPIC_UI_TEXT[state.currentUiLanguage]?.[key] ?? TOPIC_UI_TEXT.en[key] ?? key;
+}
+
+function getTopicCatalog() {
+  return [
+    {
+      id: "performancebug",
+      labels: { en: "Performance / Bugs", ja: "パフォーマンス / バグ" },
+      keywords: {
+        en: [
+          "performance","fps","frame drop","frame drops","framerate","frame rate","stutter","stuttering","lag","optimization","optimize","slowdown",
+          "crash","crashes","bug","bugs","glitch","glitches","freeze","freezes","broken","softlock","unplayable",
+        ],
+        ja: ["fps","フレーム","フレームレート","カクつき","ラグ","重い","最適化","パフォーマンス","クラッシュ","バグ","不具合","フリーズ","壊れて","進行不能"],
+        zh: ["帧数","帧率","掉帧","卡顿","延迟","优化","性能","崩溃","闪退","bug","故障","卡死","冻结","无法游玩"],
+      },
+      severity: ["crash","freeze","stutter","broken","softlock","崩溃","闪退","卡顿","掉帧","クラッシュ","進行不能","カクつき"],
+      color: "#66c0f4",
+    },
+    {
+      id: "gameplay",
+      labels: { en: "Combat / Gameplay", ja: "戦闘 / ゲームプレイ" },
+      keywords: { en: ["combat","gameplay","boss","weapon","weapons","build","enemy","enemies","mechanic","mechanics"], ja: ["戦闘","ゲームプレイ","ボス","武器","ビルド","敵","ギミック"], zh: ["战斗","玩法","boss","武器","build","敌人","机制"] },
+      severity: ["broken mechanic","unfair","理不尽"],
+      color: "#79e39f",
+    },
+    {
+      id: "uiux",
+      labels: { en: "UI / UX", ja: "UI / UX" },
+      keywords: { en: ["ui","ux","menu","hud","interface","inventory","map","tutorial"], ja: ["ui","メニュー","hud","インターフェース","インベントリ","マップ","チュートリアル"], zh: ["ui","菜单","界面","背包","地图","教程"] },
+      severity: ["unusable","confusing","看不懂"],
+      color: "#f2c14e",
+    },
+    {
+      id: "story",
+      labels: { en: "Story / Characters", ja: "ストーリー / キャラ" },
+      keywords: { en: ["story","plot","character","characters","writing","ending","dialogue"], ja: ["ストーリー","シナリオ","キャラ","キャラクター","会話","エンディング"], zh: ["剧情","故事","角色","人物","对话","结局"] },
+      severity: ["bad writing","awful","ひどい"],
+      color: "#a98bff",
+    },
+    {
+      id: "audio",
+      labels: { en: "Audio / Music", ja: "音 / 音楽" },
+      keywords: { en: ["music","soundtrack","audio","sound","voice","voices"], ja: ["音楽","サントラ","音","ボイス","音声"], zh: ["音乐","配乐","音频","声音","配音"] },
+      severity: ["audio bug","no sound","音割れ"],
+      color: "#f39c6b",
+    },
+    {
+      id: "localization",
+      labels: { en: "Localization", ja: "翻訳 / ローカライズ" },
+      keywords: { en: ["translation","localization","typo","english text"], ja: ["翻訳","ローカライズ","誤字","英語のまま"], zh: ["翻译","本地化","错字","英文没翻"] },
+      severity: ["machine translation","wrong translation","翻訳ミス"],
+      color: "#8fd4ff",
+    },
+  ];
+}
+
+function getTopicDefinition(id) {
+  return getTopicCatalog().find((entry) => entry.id === id) || null;
+}
+
+function getTopicLabel(id) {
+  const def = getTopicDefinition(id);
+  if (!def) return id;
+  return def.labels?.[state.currentUiLanguage] || def.labels?.en || id;
 }
 
 function containsJapanese(text) {
@@ -807,12 +1154,14 @@ async function addTimelineKeyword() {
   state.timelineKeywords = [...new Set([...state.timelineKeywords, ...terms])].slice(0, 6);
   els.timelineKeywordInput.value = "";
   state.timelineMode = "keywords";
+  await persistTimelineKeywords();
   updateTimelineUi();
   await rerenderTimelineFromCache();
 }
 
 async function removeTimelineKeyword(term) {
   state.timelineKeywords = state.timelineKeywords.filter((item) => item !== term);
+  await persistTimelineKeywords();
   updateTimelineUi();
   await rerenderTimelineFromCache();
 }
@@ -1147,12 +1496,18 @@ function getLanguageName(code) {
   return LANGUAGES.find(([, value]) => value === code)?.[0] || code;
 }
 
+function getLanguageDisplayName(code) {
+  if (code === "all") return `🌐 ${t("allLanguage")}`;
+  const flag = LANGUAGE_FLAGS[code] || "🏳️";
+  return `${flag} ${getLanguageName(code)}`;
+}
+
 function getLanguageLabel(code) {
-  if (code === "all") return t("allLanguage");
+  if (code === "all") return getLanguageDisplayName(code);
   const total = state.summaryRows.reduce((sum, row) => sum + row.total_reviews, 0) || 1;
   const row = state.summaryRows.find((entry) => entry.languageCode === code);
   const portion = row ? ((row.total_reviews / total) * 100).toFixed(2) : "0.00";
-  return `${getLanguageName(code)} (${portion}%)`;
+  return `${getLanguageDisplayName(code)} (${portion}%)`;
 }
 
 function getReviewLength(review) {
@@ -1312,6 +1667,12 @@ function populateReviewFilterSelects() {
 
   els.reviewPlaytimeFilter.value = state.reviewFilters.playtime;
   els.reviewLengthFilter.value = state.reviewFilters.length;
+  if (els.reviewTopicFilter) {
+    els.reviewTopicFilter.innerHTML = [`<option value="all">${esc(topicText("topicAll"))}</option>`]
+      .concat(getTopicCatalog().map((topic) => `<option value="${topic.id}">${esc(getTopicLabel(topic.id))}</option>`))
+      .join("");
+    els.reviewTopicFilter.value = state.reviewFilters.topic;
+  }
 }
 
 function updateToggleButtons(container, activeValue, attribute) {
@@ -1334,8 +1695,17 @@ function updateWorkspaceTabs() {
   els.analysisPanelWordcloud.classList.toggle("hidden", state.analysisTab !== "wordcloud");
   els.analysisPanelReviews.classList.toggle("hidden", state.analysisTab !== "reviews");
   els.analysisPanelTimeline.classList.toggle("hidden", state.analysisTab !== "timeline");
+  els.analysisPanelTopics.classList.toggle("hidden", state.analysisTab !== "topics");
   els.dataPanelDistribution.classList.toggle("hidden", state.dataTab !== "distribution");
   els.dataPanelPlaytime.classList.toggle("hidden", state.dataTab !== "playtime");
+
+  if (state.analysisTab === "reviews" && state.reviewRenderPending) {
+    state.reviewRenderPending = false;
+    renderReviews(state.reviewDisplayedReviews);
+  }
+  if (state.analysisTab === "topics" && state.currentAppId && state.topicLastRenderKey !== getTopicClusterAnalysisKey()) {
+    void renderTopicClusters();
+  }
 }
 
 function updateTimeRangeUi() {
@@ -1349,6 +1719,16 @@ function updateTimelineUi() {
   updateToggleButtons(els.timelineModeToggle, state.timelineMode, "timelineMode");
   els.timelineKeywordControls.classList.toggle("hidden", state.timelineMode !== "keywords");
   renderTimelineKeywordList();
+}
+
+function updateTopicUi() {
+  if (els.topicLanguageSelection) {
+    populateLanguageSelect(els.topicLanguageSelection);
+    els.topicLanguageSelection.value = state.topicLanguage;
+  }
+  if (els.topicSourceToggle) {
+    updateToggleButtons(els.topicSourceToggle, state.topicSource, "topicSource");
+  }
 }
 
 function renderWordPreferenceList() {
@@ -1374,6 +1754,25 @@ function applyTranslations() {
   document.querySelectorAll("[data-i18n]").forEach((node) => {
     const key = node.dataset.i18n;
     if (key && t(key)) node.textContent = t(key);
+  });
+
+  document.querySelectorAll('[data-i18n="topicClusters"]').forEach((node) => {
+    node.textContent = topicText("topicClusters");
+  });
+  document.querySelectorAll('[data-i18n="topicClustersEyebrow"]').forEach((node) => {
+    node.textContent = topicText("topicClustersEyebrow");
+  });
+  document.querySelectorAll('[data-i18n="topicSource"]').forEach((node) => {
+    node.textContent = topicText("topicSource");
+  });
+  document.querySelectorAll('[data-i18n="topicSourceAll"]').forEach((node) => {
+    node.textContent = topicText("topicSourceAll");
+  });
+  document.querySelectorAll('[data-i18n="topicSourceSaved"]').forEach((node) => {
+    node.textContent = topicText("topicSourceSaved");
+  });
+  document.querySelectorAll('[data-i18n="topicFilter"]').forEach((node) => {
+    node.textContent = topicText("topicFilter");
   });
 
   document.querySelectorAll('[data-i18n="timelineModeReviews"]').forEach((node) => {
@@ -1457,6 +1856,7 @@ function applyTranslations() {
   updateWorkspaceTabs();
   updateTimeRangeUi();
   updateTimelineUi();
+  updateTopicUi();
 
   populateLanguageSelect(els.reviewLanguageSelection);
   populateLanguageSelect(els.playtimeLanguageSelection);
@@ -1472,10 +1872,14 @@ function applyTranslations() {
   }
 
   updateReviewSummary();
-  renderReviews(state.reviewDisplayedReviews);
+  if (state.analysisTab === "reviews") {
+    renderReviews(state.reviewDisplayedReviews);
+  } else {
+    state.reviewRenderPending = Boolean(state.reviewDisplayedReviews.length);
+  }
   if (state.reviewTab === "saved") els.reviewTitle.textContent = t("savedReviewsTitle");
   renderWordCloud();
-  if (state.currentAppId) void rerenderTimelineFromCache();
+  if (state.currentAppId && state.analysisTab === "timeline") void rerenderTimelineFromCache();
 }
 
 function openDb() {
@@ -1576,6 +1980,11 @@ async function loadWordCloudPrefsFromCache() {
   };
 }
 
+async function loadTimelineKeywordsFromCache() {
+  const record = await getRecord("timelinekeywords");
+  state.timelineKeywords = Array.isArray(record?.value) ? record.value.slice(0, 6) : [];
+}
+
 function schedulePersistSavedReviews() {
   if (state.savePersistTimer) clearTimeout(state.savePersistTimer);
   state.savePersistTimer = setTimeout(() => {
@@ -1590,6 +1999,204 @@ async function persistSavedReviews() {
 
 async function persistWordCloudPrefs() {
   await putRecord("wordcloudprefs", state.wordCloudPrefs);
+}
+
+async function persistTimelineKeywords() {
+  await putRecord("timelinekeywords", state.timelineKeywords.slice(0, 6));
+}
+
+function getTopicTagStorageKey(appid) {
+  return `topictags::${appid}::v${TOPIC_TAGS_VERSION}`;
+}
+
+function getTopicClusterStorageKey(appid) {
+  return `topicclusters::${appid}::v${TOPIC_CLUSTER_CACHE_VERSION}`;
+}
+
+function getTopicClusterAnalysisKey() {
+  const { start, end } = getDisplayTimeRangeDates();
+  const savedStamp =
+    state.topicSource === "saved"
+      ? getSavedReviewsForCurrentApp(state.topicLanguage)
+          .map((review) => getSavedReviewKey(review))
+          .sort()
+          .join("|")
+      : "all";
+  return [state.currentAppId, state.topicLanguage, state.topicSource, start || "", end || "", savedStamp].join("::");
+}
+
+function getCollectedReviewsCacheKey(lang) {
+  const { start, end } = getDisplayTimeRangeDates();
+  return [state.currentAppId, lang, start || "", end || "", getActiveRangeFetchFloor() || "all"].join("::");
+}
+
+async function loadTopicTagCache(appid) {
+  if (state.topicTagCacheAppId === appid) return state.topicTagCache;
+  const record = await getRecord(getTopicTagStorageKey(appid));
+  state.topicTagCacheAppId = appid;
+  state.topicTagCache = new Map(Object.entries(record?.value || {}));
+  return state.topicTagCache;
+}
+
+async function persistTopicTagCache(appid) {
+  if (state.topicTagCacheAppId !== appid) return;
+  const serializable = Object.fromEntries(state.topicTagCache.entries());
+  await putRecord(getTopicTagStorageKey(appid), serializable);
+}
+
+async function loadTopicClusterCache(appid) {
+  if (state.topicClusterCacheAppId === appid) return state.topicClusterCache;
+  const record = await getRecord(getTopicClusterStorageKey(appid));
+  state.topicClusterCacheAppId = appid;
+  state.topicClusterCache = new Map(Object.entries(record?.value || {}));
+  return state.topicClusterCache;
+}
+
+async function persistTopicClusterCache(appid) {
+  if (state.topicClusterCacheAppId !== appid) return;
+  const serializable = Object.fromEntries(state.topicClusterCache.entries());
+  await putRecord(getTopicClusterStorageKey(appid), serializable);
+}
+
+function matchesTopicKeyword(rawText, normalizedText, keyword) {
+  if (!keyword) return false;
+  if (containsHan(keyword) || containsKana(keyword)) {
+    return rawText.includes(keyword);
+  }
+  return createSearchRegex(keyword, false).test(normalizedText);
+}
+
+function analyzeReviewTopics(review) {
+  const rawText = String(review.review || "");
+  const normalizedText = normalizeWordCloudText(rawText);
+  const topicMatches = {};
+  let primaryTopic = null;
+  let primaryScore = 0;
+
+  getTopicCatalog().forEach((topic) => {
+    const matches = new Set();
+    const keywordGroups = [topic.keywords?.en || []];
+    if (containsJapanese(rawText)) keywordGroups.push(topic.keywords?.ja || []);
+    if (containsChinese(rawText)) keywordGroups.push(topic.keywords?.zh || []);
+    keywordGroups.flat().forEach((keyword) => {
+      if (matchesTopicKeyword(rawText, normalizedText, keyword)) matches.add(keyword);
+    });
+    if (!matches.size) return;
+    topicMatches[topic.id] = [...matches];
+    if (matches.size > primaryScore) {
+      primaryScore = matches.size;
+      primaryTopic = topic.id;
+    }
+  });
+
+  return {
+    topics: Object.keys(topicMatches),
+    primaryTopic,
+    topicMatches,
+  };
+}
+
+function attachTopicTag(review, tag) {
+  review._topics = Array.isArray(tag?.topics) ? tag.topics : [];
+  review._primaryTopic = tag?.primaryTopic || null;
+  review._topicMatches = tag?.topicMatches || {};
+  return review;
+}
+
+async function ensureTopicTagsForReviews(reviews, options = {}) {
+  const appid = state.currentAppId;
+  if (!appid || !reviews.length) return reviews;
+  const cache = await loadTopicTagCache(appid);
+  const onProgress = typeof options.onProgress === "function" ? options.onProgress : null;
+  let dirty = false;
+
+  for (let index = 0; index < reviews.length; index += 1) {
+    const review = reviews[index];
+    const key = getSavedReviewKey(review);
+    let tag = cache.get(key);
+    if (!tag) {
+      tag = analyzeReviewTopics(review);
+      cache.set(key, tag);
+      dirty = true;
+    }
+    attachTopicTag(review, tag);
+    if (onProgress && (index === 0 || (index + 1) % 150 === 0 || index === reviews.length - 1)) {
+      onProgress({ processed: index + 1, total: reviews.length });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+  }
+
+  if (dirty) await persistTopicTagCache(appid);
+  return reviews;
+}
+
+function computeTopicPriority(row) {
+  const share = row.reviewCount / Math.max(1, row.totalReviews);
+  const negativeRate = row.reviewCount ? row.negativeCount / row.reviewCount : 0;
+  const trendBoost = row.trend === "up" ? 0.12 : row.trend === "down" ? -0.05 : 0;
+  const severityBoost = Math.min(0.18, row.severityHits * 0.03);
+  const score = share * 0.45 + negativeRate * 0.45 + trendBoost + severityBoost;
+  return {
+    score,
+    priority: score >= 0.5 ? "high" : score >= 0.26 ? "medium" : "low",
+  };
+}
+
+function computeTopicRows(reviews) {
+  const sorted = [...reviews].sort((a, b) => (a.timestamp_created || 0) - (b.timestamp_created || 0));
+  const midpoint = Math.floor(sorted.length / 2);
+  const firstHalf = new Set(sorted.slice(0, midpoint).map((review) => getSavedReviewKey(review)));
+  const secondHalf = new Set(sorted.slice(midpoint).map((review) => getSavedReviewKey(review)));
+
+  return getTopicCatalog().map((topic) => {
+    const topicReviews = reviews.filter((review) => review._topics?.includes(topic.id));
+    const keywordCounts = new Map();
+    let positiveCount = 0;
+    let negativeCount = 0;
+    let firstMentions = 0;
+    let secondMentions = 0;
+    let severityHits = 0;
+
+    topicReviews.forEach((review) => {
+      if (review.voted_up) positiveCount += 1;
+      else negativeCount += 1;
+      const key = getSavedReviewKey(review);
+      if (firstHalf.has(key)) firstMentions += 1;
+      if (secondHalf.has(key)) secondMentions += 1;
+      const matches = review._topicMatches?.[topic.id] || [];
+      matches.forEach((match) => keywordCounts.set(match, (keywordCounts.get(match) || 0) + 1));
+      severityHits += matches.filter((match) => topic.severity.some((needle) => match.includes(needle))).length;
+    });
+
+    const trend =
+      secondMentions > firstMentions * 1.15 ? "up" : secondMentions < Math.max(1, firstMentions * 0.85) ? "down" : "flat";
+
+    const row = {
+      id: topic.id,
+      label: getTopicLabel(topic.id),
+      color: topic.color,
+      totalReviews: reviews.length,
+      reviewCount: topicReviews.length,
+      positiveCount,
+      negativeCount,
+      positiveRate: topicReviews.length ? (positiveCount / topicReviews.length) * 100 : 0,
+      negativeRate: topicReviews.length ? (negativeCount / topicReviews.length) * 100 : 0,
+      mentionShare: reviews.length ? (topicReviews.length / reviews.length) * 100 : 0,
+      trend,
+      severityHits,
+      keywords: [...keywordCounts.entries()]
+        .sort((left, right) => right[1] - left[1])
+        .slice(0, 4)
+        .map(([keyword]) => keyword),
+    };
+    const priorityInfo = computeTopicPriority(row);
+    row.priority = priorityInfo.priority;
+    row.priorityScore = priorityInfo.score;
+    return row;
+  })
+    .filter((row) => row.reviewCount > 0)
+    .sort((left, right) => right.reviewCount - left.reviewCount)
+    .sort((left, right) => right.reviewCount - left.reviewCount);
 }
 
 function normalizeLookupToken(token) {
@@ -1784,7 +2391,7 @@ function showPieTooltip(event, row, share) {
     document.body.appendChild(tooltip);
   }
 
-  tooltip.innerHTML = `<strong>${esc(row.languageName)}</strong><div>${fmt(row.total_reviews)} ${t(
+  tooltip.innerHTML = `<strong>${esc(getLanguageDisplayName(row.languageCode))}</strong><div>${fmt(row.total_reviews)} ${t(
     "chartPieTooltipReviews"
   )}</div><div>${share.toFixed(2)}%</div><div>${t("positiveCount").replace("{count}", fmt(
     row.total_positive
@@ -1838,7 +2445,7 @@ function renderPieChart(rows) {
     const item = document.createElement("div");
     item.className = "pie-legend-item";
     item.innerHTML = `<span class="pie-dot" style="background:${palette[index % palette.length]}"></span><span>${esc(
-      row.languageName
+      getLanguageDisplayName(row.languageCode)
     )}</span><span>${t("portion")}: ${((row.total_reviews / total) * 100).toFixed(2)}%</span>`;
     els.chartContainer.appendChild(item);
   });
@@ -1854,7 +2461,7 @@ function renderBarChart(rows) {
     const score = row.total_reviews ? Math.round((row.total_positive / row.total_reviews) * 100) : 0;
     const element = document.createElement("div");
     element.className = "chart-row";
-    element.innerHTML = `<div class="chart-labels"><span>${esc(row.languageName)}</span><span>${fmt(
+    element.innerHTML = `<div class="chart-labels"><span>${esc(getLanguageDisplayName(row.languageCode))}</span><span>${fmt(
       row.total_reviews
     )}</span></div><div class="chart-meta"><span>${t("portion")}: ${share}%</span><span>${t("score")}: ${score}% (${esc(
       row.review_score_desc
@@ -2101,6 +2708,23 @@ function hideWordCloudTooltip() {
   if (tooltip) tooltip.style.display = "none";
 }
 
+function showTopicTooltip(event, row) {
+  let tooltip = document.querySelector(".word-cloud-tooltip");
+  if (!tooltip) {
+    tooltip = document.createElement("div");
+    tooltip.className = "word-cloud-tooltip";
+    document.body.appendChild(tooltip);
+  }
+  tooltip.innerHTML = `<strong>${esc(row.label)}</strong><div>${fmt(row.reviewCount)} reviews</div><div>${t(
+    "positive"
+  )}: ${fmt(row.positiveCount)}</div><div>${t("negative")}: ${fmt(row.negativeCount)}</div><div>${t(
+    "summaryPositiveRate"
+  )}: ${row.positiveRate.toFixed(1)}%</div>`;
+  tooltip.style.display = "block";
+  tooltip.style.left = `${event.clientX + 14}px`;
+  tooltip.style.top = `${event.clientY + 14}px`;
+}
+
 function renderWordCloud() {
   els.wordCloudContainer.innerHTML = "";
   els.wordCloudTopList.innerHTML = "";
@@ -2179,12 +2803,139 @@ function renderWordCloud() {
   });
 }
 
+function renderTopicChart(rows) {
+  if (!els.topicChart) return;
+  els.topicChart.innerHTML = "";
+  if (!rows.length) {
+    els.topicChart.innerHTML = `<div class="status-text">${esc(topicText("topicStatusEmpty"))}</div>`;
+    return;
+  }
+  const maxValue = Math.max(...rows.map((row) => row.reviewCount), 1);
+  const wrap = document.createElement("div");
+  wrap.className = "topic-bar-chart";
+  rows.forEach((row) => {
+    const column = document.createElement("button");
+    column.type = "button";
+    column.className = "topic-bar-column";
+    column.innerHTML = `<span class="topic-bar" style="height:${((row.reviewCount / maxValue) * 100).toFixed(
+      2
+    )}%; background:${row.color}"></span><span class="topic-bar-label">${esc(row.label)}</span><span class="topic-bar-value">${fmt(
+      row.reviewCount
+    )} · ${row.mentionShare.toFixed(1)}%</span>`;
+    column.addEventListener("click", () => {
+      void openTopicInReviewBrowser(row.id);
+    });
+    column.addEventListener("mousemove", (event) => showTopicTooltip(event, row));
+    column.addEventListener("mouseleave", hideWordCloudTooltip);
+    wrap.appendChild(column);
+  });
+  els.topicChart.appendChild(wrap);
+}
+
+function renderTopicDetails(rows) {
+  if (!els.topicDetails) return;
+  els.topicDetails.innerHTML = "";
+  const maxReviews = Math.max(...rows.map((row) => row.reviewCount), 1);
+  rows.forEach((row) => {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "topic-card";
+    card.style.borderColor = `${row.color}66`;
+    card.style.boxShadow = `inset 0 0 0 1px ${row.color}22`;
+    const positiveWidth = ((row.positiveCount / maxReviews) * 100).toFixed(2);
+    const negativeWidth = ((row.negativeCount / maxReviews) * 100).toFixed(2);
+    card.innerHTML = `<div class="topic-card-head"><div class="topic-card-title">${esc(
+      row.label
+    )}</div><div class="topic-card-badges"><span class="topic-priority ${row.priority}">${esc(
+      topicText(`topicPriority${row.priority[0].toUpperCase()}${row.priority.slice(1)}`)
+    )}</span><span class="topic-trend">${esc(
+      row.trend === "up" ? "↗ trend" : row.trend === "down" ? "↘ trend" : "→ trend"
+    )}</span></div></div><div class="chart-meta"><span>${topicText("topicShare")}</span><span>${fmt(
+      row.reviewCount
+    )} / ${fmt(row.totalReviews)} (${row.mentionShare.toFixed(
+      1
+    )}%)</span></div><div class="chart-meta"><span>${t("summaryPositiveRate")}: ${row.positiveRate.toFixed(
+      1
+    )}%</span><span>${fmt(row.reviewCount)} ${t("reviewCount")}</span></div><div class="stacked-track"><div class="stacked-positive" style="width:${positiveWidth}%"></div><div class="stacked-negative" style="width:${negativeWidth}%"></div></div><div class="chart-subtext"><span>${t("positiveCount").replace(
+      "{count}",
+      fmt(row.positiveCount)
+    )} (${row.positiveRate.toFixed(1)}%)</span><span>${t("negativeCount").replace(
+      "{count}",
+      fmt(row.negativeCount)
+    )} (${row.negativeRate.toFixed(1)}%)</span></div><div class="topic-chip-list">${row.keywords
+      .map((keyword) => `<span class="topic-chip">${esc(keyword)}</span>`)
+      .join("")}</div>`;
+    const priority = card.querySelector(".topic-priority");
+    if (priority) {
+      priority.title = `${topicText(`topicPriority${row.priority[0].toUpperCase()}${row.priority.slice(1)}`)} (${row.priorityScore.toFixed(2)})`;
+    }
+    card.addEventListener("click", () => {
+      void openTopicInReviewBrowser(row.id);
+    });
+    els.topicDetails.appendChild(card);
+  });
+}
+
+async function renderTopicClusters() {
+  if (!state.currentAppId) return;
+  if (!els.topicStatus || !els.topicChart || !els.topicDetails) return;
+  els.topicStatus.textContent = topicText("topicStatusLoading");
+  els.topicChart.innerHTML = `<div class="status-text">${esc(topicText("topicStatusLoading"))}</div>`;
+  els.topicDetails.innerHTML = "";
+  const analysisKey = getTopicClusterAnalysisKey();
+  const cached = await loadTopicClusterCache(state.currentAppId);
+  const cachedRows = cached.get(analysisKey);
+  if (cachedRows) {
+    state.topicRows = cachedRows;
+    state.topicLastRenderKey = analysisKey;
+    els.topicStatus.textContent = state.topicRows.length
+      ? interp(topicText("topicStatusReady"), { topics: fmt(state.topicRows.length), reviews: fmt(state.topicRows[0]?.totalReviews || 0) })
+      : topicText("topicStatusEmpty");
+    renderTopicChart(state.topicRows);
+    renderTopicDetails(state.topicRows);
+    setFetchState("success", els.topicStatus.textContent, 100);
+    return;
+  }
+  const reviews =
+    state.topicSource === "saved"
+      ? filterReviewsByActiveTimeRange(getSavedReviewsForCurrentApp(state.topicLanguage))
+      : filterReviewsByActiveTimeRange(await collectReviews(state.topicLanguage));
+  await ensureTopicTagsForReviews(reviews, {
+    onProgress: ({ processed, total }) => {
+      setFetchState("loading", `${topicText("topicStatusLoading")} ${fmt(processed)} / ${fmt(total)}`, 40 + (processed / Math.max(1, total)) * 50);
+    },
+  });
+  state.topicRows = computeTopicRows(reviews);
+  cached.set(analysisKey, state.topicRows);
+  await persistTopicClusterCache(state.currentAppId);
+  state.topicLastRenderKey = analysisKey;
+  els.topicStatus.textContent = state.topicRows.length
+    ? interp(topicText("topicStatusReady"), { topics: fmt(state.topicRows.length), reviews: fmt(reviews.length) })
+    : topicText("topicStatusEmpty");
+  renderTopicChart(state.topicRows);
+  renderTopicDetails(state.topicRows);
+  setFetchState("success", els.topicStatus.textContent, 100);
+}
+
+async function openTopicInReviewBrowser(topicId) {
+  state.reviewTab = state.topicSource === "saved" ? "saved" : "browse";
+  state.reviewFilters.topic = topicId;
+  if (els.reviewTopicFilter) els.reviewTopicFilter.value = topicId;
+  if (els.reviewLanguageSelection) els.reviewLanguageSelection.value = state.topicLanguage;
+  state.analysisTab = "reviews";
+  updateReviewTabUi();
+  updateWorkspaceTabs();
+  await loadReviewTabData();
+  els.reviewsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 function getFilteredReviews(reviews) {
   return reviews.filter((review) => {
     if (state.reviewFilters.sentiment === "positive" && !review.voted_up) return false;
     if (state.reviewFilters.sentiment === "negative" && review.voted_up) return false;
     if (state.reviewFilters.saved === "saved" && !isReviewSaved(review)) return false;
     if (state.reviewFilters.saved === "unsaved" && isReviewSaved(review)) return false;
+    if (state.reviewFilters.topic !== "all" && !review._topics?.includes(state.reviewFilters.topic)) return false;
 
     const playtimeFilter = REVIEW_PLAYTIME_FILTERS.find((entry) => entry.value === state.reviewFilters.playtime);
     if (playtimeFilter) {
@@ -2228,77 +2979,109 @@ function updateReviewSummary() {
   const positiveRate = state.reviewDisplayedReviews.length
     ? ((positiveCount / state.reviewDisplayedReviews.length) * 100).toFixed(1)
     : "0.0";
+  const statusBarMarkup = `<div class="review-search-status-bar"><div class="review-search-status-head"><span>${t(
+    "summaryPositiveRate"
+  )}: ${positiveRate}%</span><span>${fmt(state.reviewDisplayedReviews.length)} ${t("reviewCount")}</span></div><div class="stacked-track"><div class="stacked-positive" style="width:${positiveRate}%"></div><div class="stacked-negative" style="width:${(
+    100 - Number(positiveRate)
+  ).toFixed(1)}%"></div></div><div class="review-search-status-foot"><span>${t("positive")}: ${fmt(
+    positiveCount
+  )}</span><span>${t("negative")}: ${fmt(negativeCount)}</span></div></div>`;
 
   if (state.reviewSearchStats) {
-    els.searchSummary.innerHTML = `${t("searchSummaryLead")} <span class="search-summary-strong">${t(
-      "searchCount"
-    )}: ${fmt(state.reviewSearchStats.hitCount)}</span> <span class="search-summary-strong">${t(
-      "searchReviews"
-    )}: ${fmt(state.reviewSearchStats.matchedReviews)}</span> <span class="search-summary-strong">${t(
-      "searchShown"
-    )}: ${fmt(state.reviewDisplayedReviews.length)}</span> <span class="search-summary-strong">${t(
-      "positive"
-    )}: ${fmt(positiveCount)}</span> <span class="search-summary-strong">${t("negative")}: ${fmt(
-      negativeCount
-    )}</span> <span class="search-summary-strong">${t("summaryPositiveRate")}: ${positiveRate}%</span>`;
+    els.searchSummary.innerHTML = `<div class="review-search-summary-row"><div class="review-search-summary-tags"><span class="search-summary-lead">${t(
+      "searchSummaryLead"
+    )}</span> <span class="search-summary-strong">${t("searchCount")}: ${fmt(
+      state.reviewSearchStats.hitCount
+    )}</span> <span class="search-summary-strong">${t("searchReviews")}: ${fmt(
+      state.reviewSearchStats.matchedReviews
+    )}</span> <span class="search-summary-strong">${t("searchShown")}: ${fmt(
+      state.reviewDisplayedReviews.length
+    )}</span></div>${statusBarMarkup}</div>`;
     return;
   }
 
-  els.searchSummary.innerHTML = `${t("resultSummaryLead")} <span class="search-summary-strong">${t(
-    "searchShown"
-  )}: ${fmt(state.reviewDisplayedReviews.length)}</span> <span class="search-summary-strong">${t(
-    "positive"
-  )}: ${fmt(positiveCount)}</span> <span class="search-summary-strong">${t("negative")}: ${fmt(
-    negativeCount
-  )}</span> <span class="search-summary-strong">${t("summaryPositiveRate")}: ${positiveRate}%</span>`;
+  els.searchSummary.innerHTML = `<div class="review-search-summary-row"><div class="review-search-summary-tags"><span class="search-summary-lead">${t(
+    "resultSummaryLead"
+  )}</span> <span class="search-summary-strong">${t("searchShown")}: ${fmt(
+    state.reviewDisplayedReviews.length
+  )}</span></div>${statusBarMarkup}</div>`;
 }
 
 function applyReviewView() {
   const filtered = getFilteredReviews(state.reviewSourceReviews);
   state.reviewDisplayedReviews = getSortedReviews(filtered);
   updateReviewSummary();
-  renderReviews(state.reviewDisplayedReviews);
   renderPaging(state.reviewDisplayedReviews.length, state.reviewSourceReviews.length);
+  if (state.analysisTab === "reviews") {
+    state.reviewRenderPending = false;
+    renderReviews(state.reviewDisplayedReviews);
+  } else {
+    state.reviewRenderPending = true;
+  }
+}
+
+function buildReviewCard(review) {
+  const created = new Date(review.timestamp_created * 1000).toLocaleString(
+    state.currentUiLanguage === "ja" ? "ja-JP" : "en-US"
+  );
+  const sentiment = review.voted_up ? t("positive") : t("negative");
+  const saved = isReviewSaved(review);
+  const safeText = esc(review.review || "");
+  const highlighted = state.activeSearchRegex
+    ? safeText.replace(state.activeSearchRegex, (match) => `<mark class="review-highlight">${match}</mark>`)
+    : safeText;
+  const topicTags = (review._topics || [])
+    .map((topicId) => {
+      const topic = getTopicDefinition(topicId);
+      const color = topic?.color || "#66c0f4";
+      return `<span class="review-topic-tag" style="border-color:${color}55; background:${color}18; color:${color}">${esc(
+        getTopicLabel(topicId)
+      )}</span>`;
+    })
+    .join("");
+  const card = document.createElement("article");
+  card.className = `review-card ${review.voted_up ? "positive" : "negative"}`;
+  card.innerHTML = `<div class="review-banner">${esc(interp(t("reviewBy"), {
+    sentiment,
+  }))} <a href="${esc(review.author.profile_url)}" target="_blank" rel="noreferrer">${esc(
+    review.author.personaname || review.author.steamid
+  )}</a><span class="review-topic-tags">${topicTags}</span><button class="review-bookmark ${saved ? "is-saved" : ""}" type="button" data-bookmark-appid="${esc(
+    getReviewAppId(review)
+  )}" data-bookmark-review="${esc(review.recommendationid)}">${saved ? t("savedReview") : t(
+    "saveReview"
+  )}</button></div><div class="review-body"><div class="review-meta"><div>${t("date")}: ${esc(
+    created
+  )}</div><div>${t("steamPurchase")}: ${review.steam_purchase}</div><div>${t("playtime")}: ${fmt(
+    review.author.playtime_forever
+  )} ${t("minutes")}</div><div>${t("gamesOwned")}: ${fmt(
+    review.author.num_games_owned
+  )}</div><div>${t("reviewCount")}: ${fmt(review.author.num_reviews)}</div><div>${t("language")}: ${esc(
+    getLanguageName(review.language)
+  )}</div><div>Chars: ${fmt(getReviewLength(review))}</div></div><div class="review-text">${highlighted}</div></div>`;
+  return card;
 }
 
 function renderReviews(reviews) {
+  const token = ++state.reviewRenderToken;
   els.reviewsList.innerHTML = "";
   if (!reviews.length) {
     els.reviewsList.innerHTML = `<div class="status-text">${t("noReviews")}</div>`;
     return;
   }
-
-  reviews.forEach((review) => {
-    const created = new Date(review.timestamp_created * 1000).toLocaleString(
-      state.currentUiLanguage === "ja" ? "ja-JP" : "en-US"
-    );
-    const sentiment = review.voted_up ? t("positive") : t("negative");
-    const saved = isReviewSaved(review);
-    const safeText = esc(review.review || "");
-    const highlighted = state.activeSearchRegex
-      ? safeText.replace(state.activeSearchRegex, (match) => `<mark class="review-highlight">${match}</mark>`)
-      : safeText;
-    const card = document.createElement("article");
-    card.className = `review-card ${review.voted_up ? "positive" : "negative"}`;
-    card.innerHTML = `<div class="review-banner">${esc(interp(t("reviewBy"), {
-      sentiment,
-    }))} <a href="${esc(review.author.profile_url)}" target="_blank" rel="noreferrer">${esc(
-      review.author.personaname || review.author.steamid
-    )}</a><button class="review-bookmark ${saved ? "is-saved" : ""}" type="button" data-bookmark-appid="${esc(
-      getReviewAppId(review)
-    )}" data-bookmark-review="${esc(review.recommendationid)}">${saved ? t("savedReview") : t(
-      "saveReview"
-    )}</button></div><div class="review-body"><div class="review-meta"><div>${t("date")}: ${esc(
-      created
-    )}</div><div>${t("steamPurchase")}: ${review.steam_purchase}</div><div>${t("playtime")}: ${fmt(
-      review.author.playtime_forever
-    )} ${t("minutes")}</div><div>${t("gamesOwned")}: ${fmt(
-      review.author.num_games_owned
-    )}</div><div>${t("reviewCount")}: ${fmt(review.author.num_reviews)}</div><div>${t("language")}: ${esc(
-      getLanguageName(review.language)
-    )}</div><div>Chars: ${fmt(getReviewLength(review))}</div></div><div class="review-text">${highlighted}</div></div>`;
-    els.reviewsList.appendChild(card);
-  });
+  const chunkSize = 48;
+  let index = 0;
+  const appendChunk = () => {
+    if (token !== state.reviewRenderToken) return;
+    const fragment = document.createDocumentFragment();
+    for (let count = 0; count < chunkSize && index < reviews.length; count += 1, index += 1) {
+      fragment.appendChild(buildReviewCard(reviews[index]));
+    }
+    els.reviewsList.appendChild(fragment);
+    if (index < reviews.length) {
+      requestAnimationFrame(appendChunk);
+    }
+  };
+  requestAnimationFrame(appendChunk);
 }
 
 function renderPaging(loaded, total) {
@@ -2308,19 +3091,55 @@ function renderPaging(loaded, total) {
   });
 }
 
-async function collectReviews(lang, force = false) {
+async function collectReviews(lang, force = false, options = {}) {
+  const onProgress = typeof options.onProgress === "function" ? options.onProgress : null;
+  const memoryKey = getCollectedReviewsCacheKey(lang);
+  if (!force && state.collectedReviewsCache.has(memoryKey)) {
+    const cached = state.collectedReviewsCache.get(memoryKey);
+    if (onProgress) {
+      onProgress({
+        languageCode: lang,
+        languageName: getLanguageName(lang),
+        languageIndex: 0,
+        totalLanguages: lang === "all" ? LANGUAGES.length : 1,
+        pagesLoaded: 0,
+        reviewsLoaded: cached.length,
+        totalCollected: cached.length,
+        fromMemory: true,
+      });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+    return cached;
+  }
+
   const targets = lang === "all" ? LANGUAGES.map(([, code]) => code) : [lang];
   const out = [];
   const fetchFloor = getActiveRangeFetchFloor();
 
-  for (const code of targets) {
+  for (const [languageIndex, code] of targets.entries()) {
     const seen = new Set();
     let cursor = "*";
+    let pagesLoaded = 0;
+    let reviewsLoaded = 0;
     while (!seen.has(cursor)) {
       seen.add(cursor);
       const payload = await getReviews(state.currentAppId, code, cursor, force);
       const reviews = (payload.reviews || []).map((review) => ({ ...review, _appid: state.currentAppId }));
       out.push(...reviews);
+      pagesLoaded += 1;
+      reviewsLoaded += reviews.length;
+      if (onProgress) {
+        onProgress({
+          languageCode: code,
+          languageName: getLanguageName(code),
+          languageIndex,
+          totalLanguages: targets.length,
+          pagesLoaded,
+          reviewsLoaded,
+          totalCollected: out.length,
+        });
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      }
       if (fetchFloor && reviews.length && reviews[reviews.length - 1].timestamp_created * 1000 < fetchFloor) {
         break;
       }
@@ -2329,19 +3148,26 @@ async function collectReviews(lang, force = false) {
     }
   }
 
+  if (!force) {
+    state.collectedReviewsCache.set(memoryKey, out);
+  }
   return out;
 }
 
 function resetReviewViewState() {
+  const preservedTopic = state.reviewFilters.topic || "all";
   state.activeSearchRegex = null;
   state.reviewBaseReviews = [];
   state.reviewSourceReviews = [];
   state.reviewDisplayedReviews = [];
+  state.reviewRenderPending = false;
+  state.reviewRenderToken += 1;
   state.reviewSearchStats = null;
   state.reviewSort = "date";
-  state.reviewFilters = { sentiment: "all", saved: "all", playtime: "all", length: "all" };
+  state.reviewFilters = { sentiment: "all", saved: "all", playtime: "all", length: "all", topic: preservedTopic };
   if (els.reviewPlaytimeFilter) els.reviewPlaytimeFilter.value = "all";
   if (els.reviewLengthFilter) els.reviewLengthFilter.value = "all";
+  if (els.reviewTopicFilter) els.reviewTopicFilter.value = preservedTopic;
   updateToggleButtons(els.reviewSortToggle, state.reviewSort, "sort");
   updateToggleButtons(els.reviewSentimentToggle, state.reviewFilters.sentiment, "sentiment");
   updateToggleButtons(els.reviewSavedToggle, state.reviewFilters.saved, "savedFilter");
@@ -2352,11 +3178,35 @@ async function loadReviewTabData() {
 
   const lang = els.reviewLanguageSelection.value;
   resetReviewViewState();
-  setFetchState("loading", t("searchLoading"), 35);
+  setFetchState(
+    "loading",
+    interp(t("loadingLanguageReviews"), {
+      language: getLanguageName(lang),
+      pages: "0",
+      reviews: "0",
+    }),
+    35
+  );
   const reviews =
     state.reviewTab === "saved"
       ? filterReviewsByActiveTimeRange(getSavedReviewsForCurrentApp(lang))
-      : filterReviewsByActiveTimeRange(await collectReviews(lang));
+      : filterReviewsByActiveTimeRange(
+          await collectReviews(lang, false, {
+            onProgress: ({ languageName, languageIndex, totalLanguages, pagesLoaded, reviewsLoaded }) => {
+              const langShare = (languageIndex + Math.min(0.92, pagesLoaded * 0.18)) / Math.max(1, totalLanguages);
+              setFetchState(
+                "loading",
+                interp(t("loadingLanguageReviews"), {
+                  language: languageName,
+                  pages: fmt(pagesLoaded),
+                  reviews: fmt(reviewsLoaded),
+                }),
+                35 + langShare * 55
+              );
+            },
+          })
+        );
+  await ensureTopicTagsForReviews(reviews);
   state.reviewBaseReviews = reviews;
   state.reviewSourceReviews = reviews;
   els.reviewTitle.textContent =
@@ -2451,18 +3301,67 @@ async function runReviewSearch() {
   }
 
   els.searchSummary.textContent = t("searchLoading");
+  setFetchState(
+    "loading",
+    interp(t("loadingLanguageReviews"), {
+      language: getLanguageName(lang),
+      pages: "0",
+      reviews: "0",
+    }),
+    35
+  );
   const reviews =
     state.reviewTab === "saved"
       ? filterReviewsByActiveTimeRange(getSavedReviewsForCurrentApp(lang))
-      : filterReviewsByActiveTimeRange(await collectReviews(lang));
+      : filterReviewsByActiveTimeRange(
+          await collectReviews(lang, false, {
+            onProgress: ({ languageName, languageIndex, totalLanguages, pagesLoaded, reviewsLoaded }) => {
+              const langShare = (languageIndex + Math.min(0.92, pagesLoaded * 0.18)) / Math.max(1, totalLanguages);
+              setFetchState(
+                "loading",
+                interp(t("loadingLanguageReviews"), {
+                  language: languageName,
+                  pages: fmt(pagesLoaded),
+                  reviews: fmt(reviewsLoaded),
+                }),
+                40 + langShare * 40
+              );
+            },
+          })
+        );
+  setFetchState(
+    "loading",
+    interp(t("scanningKeywordMatches"), {
+      keyword,
+      reviews: fmt(reviews.length),
+    }),
+    88
+  );
   const regex = createSearchRegex(keyword, true);
   let hitCount = 0;
-
-  const matched = reviews.filter((review) => {
-    const matches = review.review?.match(regex) || [];
-    hitCount += matches.length;
-    return matches.length > 0;
-  });
+  const matched = [];
+  const chunkSize = 200;
+  for (let index = 0; index < reviews.length; index += chunkSize) {
+    const chunk = reviews.slice(index, index + chunkSize);
+    chunk.forEach((review) => {
+      const matches = review.review?.match(regex) || [];
+      hitCount += matches.length;
+      if (matches.length > 0) matched.push(review);
+    });
+    const processed = Math.min(reviews.length, index + chunk.length);
+    const progress = reviews.length ? 88 + (processed / reviews.length) * 10 : 98;
+    setFetchState(
+      "loading",
+      interp(t("scanningKeywordMatches"), {
+        keyword,
+        reviews: `${fmt(processed)} / ${fmt(reviews.length)}`,
+      }),
+      progress
+    );
+    if (processed < reviews.length) {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+  }
 
   state.activeSearchRegex = matched.length ? regex : null;
   state.reviewSearchStats = matched.length
@@ -2474,10 +3373,16 @@ async function runReviewSearch() {
     renderReviews([]);
     renderPaging(0, reviews.length);
     els.searchSummary.textContent = t("searchNoMatch");
+    setFetchState("success", t("searchNoMatch"), 100);
     return;
   }
 
   applyReviewView();
+  setFetchState(
+    "success",
+    `${t("searchReviews")}: ${fmt(matched.length)} | ${t("searchCount")}: ${fmt(hitCount)}`,
+    100
+  );
 }
 
 async function generateWordCloud() {
@@ -2573,31 +3478,78 @@ async function unsaveDisplayedSavedReviews() {
   await loadReviewTabData();
 }
 
-function downloadSavedReviewsCsv() {
+function formatTopicMatches(review) {
+  return Object.entries(review._topicMatches || {})
+    .map(([topicId, matches]) => `${getTopicLabel(topicId)}:${(matches || []).join("/")}`)
+    .join(" | ");
+}
+
+function getPrimaryTopicLabel(review) {
+  return review._primaryTopic ? getTopicLabel(review._primaryTopic) : "";
+}
+
+function getTopicLabels(review) {
+  return (review._topics || []).map((topicId) => getTopicLabel(topicId)).join("|");
+}
+
+function createCsvRow(review, includeSavedAt = false) {
+  return [
+    getReviewAppId(review),
+    review.timestamp_created,
+    ...(includeSavedAt ? [review.savedAt || ""] : []),
+    review.author.steamid,
+    review.language,
+    review.author.playtime_forever,
+    review.recommendationid,
+    review.steam_purchase,
+    review.voted_up,
+    `"${getTopicLabels(review).replaceAll('"', '""')}"`,
+    `"${getPrimaryTopicLabel(review).replaceAll('"', '""')}"`,
+    `"${formatTopicMatches(review).replaceAll('"', '""')}"`,
+    `"${String(review.review || "").replaceAll('"', '""')}"`,
+  ].join(",");
+}
+
+async function downloadSavedReviewsCsv() {
+  await ensureTopicTagsForReviews(state.reviewDisplayedReviews);
   const rows = [
-    ["AppID", "Timestamp Created", "Saved At", "UserID", "Language", "PlayTimeTotal", "ReviewID", "Purchase", "Recommended", "ReviewText"].join(","),
+    ["AppID", "Timestamp Created", "Saved At", "UserID", "Language", "PlayTimeTotal", "ReviewID", "Purchase", "Recommended", "Topics", "PrimaryTopic", "TopicMatches", "ReviewText"].join(","),
   ];
   state.reviewDisplayedReviews.forEach((review) => {
-    rows.push(
-      [
-        getReviewAppId(review),
-        review.timestamp_created,
-        review.savedAt || "",
-        review.author.steamid,
-        review.language,
-        review.author.playtime_forever,
-        review.recommendationid,
-        review.steam_purchase,
-        review.voted_up,
-        `"${String(review.review || "").replaceAll('"', '""')}"`,
-      ].join(",")
-    );
+    rows.push(createCsvRow(review, true));
   });
 
   const blob = new Blob([`\uFEFF${rows.join("\n")}`], { type: "text/csv;charset=utf-8" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
   link.download = `${state.currentAppId || "saved"}-saved-reviews.csv`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+async function downloadAllReviewsCsv() {
+  if (!state.currentAppId) return;
+  const reviewsByKey = new Map();
+  [...state.reviewCache.entries()].forEach(([key, payload]) => {
+    if (!key.startsWith(`${state.currentAppId}::`)) return;
+    (payload.reviews || []).forEach((review) => {
+      const normalized = { ...review, _appid: state.currentAppId };
+      reviewsByKey.set(getSavedReviewKey(normalized), normalized);
+    });
+  });
+  const reviews = [...reviewsByKey.values()];
+  await ensureTopicTagsForReviews(reviews);
+  const rows = [
+    ["AppID", "Timestamp Created", "UserID", "Language", "PlayTimeTotal", "ReviewID", "Purchase", "Recommended", "Topics", "PrimaryTopic", "TopicMatches", "ReviewText"].join(","),
+  ];
+  reviews.forEach((review) => {
+    rows.push(createCsvRow(review));
+  });
+
+  const blob = new Blob([`\uFEFF${rows.join("\n")}`], { type: "text/csv;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `${state.currentAppId}-reviews.csv`;
   link.click();
   URL.revokeObjectURL(link.href);
 }
@@ -2624,11 +3576,30 @@ async function refreshScopedData() {
   populateLanguageSelect(els.reviewLanguageSelection);
   populateLanguageSelect(els.playtimeLanguageSelection);
   populateLanguageSelect(els.wordLanguageSelection);
-  await loadReviewBrowserForLanguage();
-  await generateWordCloud();
-  await loadPlaytime();
+  populateLanguageSelect(els.topicLanguageSelection);
+  state.reviewBaseReviews = allReviews;
+  state.reviewSourceReviews = allReviews;
+  els.reviewTitle.textContent = `${getLanguageName("all")} ${t("selectedReviews")}`;
+  applyReviewView();
   els.statusText.textContent = interp(t("loadedTotalReviews"), { count: fmt(allReviews.length) });
   setFetchState("success", `${interp(t("loadedTotalReviews"), { count: fmt(allReviews.length) })} ${t("usingCache")}`, 100);
+  void warmUpAnalysisPanels();
+}
+
+async function warmUpAnalysisPanels() {
+  if (!state.currentAppId) return;
+  const appid = state.currentAppId;
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  const tasks = [
+    generateWordCloud(),
+    loadPlaytime(),
+    ensureTopicTagsForReviews(state.reviewBaseReviews).then(() => {
+      if (state.currentAppId !== appid || state.analysisTab !== "reviews") return;
+      renderReviews(state.reviewDisplayedReviews);
+    }),
+  ];
+  if (state.analysisTab === "topics") tasks.push(renderTopicClusters());
+  await Promise.allSettled(tasks);
 }
 
 async function rerenderTimelineFromCache() {
@@ -2647,9 +3618,17 @@ async function refreshCurrentCache() {
   await deletePrefix(`appdetails::${state.currentAppId}`);
   await deletePrefix(`groupdetails::${state.currentAppId}`);
   await deletePrefix(`reviews::${state.currentAppId}::`);
+  await deletePrefix(`topictags::${state.currentAppId}::`);
+  await deletePrefix(`topicclusters::${state.currentAppId}::`);
 
   state.appDetails.delete(state.currentAppId);
   state.groupDetails.delete(state.currentAppId);
+  state.collectedReviewsCache.clear();
+  state.topicTagCacheAppId = null;
+  state.topicTagCache = new Map();
+  state.topicClusterCacheAppId = null;
+  state.topicClusterCache = new Map();
+  state.topicLastRenderKey = "";
   [...state.reviewCache.keys()].forEach((key) => {
     if (key.startsWith(`${state.currentAppId}::`)) state.reviewCache.delete(key);
   });
@@ -2676,6 +3655,11 @@ async function loadSummary(appid, force = false) {
     if (!API_BASE) throw new Error(t("noProxyConfigured"));
 
     state.currentAppId = appid;
+    state.collectedReviewsCache.clear();
+    state.reviewFilters.topic = "all";
+    state.topicLanguage = "all";
+    state.topicSource = "all";
+    state.topicLastRenderKey = "";
     setFetchState("loading", t("loadingAppDetails"), 8);
     const [details, group] = await Promise.all([getAppDetails(appid, force), getGroupDetails(appid, force)]);
     if (!details[appid]?.success) throw new Error(t("appNotFound"));
@@ -2745,34 +3729,7 @@ els.fetchForm.addEventListener("submit", async (event) => {
 els.refreshCacheButton.addEventListener("click", refreshCurrentCache);
 
 els.downloadCsvButton.addEventListener("click", () => {
-  if (!state.currentAppId) return;
-  const rows = [
-    ["AppID", "Timestamp Created", "UserID", "Language", "PlayTimeTotal", "ReviewID", "Purchase", "Recommended", "ReviewText"].join(","),
-  ];
-  [...state.reviewCache.values()].forEach((payload) => {
-    (payload.reviews || []).forEach((review) => {
-      rows.push(
-        [
-          state.currentAppId,
-          review.timestamp_created,
-          review.author.steamid,
-          review.language,
-          review.author.playtime_forever,
-          review.recommendationid,
-          review.steam_purchase,
-          review.voted_up,
-          `"${String(review.review || "").replaceAll('"', '""')}"`,
-        ].join(",")
-      );
-    });
-  });
-
-  const blob = new Blob([`\uFEFF${rows.join("\n")}`], { type: "text/csv;charset=utf-8" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = `${state.currentAppId}-reviews.csv`;
-  link.click();
-  URL.revokeObjectURL(link.href);
+  void downloadAllReviewsCsv();
 });
 
 els.uiLanguageToggle.addEventListener("click", () => {
@@ -2812,6 +3769,7 @@ els.timelineKeywordButton.addEventListener("click", async () => {
   if (terms.length) {
     state.timelineKeywords = [...new Set([...state.timelineKeywords, ...terms])].slice(0, 6);
     els.timelineKeywordInput.value = "";
+    await persistTimelineKeywords();
   }
   updateTimelineUi();
   await rerenderTimelineFromCache();
@@ -2894,6 +3852,21 @@ els.reviewTabToggle.addEventListener("click", async (event) => {
 });
 
 els.reviewLanguageSelection.addEventListener("change", loadReviewBrowserForLanguage);
+if (els.topicLanguageSelection) {
+  els.topicLanguageSelection.addEventListener("change", async () => {
+    state.topicLanguage = els.topicLanguageSelection.value || "all";
+    await renderTopicClusters();
+  });
+}
+if (els.topicSourceToggle) {
+  els.topicSourceToggle.addEventListener("click", async (event) => {
+    const button = event.target.closest("[data-topic-source]");
+    if (!button || state.topicSource === button.dataset.topicSource) return;
+    state.topicSource = button.dataset.topicSource;
+    updateTopicUi();
+    await renderTopicClusters();
+  });
+}
 els.reviewSearchButton.addEventListener("click", runReviewSearch);
 els.playtimeLoadButton.addEventListener("click", loadPlaytime);
 els.savedReviewsDownloadButton.addEventListener("click", downloadSavedReviewsCsv);
@@ -2938,6 +3911,12 @@ els.reviewLengthFilter.addEventListener("change", () => {
   state.reviewFilters.length = els.reviewLengthFilter.value;
   applyReviewView();
 });
+if (els.reviewTopicFilter) {
+  els.reviewTopicFilter.addEventListener("change", () => {
+    state.reviewFilters.topic = els.reviewTopicFilter.value;
+    applyReviewView();
+  });
+}
 
 els.playtimeCutoffControls.addEventListener("input", (event) => {
   const input = event.target.closest("[data-cutoff-index]");
@@ -2980,7 +3959,7 @@ els.playtimeChart.addEventListener(
   true
 );
 
-Promise.all([loadSavedReviewsFromCache(), loadWordCloudPrefsFromCache()]).finally(() => {
+Promise.all([loadSavedReviewsFromCache(), loadWordCloudPrefsFromCache(), loadTimelineKeywordsFromCache()]).finally(() => {
   const now = new Date();
   const monthAgo = new Date(now.getTime() - 30 * DAY_MS);
   state.timeRange.start = formatDateInputValue(monthAgo);
