@@ -37,7 +37,26 @@
           <div id="fetch-progress-track" class="progress-track">
             <div id="fetch-progress-bar" class="progress-bar"></div>
           </div>
-          <div id="review-status-bar" class="review-status-bar hidden"></div>
+          <div class="review-status-with-ai">
+            <div id="review-status-bar" class="review-status-bar hidden"></div>
+            <button id="ai-settings-button" class="ai-settings-button disconnected" type="button" data-i18n="aiSettings">AI Model</button>
+          </div>
+          <div id="ai-settings-panel" class="ai-settings-panel hidden">
+            <label class="control-field">
+              <span data-i18n="aiBaseUrl">AI Base URL</span>
+              <input id="ai-base-url-input" type="url" placeholder="https://generativelanguage.googleapis.com/v1beta" />
+            </label>
+            <label class="control-field">
+              <span data-i18n="aiModel">Model</span>
+              <select id="ai-model-select"></select>
+            </label>
+            <label class="control-field">
+              <span data-i18n="aiApiKey">API Key</span>
+              <input id="ai-api-key-input" type="password" placeholder="Gemini API key" />
+            </label>
+            <button id="ai-connect-button" type="button" data-i18n="aiConnect">Connect</button>
+            <div id="ai-connection-status" class="status-text" data-i18n="aiDisconnected">AI not connected.</div>
+          </div>
           <div id="fetch-controls-row" class="fetch-controls-row">
             <div class="time-range-group">
               <div id="time-range-toggle" class="lang-toggle review-toggle-group" aria-label="Review time span">

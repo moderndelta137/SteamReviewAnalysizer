@@ -325,6 +325,21 @@ const I18N = {
     scanningKeywordMatches: 'Scanning "{keyword}" across {reviews} reviews...',
     searchNoMatch: "No matching reviews found.",
     downloadCsv: "Download CSV",
+    aiSettings: "AI Model",
+    aiBaseUrl: "Gemini Base URL",
+    aiModel: "Model",
+    aiApiKey: "Gemini API Key",
+    aiConnect: "Connect",
+    aiLoadModels: "Loading Gemini models...",
+    aiModelsLoaded: "Loaded {count} Gemini models. Choose one and connect.",
+    aiModelsFailed: "Could not load Gemini models.",
+    aiConnected: "AI connected.",
+    aiDisconnected: "AI not connected.",
+    aiTesting: "Testing AI model...",
+    aiConnectFailed: "AI connection failed.",
+    translateReview: "Translate",
+    translatingReview: "Translating...",
+    translationFailed: "Translation failed.",
     sortBy: "Sort By",
     sortDate: "Newest",
     sortPlaytime: "Playtime",
@@ -680,6 +695,14 @@ const state = {
   topicTagCacheAppId: null,
   topicClusterCache: new Map(),
   topicClusterCacheAppId: null,
+  ai: {
+    connected: false,
+    baseUrl: "https://generativelanguage.googleapis.com/v1beta",
+    model: "",
+    apiKey: "",
+    models: [],
+  },
+  translationCache: new Map(),
   timelineMode: "reviews",
   timelineKeywords: [],
   chartType: "bar",
@@ -725,6 +748,13 @@ const els = {
   fetchProgressTrack: document.getElementById("fetch-progress-track"),
   fetchProgressBar: document.getElementById("fetch-progress-bar"),
   reviewStatusBar: document.getElementById("review-status-bar"),
+  aiSettingsButton: document.getElementById("ai-settings-button"),
+  aiSettingsPanel: document.getElementById("ai-settings-panel"),
+  aiBaseUrlInput: document.getElementById("ai-base-url-input"),
+  aiModelSelect: document.getElementById("ai-model-select"),
+  aiApiKeyInput: document.getElementById("ai-api-key-input"),
+  aiConnectButton: document.getElementById("ai-connect-button"),
+  aiConnectionStatus: document.getElementById("ai-connection-status"),
   fetchControlsRow: document.getElementById("fetch-controls-row"),
   cacheTimestamp: document.getElementById("cache-timestamp"),
   refreshCacheButton: document.getElementById("refresh-cache-button"),
@@ -1731,6 +1761,41 @@ function updateTopicUi() {
   }
 }
 
+function getTargetTranslationLanguage() {
+  return state.currentUiLanguage === "ja" ? "Japanese" : "English";
+}
+
+function getTranslationKey(review) {
+  return [getSavedReviewKey(review), state.currentUiLanguage, state.ai.model].join("::");
+}
+
+function updateAiUi(status = "") {
+  if (!els.aiSettingsButton) return;
+  els.aiSettingsButton.classList.toggle("connected", state.ai.connected);
+  els.aiSettingsButton.classList.toggle("disconnected", !state.ai.connected);
+  els.aiSettingsButton.classList.remove("testing");
+  els.aiSettingsButton.textContent = state.ai.connected ? `AI: ${state.ai.model}` : t("aiSettings");
+  if (els.aiConnectionStatus) {
+    els.aiConnectionStatus.textContent = status || (state.ai.connected ? t("aiConnected") : t("aiDisconnected"));
+  }
+}
+
+function renderAiModelOptions() {
+  if (!els.aiModelSelect) return;
+  const models = state.ai.models.length
+    ? state.ai.models
+    : state.ai.model
+      ? [{ name: state.ai.model, displayName: state.ai.model }]
+      : [];
+  els.aiModelSelect.innerHTML = models.length
+    ? models
+        .map((model) => `<option value="${esc(model.name)}">${esc(model.displayName || model.name)}</option>`)
+        .join("")
+    : `<option value="">Enter Gemini API key to load models</option>`;
+  els.aiModelSelect.value = state.ai.model && models.some((model) => model.name === state.ai.model) ? state.ai.model : models[0]?.name || "";
+  state.ai.model = els.aiModelSelect.value;
+}
+
 function renderWordPreferenceList() {
   const chips = [];
   state.wordCloudPrefs.allowed.forEach((term) => {
@@ -1774,6 +1839,13 @@ function applyTranslations() {
   document.querySelectorAll('[data-i18n="topicFilter"]').forEach((node) => {
     node.textContent = topicText("topicFilter");
   });
+  if (state.currentUiLanguage === "ja") {
+    document.querySelectorAll('[data-i18n="aiSettings"]').forEach((node) => (node.textContent = "AIモデル"));
+    document.querySelectorAll('[data-i18n="aiBaseUrl"]').forEach((node) => (node.textContent = "Gemini Base URL"));
+    document.querySelectorAll('[data-i18n="aiModel"]').forEach((node) => (node.textContent = "モデル"));
+    document.querySelectorAll('[data-i18n="aiApiKey"]').forEach((node) => (node.textContent = "Gemini APIキー"));
+    document.querySelectorAll('[data-i18n="aiConnect"]').forEach((node) => (node.textContent = "接続"));
+  }
 
   document.querySelectorAll('[data-i18n="timelineModeReviews"]').forEach((node) => {
     node.textContent = state.currentUiLanguage === "ja" ? "レビュー数" : "Review Count";
@@ -1845,6 +1917,8 @@ function applyTranslations() {
   els.reviewSearchInput.placeholder = t("searchPlaceholder");
   els.wordPreferenceInput.placeholder = t("wordPreferencePlaceholder");
   els.timelineKeywordInput.placeholder = t("timelineKeywordPlaceholder");
+  if (els.aiBaseUrlInput) els.aiBaseUrlInput.value = state.ai.baseUrl;
+  renderAiModelOptions();
 
   updateToggleButtons(els.uiLanguageToggle, state.currentUiLanguage, "lang");
   updateToggleButtons(els.chartTypeToggle, state.chartType, "chart");
@@ -1857,6 +1931,7 @@ function applyTranslations() {
   updateTimeRangeUi();
   updateTimelineUi();
   updateTopicUi();
+  updateAiUi();
 
   populateLanguageSelect(els.reviewLanguageSelection);
   populateLanguageSelect(els.playtimeLanguageSelection);
@@ -1948,6 +2023,17 @@ async function fetchJson(url) {
   return response.json();
 }
 
+async function postJson(url, body) {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(payload.error || `Request failed: ${response.status}`);
+  return payload;
+}
+
 async function fetchText(url) {
   const response = await fetch(url);
   if (!response.ok) throw new Error(`Request failed: ${response.status}`);
@@ -1985,6 +2071,15 @@ async function loadTimelineKeywordsFromCache() {
   state.timelineKeywords = Array.isArray(record?.value) ? record.value.slice(0, 6) : [];
 }
 
+async function loadAiSettingsFromCache() {
+  const record = await getRecord("aisettings");
+  if (record?.value?.baseUrl) state.ai.baseUrl = record.value.baseUrl;
+  if (record?.value?.model) state.ai.model = record.value.model;
+  if (Array.isArray(record?.value?.models)) state.ai.models = record.value.models;
+  const translations = await getRecord("translations");
+  state.translationCache = new Map(Object.entries(translations?.value || {}));
+}
+
 function schedulePersistSavedReviews() {
   if (state.savePersistTimer) clearTimeout(state.savePersistTimer);
   state.savePersistTimer = setTimeout(() => {
@@ -2003,6 +2098,18 @@ async function persistWordCloudPrefs() {
 
 async function persistTimelineKeywords() {
   await putRecord("timelinekeywords", state.timelineKeywords.slice(0, 6));
+}
+
+async function persistAiSettings() {
+  await putRecord("aisettings", {
+    baseUrl: state.ai.baseUrl,
+    model: state.ai.model,
+    models: state.ai.models,
+  });
+}
+
+async function persistTranslationCache() {
+  await putRecord("translations", Object.fromEntries(state.translationCache.entries()));
 }
 
 function getTopicTagStorageKey(appid) {
@@ -3039,13 +3146,23 @@ function buildReviewCard(review) {
       )}</span>`;
     })
     .join("");
+  const translationKey = getTranslationKey(review);
+  const cachedTranslation = state.translationCache.get(translationKey);
+  const translateButton = state.ai.connected
+    ? `<button class="review-translate-button" type="button" data-translate-review="${esc(
+        review.recommendationid
+      )}" data-translate-appid="${esc(getReviewAppId(review))}">${esc(t("translateReview"))}</button>`
+    : "";
+  const translationMarkup = cachedTranslation
+    ? `<div class="review-translation" data-translation-for="${esc(review.recommendationid)}">${esc(cachedTranslation)}</div>`
+    : `<div class="review-translation hidden" data-translation-for="${esc(review.recommendationid)}"></div>`;
   const card = document.createElement("article");
   card.className = `review-card ${review.voted_up ? "positive" : "negative"}`;
   card.innerHTML = `<div class="review-banner">${esc(interp(t("reviewBy"), {
     sentiment,
   }))} <a href="${esc(review.author.profile_url)}" target="_blank" rel="noreferrer">${esc(
     review.author.personaname || review.author.steamid
-  )}</a><span class="review-topic-tags">${topicTags}</span><button class="review-bookmark ${saved ? "is-saved" : ""}" type="button" data-bookmark-appid="${esc(
+  )}</a><span class="review-topic-tags">${topicTags}</span>${translateButton}<button class="review-bookmark ${saved ? "is-saved" : ""}" type="button" data-bookmark-appid="${esc(
     getReviewAppId(review)
   )}" data-bookmark-review="${esc(review.recommendationid)}">${saved ? t("savedReview") : t(
     "saveReview"
@@ -3058,6 +3175,8 @@ function buildReviewCard(review) {
   )}</div><div>${t("reviewCount")}: ${fmt(review.author.num_reviews)}</div><div>${t("language")}: ${esc(
     getLanguageName(review.language)
   )}</div><div>Chars: ${fmt(getReviewLength(review))}</div></div><div class="review-text">${highlighted}</div></div>`;
+  const textNode = card.querySelector(".review-text");
+  if (textNode) textNode.insertAdjacentHTML("afterend", translationMarkup);
   return card;
 }
 
@@ -3554,6 +3673,119 @@ async function downloadAllReviewsCsv() {
   URL.revokeObjectURL(link.href);
 }
 
+function findReviewByIdentity(appid, recommendationid) {
+  const key = `${appid}::${recommendationid}`;
+  return (
+    state.reviewDisplayedReviews.find((review) => getSavedReviewKey(review) === key) ||
+    state.reviewSourceReviews.find((review) => getSavedReviewKey(review) === key) ||
+    state.reviewBaseReviews.find((review) => getSavedReviewKey(review) === key) ||
+    state.savedReviews.find((review) => getSavedReviewKey(review) === key)
+  );
+}
+
+async function connectAiModel() {
+  if (!API_BASE) {
+    updateAiUi(t("noProxyConfigured"));
+    return;
+  }
+  state.ai.baseUrl = els.aiBaseUrlInput.value.trim() || "https://generativelanguage.googleapis.com/v1beta";
+  state.ai.model = els.aiModelSelect.value || state.ai.models[0]?.name || "";
+  state.ai.apiKey = els.aiApiKeyInput.value.trim();
+  state.ai.connected = false;
+  els.aiSettingsButton.classList.add("testing");
+  els.aiSettingsButton.classList.remove("connected", "disconnected");
+  els.aiConnectionStatus.textContent = t("aiTesting");
+
+  try {
+    await postJson(`${API_BASE}/translate`, {
+      apiKey: state.ai.apiKey,
+      baseUrl: state.ai.baseUrl,
+      model: state.ai.model,
+      targetLanguage: getTargetTranslationLanguage(),
+      text: "Connection test.",
+    });
+    state.ai.connected = true;
+    await persistAiSettings();
+    updateAiUi(t("aiConnected"));
+    if (state.analysisTab === "reviews") renderReviews(state.reviewDisplayedReviews);
+  } catch (error) {
+    state.ai.connected = false;
+    updateAiUi(`${t("aiConnectFailed")} ${error.message}`);
+  }
+}
+
+async function loadGeminiModels() {
+  if (!API_BASE) return;
+  state.ai.baseUrl = els.aiBaseUrlInput.value.trim() || "https://generativelanguage.googleapis.com/v1beta";
+  state.ai.apiKey = els.aiApiKeyInput.value.trim();
+  if (!state.ai.apiKey) return;
+  state.ai.connected = false;
+  els.aiSettingsButton.classList.add("testing");
+  els.aiSettingsButton.classList.remove("connected", "disconnected");
+  els.aiConnectionStatus.textContent = t("aiLoadModels");
+  try {
+    const payload = await fetchJson(
+      `${API_BASE}/ai/models?${new URLSearchParams({
+        apiKey: state.ai.apiKey,
+        baseUrl: state.ai.baseUrl,
+      })}`
+    );
+    state.ai.models = payload.models || [];
+    state.ai.model = state.ai.models.find((model) => model.name === state.ai.model)?.name || state.ai.models[0]?.name || "";
+    renderAiModelOptions();
+    await persistAiSettings();
+    updateAiUi(interp(t("aiModelsLoaded"), { count: fmt(state.ai.models.length) }));
+  } catch (error) {
+    state.ai.models = [];
+    renderAiModelOptions();
+    updateAiUi(`${t("aiModelsFailed")} ${error.message}`);
+  }
+}
+
+async function translateReview(appid, recommendationid, button) {
+  const review = findReviewByIdentity(appid, recommendationid);
+  if (!review || !state.ai.connected) return;
+  const key = getTranslationKey(review);
+  const target = getTargetTranslationLanguage();
+  const container = button.closest(".review-card")?.querySelector(".review-translation");
+
+  if (state.translationCache.has(key)) {
+    if (container) {
+      container.textContent = state.translationCache.get(key);
+      container.classList.remove("hidden");
+    }
+    return;
+  }
+
+  button.disabled = true;
+  const originalText = button.textContent;
+  button.textContent = t("translatingReview");
+  try {
+    const payload = await postJson(`${API_BASE}/translate`, {
+      apiKey: state.ai.apiKey,
+      baseUrl: state.ai.baseUrl,
+      model: state.ai.model,
+      targetLanguage: target,
+      text: review.review || "",
+    });
+    const translation = payload.translation || "";
+    state.translationCache.set(key, translation);
+    await persistTranslationCache();
+    if (container) {
+      container.textContent = translation;
+      container.classList.remove("hidden");
+    }
+  } catch (error) {
+    if (container) {
+      container.textContent = `${t("translationFailed")} ${error.message}`;
+      container.classList.remove("hidden");
+    }
+  } finally {
+    button.disabled = false;
+    button.textContent = originalText;
+  }
+}
+
 async function commitPlaytimeEdit(index, rawValue) {
   const parsed = parseDurationInput(rawValue);
   state.playtimeEditingIndex = null;
@@ -3732,6 +3964,29 @@ els.downloadCsvButton.addEventListener("click", () => {
   void downloadAllReviewsCsv();
 });
 
+els.aiSettingsButton.addEventListener("click", () => {
+  els.aiSettingsPanel.classList.toggle("hidden");
+});
+
+els.aiConnectButton.addEventListener("click", () => {
+  void connectAiModel();
+});
+
+els.aiApiKeyInput.addEventListener("change", () => {
+  void loadGeminiModels();
+});
+
+els.aiApiKeyInput.addEventListener("blur", () => {
+  void loadGeminiModels();
+});
+
+els.aiModelSelect.addEventListener("change", () => {
+  state.ai.model = els.aiModelSelect.value;
+  state.ai.connected = false;
+  updateAiUi();
+  void persistAiSettings();
+});
+
 els.uiLanguageToggle.addEventListener("click", () => {
   state.currentUiLanguage = state.currentUiLanguage === "ja" ? "en" : "ja";
   applyTranslations();
@@ -3873,6 +4128,11 @@ els.savedReviewsDownloadButton.addEventListener("click", downloadSavedReviewsCsv
 els.savedReviewsClearButton.addEventListener("click", unsaveDisplayedSavedReviews);
 
 els.reviewsList.addEventListener("click", async (event) => {
+  const translateButton = event.target.closest("[data-translate-review]");
+  if (translateButton) {
+    await translateReview(translateButton.dataset.translateAppid, translateButton.dataset.translateReview, translateButton);
+    return;
+  }
   const button = event.target.closest("[data-bookmark-review]");
   if (!button) return;
   await toggleSavedReview(button.dataset.bookmarkAppid, button.dataset.bookmarkReview, button);
@@ -3959,7 +4219,7 @@ els.playtimeChart.addEventListener(
   true
 );
 
-Promise.all([loadSavedReviewsFromCache(), loadWordCloudPrefsFromCache(), loadTimelineKeywordsFromCache()]).finally(() => {
+Promise.all([loadSavedReviewsFromCache(), loadWordCloudPrefsFromCache(), loadTimelineKeywordsFromCache(), loadAiSettingsFromCache()]).finally(() => {
   const now = new Date();
   const monthAgo = new Date(now.getTime() - 30 * DAY_MS);
   state.timeRange.start = formatDateInputValue(monthAgo);
