@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Steam Review Analysizer</title>
+    <title>Steam Review Analyzer</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -11,7 +11,7 @@
       <header class="topbar">
         <div class="brand-block">
           <div class="eyebrow" data-i18n="brandEyebrow">Steam review intelligence</div>
-          <h1 data-i18n="brandTitle">Steam Review Analysizer</h1>
+          <h1 data-i18n="brandTitle">Steam Review Analyzer</h1>
         </div>
         <div class="toolbar">
           <div class="toolbar-label">
@@ -34,14 +34,37 @@
             <strong id="fetch-state-title" data-i18n="fetchIdleTitle">Ready</strong>
             <span id="fetch-state-text" class="status-text" data-i18n="fetchIdleBody">Enter an AppID or game name to begin.</span>
           </div>
-          <div class="progress-track">
+          <div id="fetch-progress-track" class="progress-track">
             <div id="fetch-progress-bar" class="progress-bar"></div>
           </div>
-          <div class="fetch-actions">
-            <div id="cache-timestamp" class="status-text" data-i18n="cacheTimestampEmpty">No cache loaded yet.</div>
-            <div class="fetch-buttons">
-              <button id="refresh-cache-button" type="button" data-i18n="refreshCache">Refresh Cache</button>
-              <button id="download-csv-button" type="button" data-i18n="downloadCsv">Download CSV</button>
+          <div id="review-status-bar" class="review-status-bar hidden"></div>
+          <div id="fetch-controls-row" class="fetch-controls-row">
+            <div class="time-range-group">
+              <div id="time-range-toggle" class="lang-toggle review-toggle-group" aria-label="Review time span">
+                <button class="lang-pill" type="button" data-time-range="lifetime" data-i18n="timeSpanLifetime">Lifetime</button>
+                <button class="lang-pill" type="button" data-time-range="week" data-i18n="timeSpanWeek">1 Week</button>
+                <button class="lang-pill" type="button" data-time-range="month" data-i18n="timeSpanMonth">1 Month</button>
+                <button class="lang-pill" type="button" data-time-range="year" data-i18n="timeSpanYear">1 Year</button>
+                <button class="lang-pill" type="button" data-time-range="custom" data-i18n="timeSpanCustom">Custom</button>
+              </div>
+              <div id="custom-time-range" class="custom-time-range">
+                <label class="control-field compact-field">
+                  <span data-i18n="startDate">Start</span>
+                  <input id="time-range-start" type="date" />
+                </label>
+                <label class="control-field compact-field">
+                  <span data-i18n="endDate">End</span>
+                  <input id="time-range-end" type="date" />
+                </label>
+                <button id="apply-custom-range-button" type="button" data-i18n="applyRange">Apply</button>
+              </div>
+            </div>
+            <div class="fetch-actions">
+              <div id="cache-timestamp" class="status-text" data-i18n="cacheTimestampEmpty">No cache loaded yet.</div>
+              <div class="fetch-buttons">
+                <button id="refresh-cache-button" type="button" data-i18n="refreshCache">Refresh Cache</button>
+                <button id="download-csv-button" type="button" data-i18n="downloadCsv">Download CSV</button>
+              </div>
             </div>
           </div>
         </section>
@@ -66,6 +89,7 @@
             <div class="workspace-tabs" id="analysis-tab-toggle" aria-label="Analysis panel tabs">
               <button class="workspace-tab" type="button" data-analysis-tab="wordcloud" data-i18n="wordCloudTitle">Rule-Based Review Keywords</button>
               <button class="workspace-tab" type="button" data-analysis-tab="reviews" data-i18n="reviewTabBrowse">Review Browser</button>
+              <button class="workspace-tab" type="button" data-analysis-tab="timeline" data-i18n="reviewTimeline">Timeline</button>
             </div>
 
             <section id="analysis-panel-wordcloud" class="workspace-body">
@@ -180,19 +204,45 @@
               <div id="paging-label" class="paging-label"></div>
               <div id="reviews-list" class="reviews-list"></div>
             </section>
+
+            <section id="analysis-panel-timeline" class="workspace-body hidden">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow" data-i18n="reviewTimelineEyebrow">Timeline</p>
+                  <h3 data-i18n="reviewTimeline">Timeline</h3>
+                </div>
+                <div class="timeline-heading-tools">
+                  <div id="timeline-mode-toggle" class="lang-toggle review-toggle-group" aria-label="Timeline mode">
+                    <button class="lang-pill" type="button" data-timeline-mode="reviews" data-i18n="timelineModeReviews">Review Count</button>
+                    <button class="lang-pill" type="button" data-timeline-mode="keywords" data-i18n="timelineModeKeywords">Word Search</button>
+                  </div>
+                  <div id="timeline-status" class="status-text"></div>
+                </div>
+              </div>
+              <div id="timeline-keyword-controls" class="timeline-keyword-controls hidden">
+                <label class="control-field timeline-keyword-input">
+                  <span data-i18n="timelineKeywords">Keywords</span>
+                  <input id="timeline-keyword-input" type="text" placeholder="boss, crash, soundtrack" />
+                </label>
+                <button id="timeline-keyword-add-button" type="button" data-i18n="timelineAddKeyword">Add</button>
+                <button id="timeline-keyword-button" type="button" data-i18n="timelinePlotKeywords">Plot</button>
+              </div>
+              <div id="timeline-keyword-list" class="word-preference-list hidden"></div>
+              <div id="timeline-chart" class="timeline-chart"></div>
+            </section>
           </article>
 
           <article class="panel workspace-panel data-panel">
             <div class="workspace-tabs" id="data-tab-toggle" aria-label="Data panel tabs">
-              <button class="workspace-tab" type="button" data-data-tab="distribution" data-i18n="reviewShare">Review Share</button>
-              <button class="workspace-tab" type="button" data-data-tab="playtime" data-i18n="reviewDistributionByPlaytime">Review Distribution by Playtime</button>
+              <button class="workspace-tab" type="button" data-data-tab="distribution" data-i18n="reviewShare">By Language</button>
+              <button class="workspace-tab" type="button" data-data-tab="playtime" data-i18n="reviewDistributionByPlaytime">By Playtime</button>
             </div>
 
             <section id="data-panel-distribution" class="workspace-body">
               <div class="panel-heading">
                 <div>
                   <p class="eyebrow" data-i18n="distribution">Distribution</p>
-                  <h3 data-i18n="reviewShare">Review Share</h3>
+                  <h3 data-i18n="reviewShare">By Language</h3>
                 </div>
                 <div class="toolbar-label">
                   <span data-i18n="chartType">Chart Type</span>
@@ -209,7 +259,7 @@
               <div class="panel-heading">
                 <div>
                   <p class="eyebrow" data-i18n="hoursPlayed">Hours played</p>
-                  <h3 data-i18n="reviewDistributionByPlaytime">Review Distribution by Playtime</h3>
+                  <h3 data-i18n="reviewDistributionByPlaytime">By Playtime</h3>
                 </div>
               </div>
               <div class="playtime-actions">

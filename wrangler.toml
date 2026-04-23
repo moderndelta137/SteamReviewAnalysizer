@@ -1,4 +1,4 @@
-name = "steam-review-analysizer"
+name = "md"
 main = "src/worker.js"
 compatibility_date = "2026-04-22"
 

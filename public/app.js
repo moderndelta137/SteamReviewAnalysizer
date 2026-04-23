@@ -82,6 +82,26 @@ const WORD_GAME_STOP_WORDS = new Set([
   "sound","music","price","hours","hour","time","thing","things","people","someone","something","everything",
   "gameplay","world","combat","character","characters","enemy","enemies","boss","bosses","weapon","weapons",
 ]);
+const WORD_STOP_WORDS_JA = new Set([
+  "これ","それ","あれ","この","その","あの","ここ","そこ","あそこ","どこ","もの","こと","ため","よう","ところ","ほう",
+  "あと","また","かなり","とても","ちょっと","めっちゃ","しっかり","ちゃんと","たぶん","多分","本当に","ほんと","ほんとう",
+  "かな","けど","でも","ので","のに","から","まで","だけ","など","とか","そして","しかし","もし","まだ","もう","ただ",
+  "です","ます","でした","ません","ある","いる","なる","する","した","して","できる","でき","ない","あり","いる","なる",
+  "こちら","そちら","あちら","どちら","みたい","感じ","部分","内容","今回","最初","最後","全体","普通"
+]);
+const WORD_GAME_STOP_WORDS_JA = new Set([
+  "ゲーム","レビュー","プレイ","作品","ストーリー","キャラ","キャラクター","グラフィック","サウンド","音楽","steam"
+]);
+const WORD_STOP_WORDS_ZH = new Set([
+  "这个","那个","这些","那些","这里","那里","自己","我们","你们","他们","她们","就是","不是","没有","还有","因为","所以",
+  "如果","但是","然后","而且","已经","还是","可以","觉得","真的","非常","比较","有点","很多","一些","一种","一直","一下",
+  "目前","现在","之前","之后","开始","最后","其实","而已","的话","这种","那种","什么","怎么","为什么","怎么样","这样","那样",
+  "不会","以及","对于","关于","同时","虽然","不过","可能","应该","必须","完全","基本","整体","总体","普通","一般","感觉",
+  "内容","部分","方面","问题","情况","东西","地方"
+]);
+const WORD_GAME_STOP_WORDS_ZH = new Set([
+  "游戏","评论","游玩","玩家","作品","剧情","画面","音乐","声音","价格","内容","角色","战斗","操作","体验","steam"
+]);
 const WORD_VERB_STOP_WORDS = new Set([
   "is","are","was","were","be","been","being","do","did","does","done","go","goes","went","gone","come",
   "comes","came","coming","get","gets","got","getting","make","makes","made","making","take","takes","took",
@@ -97,7 +117,7 @@ const WORD_KEEP_VERBS = new Set([
 const I18N = {
   en: {
     brandEyebrow: "Steam review intelligence",
-    brandTitle: "Steam Review Analysizer",
+    brandTitle: "Steam Review Analyzer",
     uiLanguage: "UI Language",
     fetchReviews: "Fetch Reviews",
     appInputPlaceholder: "Enter Steam AppID or game name",
@@ -120,16 +140,27 @@ const I18N = {
     languageBreakdown: "Language breakdown",
     reviewsByLanguage: "Steam Reviews by Language",
     distribution: "Distribution",
-    reviewShare: "Review Share",
+    reviewShare: "By Language",
     chartType: "Chart Type",
     barChart: "Bar chart",
     pieChart: "Pie chart",
     reviewBrowser: "Review browser",
+    reviewTimelineEyebrow: "Timeline",
+    reviewTimeline: "Timeline",
+    timelineModeReviews: "Review Count",
+    timelineModeKeywords: "Word Search",
+    timelineKeywords: "Keywords",
+    timelineKeywordPlaceholder: "boss, crash, soundtrack",
+    timelineAddKeyword: "Add",
+    timelinePlotKeywords: "Plot",
+    timelineKeywordEmpty: "Enter one or more keywords to plot.",
+    timelineKeywordNoMatch: "No reviews in this range matched those keywords.",
+    timelineKeywordStatus: "{terms} keywords plotted across {buckets} periods.",
     selectedReviews: "Selected Reviews",
     prev: "Prev",
     next: "Next",
     hoursPlayed: "Hours played",
-    reviewDistributionByPlaytime: "Review Distribution by Playtime",
+    reviewDistributionByPlaytime: "By Playtime",
     load: "Load",
     portion: "Portion",
     language: "Language",
@@ -174,6 +205,19 @@ const I18N = {
     refreshCache: "Refresh Cache",
     cacheTimestampEmpty: "No cache loaded yet.",
     cacheTimestamp: "Cache timestamp: {time}",
+    timeSpan: "Time Span",
+    timeSpanLifetime: "Lifetime",
+    timeSpanWeek: "1 Week",
+    timeSpanMonth: "1 Month",
+    timeSpanYear: "1 Year",
+    timeSpanCustom: "Custom",
+    startDate: "Start",
+    endDate: "End",
+    applyRange: "Apply",
+    invalidDateRange: "End date must be on or after the start date.",
+    reviewStatusPositive: "{count} reviews ({portion}%)",
+    reviewStatusNegative: "{count} reviews ({portion}%)",
+    reviewStatusScore: "{score}% positive",
     keywordSearch: "Keyword Search",
     search: "Search",
     searchPlaceholder: "keyword",
@@ -226,7 +270,7 @@ const I18N = {
   },
   ja: {
     brandEyebrow: "Steamレビュー分析",
-    brandTitle: "Steam Review Analysizer",
+    brandTitle: "Steam Review Analyzer",
     uiLanguage: "表示言語",
     fetchReviews: "レビュー取得",
     replicaEyebrow: "再現版",
@@ -236,7 +280,7 @@ const I18N = {
     languageBreakdown: "言語別内訳",
     reviewsByLanguage: "言語別 Steam レビュー",
     distribution: "分布",
-    reviewShare: "レビュー比率",
+    reviewShare: "言語別",
     chartType: "グラフ形式",
     barChart: "棒グラフ",
     pieChart: "円グラフ",
@@ -245,7 +289,7 @@ const I18N = {
     prev: "前へ",
     next: "次へ",
     hoursPlayed: "プレイ時間",
-    reviewDistributionByPlaytime: "プレイ時間別レビュー分布",
+    reviewDistributionByPlaytime: "プレイ時間別",
     load: "読み込む",
     portion: "割合",
     language: "言語",
@@ -367,11 +411,18 @@ const state = {
   currentUiLanguage: "ja",
   analysisTab: "wordcloud",
   dataTab: "distribution",
+  timelineMode: "reviews",
+  timelineKeywords: [],
   chartType: "bar",
   summaryRows: [],
   wordCloudSentiment: "all",
   wordCloudTerms: [],
   wordCloudPrefs: { allowed: [], banned: [] },
+  timeRange: {
+    mode: "lifetime",
+    start: "",
+    end: "",
+  },
   cacheTimestamp: null,
   appDetails: new Map(),
   groupDetails: new Map(),
@@ -399,10 +450,18 @@ const els = {
   fetchStatePanel: document.getElementById("fetch-state-panel"),
   fetchStateTitle: document.getElementById("fetch-state-title"),
   fetchStateText: document.getElementById("fetch-state-text"),
+  fetchProgressTrack: document.getElementById("fetch-progress-track"),
   fetchProgressBar: document.getElementById("fetch-progress-bar"),
+  reviewStatusBar: document.getElementById("review-status-bar"),
+  fetchControlsRow: document.getElementById("fetch-controls-row"),
   cacheTimestamp: document.getElementById("cache-timestamp"),
   refreshCacheButton: document.getElementById("refresh-cache-button"),
   downloadCsvButton: document.getElementById("download-csv-button"),
+  timeRangeToggle: document.getElementById("time-range-toggle"),
+  customTimeRange: document.getElementById("custom-time-range"),
+  timeRangeStart: document.getElementById("time-range-start"),
+  timeRangeEnd: document.getElementById("time-range-end"),
+  applyCustomRangeButton: document.getElementById("apply-custom-range-button"),
   savedReviewsDownloadButton: document.getElementById("saved-reviews-download-button"),
   savedReviewsClearButton: document.getElementById("saved-reviews-clear-button"),
   fetchForm: document.getElementById("fetch-form"),
@@ -415,6 +474,7 @@ const els = {
   dataTabToggle: document.getElementById("data-tab-toggle"),
   analysisPanelWordcloud: document.getElementById("analysis-panel-wordcloud"),
   analysisPanelReviews: document.getElementById("analysis-panel-reviews"),
+  analysisPanelTimeline: document.getElementById("analysis-panel-timeline"),
   dataPanelDistribution: document.getElementById("data-panel-distribution"),
   dataPanelPlaytime: document.getElementById("data-panel-playtime"),
   statusText: document.getElementById("status-text"),
@@ -432,6 +492,14 @@ const els = {
   chartTypeToggle: document.getElementById("chart-type-toggle"),
   reviewsList: document.getElementById("reviews-list"),
   reviewTitle: document.getElementById("review-title"),
+  timelineStatus: document.getElementById("timeline-status"),
+  timelineModeToggle: document.getElementById("timeline-mode-toggle"),
+  timelineKeywordControls: document.getElementById("timeline-keyword-controls"),
+  timelineKeywordInput: document.getElementById("timeline-keyword-input"),
+  timelineKeywordAddButton: document.getElementById("timeline-keyword-add-button"),
+  timelineKeywordButton: document.getElementById("timeline-keyword-button"),
+  timelineKeywordList: document.getElementById("timeline-keyword-list"),
+  timelineChart: document.getElementById("timeline-chart"),
   pagingLabel: document.getElementById("paging-label"),
   appHero: document.getElementById("app-hero"),
   playtimeLanguageSelection: document.getElementById("playtime-language-selection"),
@@ -463,6 +531,616 @@ const interp = (template, values = {}) =>
   template.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? "");
 const cacheKey = (appid, lang, cursor) => `${appid}::${lang}::${cursor}`;
 const cursorKey = (appid, lang) => `${appid}::${lang}`;
+const DAY_MS = 1000 * 60 * 60 * 24;
+const STEAM_NEGATIVE = { r: 196, g: 69, b: 76 };
+const STEAM_NEUTRAL = { r: 146, g: 118, b: 89 };
+const STEAM_POSITIVE = { r: 138, g: 195, b: 74 };
+
+function mixColor(left, right, amount) {
+  const t = Math.max(0, Math.min(1, amount));
+  const r = Math.round(left.r + (right.r - left.r) * t);
+  const g = Math.round(left.g + (right.g - left.g) * t);
+  const b = Math.round(left.b + (right.b - left.b) * t);
+  return `rgb(${r} ${g} ${b})`;
+}
+
+function getPositiveRateColor(positiveRate, minRate, maxRate) {
+  const sentimentScale = maxRate === minRate ? 0.5 : (positiveRate - minRate) / (maxRate - minRate);
+  return sentimentScale >= 0.5
+    ? mixColor(STEAM_NEUTRAL, STEAM_POSITIVE, (sentimentScale - 0.5) / 0.5)
+    : mixColor(STEAM_NEGATIVE, STEAM_NEUTRAL, sentimentScale / 0.5);
+}
+
+function containsJapanese(text) {
+  return /[\u3040-\u30ff\u3400-\u9fff]/u.test(String(text || ""));
+}
+
+function containsKana(text) {
+  return /[\u3040-\u30ff]/u.test(String(text || ""));
+}
+
+function containsHan(text) {
+  return /[\u3400-\u9fff]/u.test(String(text || ""));
+}
+
+function containsChinese(text) {
+  const value = String(text || "");
+  return containsHan(value) && !containsKana(value);
+}
+
+function createSearchRegex(keyword, global = true) {
+  const escaped = String(keyword || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const flags = global ? "gi" : "i";
+  return containsJapanese(keyword) || containsChinese(keyword)
+    ? new RegExp(escaped, flags)
+    : new RegExp(`\\b${escaped}\\b`, flags);
+}
+
+function formatDateInputValue(date) {
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+}
+
+function getActiveTimeRangeBounds() {
+  const now = new Date();
+  const end = new Date(now);
+  end.setHours(23, 59, 59, 999);
+
+  if (state.timeRange.mode === "week") {
+    const start = new Date(now.getTime() - 7 * DAY_MS);
+    return { startMs: start.getTime(), endMs: end.getTime() };
+  }
+
+  if (state.timeRange.mode === "month") {
+    const start = new Date(now.getTime() - 30 * DAY_MS);
+    return { startMs: start.getTime(), endMs: end.getTime() };
+  }
+
+  if (state.timeRange.mode === "year") {
+    const start = new Date(now.getTime() - 365 * DAY_MS);
+    return { startMs: start.getTime(), endMs: end.getTime() };
+  }
+
+  if (state.timeRange.mode === "custom" && state.timeRange.start && state.timeRange.end) {
+    const start = new Date(`${state.timeRange.start}T00:00:00`);
+    const customEnd = new Date(`${state.timeRange.end}T23:59:59.999`);
+    return { startMs: start.getTime(), endMs: customEnd.getTime() };
+  }
+
+  return { startMs: Number.NEGATIVE_INFINITY, endMs: Number.POSITIVE_INFINITY };
+}
+
+function getDisplayTimeRangeDates() {
+  const now = new Date();
+  const today = formatDateInputValue(now);
+
+  if (state.timeRange.mode === "week") {
+    return {
+      start: formatDateInputValue(new Date(now.getTime() - 7 * DAY_MS)),
+      end: today,
+    };
+  }
+
+  if (state.timeRange.mode === "month") {
+    return {
+      start: formatDateInputValue(new Date(now.getTime() - 30 * DAY_MS)),
+      end: today,
+    };
+  }
+
+  if (state.timeRange.mode === "year") {
+    return {
+      start: formatDateInputValue(new Date(now.getTime() - 365 * DAY_MS)),
+      end: today,
+    };
+  }
+
+  if (state.timeRange.mode === "custom") {
+    return {
+      start: state.timeRange.start || today,
+      end: state.timeRange.end || today,
+    };
+  }
+
+  return {
+    start: "",
+    end: today,
+  };
+}
+
+function filterReviewsByActiveTimeRange(reviews) {
+  const { startMs, endMs } = getActiveTimeRangeBounds();
+  return reviews.filter((review) => {
+    const createdAt = Number(review.timestamp_created || 0) * 1000;
+    return createdAt >= startMs && createdAt <= endMs;
+  });
+}
+
+function getActiveRangeFetchFloor() {
+  const { startMs } = getActiveTimeRangeBounds();
+  return Number.isFinite(startMs) ? startMs : null;
+}
+
+function buildSummaryRowsFromReviews(reviews) {
+  const byLanguage = new Map();
+  LANGUAGES.forEach(([name, code]) => {
+    byLanguage.set(code, {
+      languageName: name,
+      languageCode: code,
+      total_reviews: 0,
+      total_positive: 0,
+      total_negative: 0,
+      review_score_desc: "No rating",
+    });
+  });
+
+  reviews.forEach((review) => {
+    const entry = byLanguage.get(review.language);
+    if (!entry) return;
+    entry.total_reviews += 1;
+    if (review.voted_up) entry.total_positive += 1;
+    else entry.total_negative += 1;
+  });
+
+  return [...byLanguage.values()]
+    .filter((row) => row.total_reviews > 0)
+    .sort((left, right) => right.total_reviews - left.total_reviews);
+}
+
+function buildTimelineBuckets(reviews) {
+  const activeBounds = getActiveTimeRangeBounds();
+  const reviewTimes = reviews.map((review) => review.timestamp_created * 1000).sort((left, right) => left - right);
+  const rangeStartMs = Number.isFinite(activeBounds.startMs) ? activeBounds.startMs : reviewTimes[0];
+  const rangeEndMs = Number.isFinite(activeBounds.endMs) ? activeBounds.endMs : reviewTimes[reviewTimes.length - 1];
+  const spanMs = Math.max(rangeEndMs - rangeStartMs, DAY_MS);
+  const maxBars = 30;
+  const rawBucketMs = Math.ceil(spanMs / maxBars);
+  const wholeDays = Math.max(1, Math.ceil(rawBucketMs / DAY_MS));
+  const bucketDays = wholeDays <= 7 ? wholeDays : wholeDays <= 14 ? 7 : wholeDays <= 31 ? 14 : wholeDays <= 62 ? 30 : wholeDays <= 124 ? 60 : 90;
+  const bucketMs = bucketDays * DAY_MS;
+  const bucketCount = Math.min(maxBars, Math.max(1, Math.ceil(spanMs / bucketMs)));
+  const buckets = Array.from({ length: bucketCount }, (_, index) => {
+    const startMs = rangeStartMs + index * bucketMs;
+    const endMs = Math.min(rangeEndMs, startMs + bucketMs - 1);
+    const start = new Date(startMs);
+    const end = new Date(endMs);
+    const shortLabel =
+      bucketDays <= 1
+        ? start.toLocaleDateString(state.currentUiLanguage === "ja" ? "ja-JP" : "en-US", {
+            month: "short",
+            day: "numeric",
+          })
+        : start.toLocaleDateString(state.currentUiLanguage === "ja" ? "ja-JP" : "en-US", {
+            year: "numeric",
+            month: "short",
+          });
+    return {
+      key: `${startMs}-${endMs}`,
+      startMs,
+      endMs,
+      label: shortLabel,
+      tooltipDate:
+        bucketDays <= 1
+          ? start.toLocaleDateString(state.currentUiLanguage === "ja" ? "ja-JP" : "en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })
+          : `${start.toLocaleDateString(state.currentUiLanguage === "ja" ? "ja-JP" : "en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })} - ${end.toLocaleDateString(state.currentUiLanguage === "ja" ? "ja-JP" : "en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })}`,
+      positive: 0,
+      negative: 0,
+    };
+  });
+
+  reviews.forEach((review) => {
+    const createdMs = review.timestamp_created * 1000;
+    const index = Math.min(bucketCount - 1, Math.max(0, Math.floor((createdMs - rangeStartMs) / bucketMs)));
+    const bucket = buckets[index];
+    if (!bucket) return;
+    if (review.voted_up) bucket.positive += 1;
+    else bucket.negative += 1;
+  });
+
+  return { buckets, bucketDays };
+}
+
+function buildTimelineAxisMarkup(maxValue) {
+  const midValue = maxValue === 1 ? 1 : Math.max(1, Math.round(maxValue / 2));
+  return {
+    axisMarkup: `
+      <div class="timeline-y-tick timeline-y-max">${fmt(maxValue)}</div>
+      <div class="timeline-y-tick timeline-y-mid">${fmt(midValue)}</div>
+      <div class="timeline-y-tick zero">0</div>
+      <div class="timeline-y-tick timeline-y-mid">${fmt(midValue)}</div>
+      <div class="timeline-y-tick timeline-y-min">${fmt(maxValue)}</div>
+    `,
+    gridMarkup: `
+      <div class="timeline-grid" aria-hidden="true">
+        <div class="timeline-grid-line timeline-grid-top"></div>
+        <div class="timeline-grid-line timeline-grid-mid-pos"></div>
+        <div class="timeline-grid-line zero"></div>
+        <div class="timeline-grid-line timeline-grid-mid-neg"></div>
+        <div class="timeline-grid-line timeline-grid-bottom"></div>
+      </div>
+    `,
+  };
+}
+
+function getTimelineKeywordTerms() {
+  return state.timelineKeywords.slice(0, 6);
+}
+
+function normalizeTimelineKeyword(term) {
+  return String(term || "").trim();
+}
+
+function parseTimelineKeywordInput(value) {
+  return [...new Set(
+    String(value || "")
+      .split(/[,\n]+/)
+      .map((term) => normalizeTimelineKeyword(term))
+      .filter(Boolean)
+  )];
+}
+
+function renderTimelineKeywordList() {
+  const items = getTimelineKeywordTerms();
+  els.timelineKeywordList.classList.toggle("hidden", !items.length || state.timelineMode !== "keywords");
+  els.timelineKeywordList.innerHTML = items
+    .map(
+      (term) =>
+        `<span class="word-preference-chip allowed">${esc(term)} <button type="button" data-timeline-keyword-remove="${esc(term)}">×</button></span>`
+    )
+    .join("");
+}
+
+async function addTimelineKeyword() {
+  const terms = parseTimelineKeywordInput(els.timelineKeywordInput.value);
+  if (!terms.length) return;
+  state.timelineKeywords = [...new Set([...state.timelineKeywords, ...terms])].slice(0, 6);
+  els.timelineKeywordInput.value = "";
+  state.timelineMode = "keywords";
+  updateTimelineUi();
+  await rerenderTimelineFromCache();
+}
+
+async function removeTimelineKeyword(term) {
+  state.timelineKeywords = state.timelineKeywords.filter((item) => item !== term);
+  updateTimelineUi();
+  await rerenderTimelineFromCache();
+}
+
+function buildKeywordRegex(keyword) {
+  const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`\\b${escaped}\\b`, "i");
+}
+
+function getTimelineKeywordSeries(reviews, buckets, keywords) {
+  const series = keywords.map((keyword) => ({
+    keyword,
+    regex: buildKeywordRegex(keyword),
+    points: buckets.map((bucket) => ({
+      key: bucket.key,
+      startMs: bucket.startMs,
+      endMs: bucket.endMs,
+      label: bucket.label,
+      tooltipDate: bucket.tooltipDate,
+      total: 0,
+      positive: 0,
+      negative: 0,
+      positiveRate: 0,
+    })),
+  }));
+
+  reviews.forEach((review) => {
+    const createdMs = review.timestamp_created * 1000;
+    const bucketIndex = buckets.findIndex((bucket) => createdMs >= bucket.startMs && createdMs <= bucket.endMs);
+    if (bucketIndex === -1) return;
+    const reviewText = String(review.review || "");
+
+    series.forEach((entry) => {
+      if (!entry.regex.test(reviewText)) return;
+      const point = entry.points[bucketIndex];
+      point.total += 1;
+      if (review.voted_up) point.positive += 1;
+      else point.negative += 1;
+      point.positiveRate = point.total ? (point.positive / point.total) * 100 : 0;
+    });
+  });
+
+  return series;
+}
+
+function ensureSharedTooltip() {
+  let tooltip = document.querySelector(".word-cloud-tooltip");
+  if (!tooltip) {
+    tooltip = document.createElement("div");
+    tooltip.className = "word-cloud-tooltip";
+    document.body.appendChild(tooltip);
+  }
+  return tooltip;
+}
+
+function showTimelineTooltip(event, bucket) {
+  const tooltip = ensureSharedTooltip();
+  const total = bucket.positive + bucket.negative;
+  const positiveRate = total ? ((bucket.positive / total) * 100).toFixed(1) : "0.0";
+  tooltip.innerHTML = `<strong>${esc(bucket.tooltipDate)}</strong>${
+    bucket.keyword ? `<div>${esc(t("timelineKeywords"))}: ${esc(bucket.keyword)}</div>` : ""
+  }<div>${fmt(total)} ${esc(t("reviewCount"))}</div><div>${t("positive")}: ${fmt(bucket.positive)}</div><div>${t(
+    "negative"
+  )}: ${fmt(bucket.negative)}</div><div>${t("summaryPositiveRate")}: ${positiveRate}%</div>`;
+  tooltip.style.display = "block";
+  tooltip.style.left = `${event.clientX + 14}px`;
+  tooltip.style.top = `${event.clientY + 14}px`;
+}
+
+async function activateTimelineBucket(bucket, keyword = "") {
+  hideWordCloudTooltip();
+  state.timeRange.mode = "custom";
+  state.timeRange.start = formatDateInputValue(new Date(bucket.startMs));
+  state.timeRange.end = formatDateInputValue(new Date(bucket.endMs));
+  state.reviewTab = "browse";
+  state.analysisTab = "reviews";
+  updateReviewTabUi();
+  updateTimeRangeUi();
+  updateWorkspaceTabs();
+  await refreshScopedData();
+  if (keyword) {
+    els.reviewSearchInput.value = keyword;
+    await runReviewSearch();
+  }
+  els.reviewsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderTimelineReviewCountChart(reviews, buckets) {
+  const maxValue = Math.max(...buckets.map((bucket) => Math.max(bucket.positive, bucket.negative)), 1);
+  const labelStep = Math.max(1, Math.ceil(buckets.length / 10));
+  const { axisMarkup, gridMarkup } = buildTimelineAxisMarkup(maxValue);
+  const shell = document.createElement("div");
+  shell.className = "timeline-shell";
+  const axis = document.createElement("div");
+  axis.className = "timeline-y-axis";
+  axis.innerHTML = axisMarkup;
+  const plot = document.createElement("div");
+  plot.className = "timeline-plot";
+  plot.innerHTML = gridMarkup;
+  const chart = document.createElement("div");
+  chart.className = "timeline-bars";
+
+  buckets.forEach((bucket, index) => {
+    const column = document.createElement("div");
+    column.className = "timeline-column";
+    const positiveHeight = (bucket.positive / maxValue) * 100;
+    const negativeHeight = (bucket.negative / maxValue) * 100;
+    column.innerHTML = `<div class="timeline-bar-wrap positive-wrap"><div class="timeline-bar positive" style="height:${positiveHeight}%"></div></div><div class="timeline-axis"></div><div class="timeline-bar-wrap negative-wrap"><div class="timeline-bar negative" style="height:${negativeHeight}%"></div></div><div class="timeline-label">${
+      index % labelStep === 0 || index === buckets.length - 1 ? esc(bucket.label) : "&nbsp;"
+    }</div>`;
+    column.addEventListener("mousemove", (event) => showTimelineTooltip(event, bucket));
+    column.addEventListener("mouseleave", hideWordCloudTooltip);
+    column.addEventListener("click", () => {
+      void activateTimelineBucket(bucket);
+    });
+    chart.appendChild(column);
+  });
+
+  plot.appendChild(chart);
+  shell.appendChild(axis);
+  shell.appendChild(plot);
+  els.timelineChart.appendChild(shell);
+}
+
+function renderTimelineKeywordChart(reviews, buckets) {
+  const keywords = getTimelineKeywordTerms();
+  if (!keywords.length) {
+    els.timelineStatus.textContent = t("timelineKeywordEmpty");
+    els.timelineChart.innerHTML = `<div class="status-text">${esc(t("timelineKeywordEmpty"))}</div>`;
+    return;
+  }
+
+  const series = getTimelineKeywordSeries(reviews, buckets, keywords);
+  const points = series.flatMap((entry) => entry.points.map((point) => ({ ...point, keyword: entry.keyword })));
+  const matchingPoints = points.filter((point) => point.total > 0);
+  if (!matchingPoints.length) {
+    els.timelineStatus.textContent = t("timelineKeywordNoMatch");
+    els.timelineChart.innerHTML = `<div class="status-text">${esc(t("timelineKeywordNoMatch"))}</div>`;
+    return;
+  }
+
+  const maxValue = Math.max(...matchingPoints.map((point) => point.total), 1);
+  const labelStep = Math.max(1, Math.ceil(buckets.length / 10));
+  const minRate = Math.min(...matchingPoints.map((point) => point.positiveRate));
+  const maxRate = Math.max(...matchingPoints.map((point) => point.positiveRate));
+  const plotWidth = 960;
+  const plotHeight = 320;
+  const leftPadding = 12;
+  const rightPadding = 12;
+  const topPadding = 12;
+  const bottomPadding = 42;
+  const usableWidth = plotWidth - leftPadding - rightPadding;
+  const usableHeight = plotHeight - topPadding - bottomPadding;
+  const xStep = buckets.length === 1 ? 0 : usableWidth / (buckets.length - 1);
+  const svgNs = "http://www.w3.org/2000/svg";
+  const linePalette = ["#66c0f4", "#f39c6b", "#a98bff", "#7ad9a7", "#f26d8f", "#ffd166"];
+  const shell = document.createElement("div");
+  shell.className = "timeline-shell timeline-shell-keywords";
+  const axis = document.createElement("div");
+  axis.className = "timeline-y-axis timeline-y-axis-keywords";
+  axis.innerHTML = `
+    <div class="timeline-y-tick timeline-keyword-y-top">${fmt(maxValue)}</div>
+    <div class="timeline-y-tick timeline-keyword-y-mid">${fmt(Math.max(1, Math.round(maxValue / 2)))}</div>
+    <div class="timeline-y-tick timeline-keyword-y-bottom">0</div>
+  `;
+  const plot = document.createElement("div");
+  plot.className = "timeline-plot timeline-plot-keywords";
+  plot.innerHTML = `
+    <div class="timeline-grid timeline-grid-keywords" aria-hidden="true">
+      <div class="timeline-grid-line timeline-keyword-grid-top"></div>
+      <div class="timeline-grid-line timeline-keyword-grid-mid"></div>
+      <div class="timeline-grid-line zero timeline-keyword-grid-bottom"></div>
+    </div>
+  `;
+  const svg = document.createElementNS(svgNs, "svg");
+  svg.setAttribute("viewBox", `0 0 ${plotWidth} ${plotHeight}`);
+  svg.setAttribute("class", "timeline-line-svg");
+
+  const summaryList = document.createElement("div");
+  summaryList.className = "timeline-keyword-summary";
+
+  series.forEach((entry, seriesIndex) => {
+    const visiblePoints = entry.points
+      .map((point, pointIndex) => {
+        const x = leftPadding + xStep * pointIndex;
+        const y = topPadding + usableHeight - (point.total / maxValue) * usableHeight;
+        return { ...point, x, y, pointIndex };
+      })
+      .filter((point) => point.total > 0);
+
+    if (!visiblePoints.length) return;
+    const lineColor = linePalette[seriesIndex % linePalette.length];
+    const totalPositive = entry.points.reduce((sum, point) => sum + point.positive, 0);
+    const totalNegative = entry.points.reduce((sum, point) => sum + point.negative, 0);
+    const totalReviews = totalPositive + totalNegative;
+    const positivePortion = totalReviews ? ((totalPositive / totalReviews) * 100).toFixed(1) : "0.0";
+    const negativePortion = totalReviews ? (100 - Number(positivePortion)).toFixed(1) : "0.0";
+
+    const path = document.createElementNS(svgNs, "path");
+    path.setAttribute(
+      "d",
+      visiblePoints
+        .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`)
+        .join(" ")
+    );
+    path.setAttribute("fill", "none");
+    path.setAttribute("stroke", lineColor);
+    path.setAttribute("stroke-width", "2.5");
+    path.setAttribute("stroke-linecap", "round");
+    path.setAttribute("stroke-linejoin", "round");
+    path.setAttribute("class", "timeline-line-path");
+    svg.appendChild(path);
+
+    visiblePoints.forEach((point) => {
+      const circle = document.createElementNS(svgNs, "circle");
+      circle.setAttribute("cx", point.x.toFixed(2));
+      circle.setAttribute("cy", point.y.toFixed(2));
+      circle.setAttribute("r", "7");
+      circle.setAttribute("fill", getPositiveRateColor(point.positiveRate, minRate, maxRate));
+      circle.setAttribute("stroke", "rgba(11, 18, 25, 0.88)");
+      circle.setAttribute("stroke-width", "1.5");
+      circle.setAttribute("class", "timeline-line-point");
+      circle.addEventListener("mousemove", (event) => {
+        showTimelineTooltip(event, {
+          keyword: entry.keyword,
+          tooltipDate: point.tooltipDate,
+          positive: point.positive,
+          negative: point.negative,
+        });
+      });
+      circle.addEventListener("mouseleave", hideWordCloudTooltip);
+      circle.addEventListener("click", () => {
+        void activateTimelineBucket(point, entry.keyword);
+      });
+      svg.appendChild(circle);
+
+      const hitArea = document.createElementNS(svgNs, "circle");
+      hitArea.setAttribute("cx", point.x.toFixed(2));
+      hitArea.setAttribute("cy", point.y.toFixed(2));
+      hitArea.setAttribute("r", "12");
+      hitArea.setAttribute("fill", "transparent");
+      hitArea.setAttribute("class", "timeline-line-hit");
+      hitArea.addEventListener("mousemove", (event) => {
+        showTimelineTooltip(event, {
+          keyword: entry.keyword,
+          tooltipDate: point.tooltipDate,
+          positive: point.positive,
+          negative: point.negative,
+        });
+      });
+      hitArea.addEventListener("mouseleave", hideWordCloudTooltip);
+      hitArea.addEventListener("click", () => {
+        void activateTimelineBucket(point, entry.keyword);
+      });
+      svg.appendChild(hitArea);
+    });
+
+    const row = document.createElement("div");
+    row.className = "chart-row timeline-keyword-row";
+    row.innerHTML = `<div class="chart-labels"><span class="timeline-keyword-row-label"><span class="timeline-keyword-swatch" style="background:${lineColor}"></span>${esc(
+      entry.keyword
+    )}</span><span>${fmt(totalReviews)} ${esc(t("reviewCount"))}</span></div><div class="stacked-track"><div class="stacked-positive" style="width:${positivePortion}%"></div><div class="stacked-negative" style="width:${negativePortion}%"></div></div><div class="chart-labels review-status-breakdown"><span>${esc(
+      `${t("positive")} ${fmt(totalPositive)} (${positivePortion}%)`
+    )}</span><span>${esc(`${t("negative")} ${fmt(totalNegative)} (${negativePortion}%)`)}</span></div>`;
+    summaryList.appendChild(row);
+  });
+
+  buckets.forEach((bucket, index) => {
+    if (index % labelStep !== 0 && index !== buckets.length - 1) return;
+    const label = document.createElement("div");
+    label.className = "timeline-line-label";
+    label.textContent = bucket.label;
+    label.style.left = `${((leftPadding + xStep * index) / plotWidth) * 100}%`;
+    plot.appendChild(label);
+  });
+
+  plot.appendChild(svg);
+  shell.appendChild(axis);
+  shell.appendChild(plot);
+  els.timelineStatus.textContent = interp(t("timelineKeywordStatus"), {
+    terms: fmt(keywords.length),
+    buckets: fmt(buckets.length),
+  });
+  els.timelineChart.appendChild(shell);
+  if (summaryList.childElementCount) els.timelineChart.appendChild(summaryList);
+}
+
+function renderTimelineChart(reviews) {
+  const { buckets } = buildTimelineBuckets(reviews);
+  els.timelineChart.innerHTML = "";
+  hideWordCloudTooltip();
+  if (!buckets.length) {
+    els.timelineStatus.textContent = t("noReviews");
+    els.timelineChart.innerHTML = `<div class="status-text">${esc(t("noReviews"))}</div>`;
+    return;
+  }
+
+  if (state.timelineMode === "keywords") {
+    renderTimelineKeywordChart(reviews, buckets);
+    return;
+  }
+
+  els.timelineStatus.textContent = `${fmt(reviews.length)} ${t("reviewCount")}`;
+  renderTimelineReviewCountChart(reviews, buckets);
+}
+
+function renderReviewStatusBar(reviews) {
+  const positive = reviews.filter((review) => review.voted_up).length;
+  const negative = reviews.length - positive;
+  const total = reviews.length || 1;
+  const positivePortion = ((positive / total) * 100).toFixed(1);
+  const negativePortion = ((negative / total) * 100).toFixed(1);
+  const scoreText = interp(t("reviewStatusScore"), { score: positivePortion });
+  const positiveText = interp(t("reviewStatusPositive"), {
+    count: fmt(positive),
+    portion: positivePortion,
+  });
+  const negativeText = interp(t("reviewStatusNegative"), {
+    count: fmt(negative),
+    portion: negativePortion,
+  });
+
+  els.reviewStatusBar.innerHTML = `<div class="chart-row review-status-row"><div class="chart-labels"><span>${esc(
+    scoreText
+  )}</span><span>${fmt(total)} ${esc(t("reviewCount"))}</span></div><div class="stack-bar"><div class="seg seg-pos-steam" style="width:${positivePortion}%"></div><div class="seg seg-neg-steam" style="width:${negativePortion}%"></div></div><div class="chart-labels review-status-breakdown"><span>${esc(
+    `${t("positive")} ${positiveText}`
+  )}</span><span>${esc(`${t("negative")} ${negativeText}`)}</span></div></div>`;
+}
 
 function getLanguageName(code) {
   if (code === "all") return t("allLanguage");
@@ -552,6 +1230,9 @@ function setFetchState(mode, message, progress) {
           : t("fetchIdleTitle");
   els.fetchStateText.textContent = message;
   els.fetchProgressBar.style.width = `${Math.max(0, Math.min(100, progress))}%`;
+  els.fetchProgressTrack.classList.toggle("hidden", mode === "success");
+  els.reviewStatusBar.classList.toggle("hidden", mode !== "success");
+  requestAnimationFrame(updateFetchControlsPin);
 }
 
 function updateCacheTimestamp(timestamp) {
@@ -652,8 +1333,22 @@ function updateWorkspaceTabs() {
 
   els.analysisPanelWordcloud.classList.toggle("hidden", state.analysisTab !== "wordcloud");
   els.analysisPanelReviews.classList.toggle("hidden", state.analysisTab !== "reviews");
+  els.analysisPanelTimeline.classList.toggle("hidden", state.analysisTab !== "timeline");
   els.dataPanelDistribution.classList.toggle("hidden", state.dataTab !== "distribution");
   els.dataPanelPlaytime.classList.toggle("hidden", state.dataTab !== "playtime");
+}
+
+function updateTimeRangeUi() {
+  updateToggleButtons(els.timeRangeToggle, state.timeRange.mode, "timeRange");
+  const displayRange = getDisplayTimeRangeDates();
+  els.timeRangeStart.value = displayRange.start;
+  els.timeRangeEnd.value = displayRange.end;
+}
+
+function updateTimelineUi() {
+  updateToggleButtons(els.timelineModeToggle, state.timelineMode, "timelineMode");
+  els.timelineKeywordControls.classList.toggle("hidden", state.timelineMode !== "keywords");
+  renderTimelineKeywordList();
 }
 
 function renderWordPreferenceList() {
@@ -681,12 +1376,61 @@ function applyTranslations() {
     if (key && t(key)) node.textContent = t(key);
   });
 
+  document.querySelectorAll('[data-i18n="timelineModeReviews"]').forEach((node) => {
+    node.textContent = state.currentUiLanguage === "ja" ? "レビュー数" : "Review Count";
+  });
+  document.querySelectorAll('[data-i18n="timelineModeKeywords"]').forEach((node) => {
+    node.textContent = state.currentUiLanguage === "ja" ? "単語検索" : "Word Search";
+  });
+  document.querySelectorAll('[data-i18n="timelineKeywords"]').forEach((node) => {
+    node.textContent = state.currentUiLanguage === "ja" ? "キーワード" : "Keywords";
+  });
+  document.querySelectorAll('[data-i18n="timelineAddKeyword"]').forEach((node) => {
+    node.textContent = state.currentUiLanguage === "ja" ? "追加" : "Add";
+  });
+  document.querySelectorAll('[data-i18n="timelinePlotKeywords"]').forEach((node) => {
+    node.textContent = state.currentUiLanguage === "ja" ? "描画" : "Plot";
+  });
+
   if (state.currentUiLanguage === "ja") {
     document.querySelectorAll('[data-i18n="wordCloudTitle"]').forEach((node) => {
       node.textContent = "ワードクラウド";
     });
+    document.querySelectorAll('[data-i18n="reviewTimelineEyebrow"]').forEach((node) => {
+      node.textContent = "推移";
+    });
+    document.querySelectorAll('[data-i18n="reviewTimeline"]').forEach((node) => {
+      node.textContent = "レビュー推移";
+    });
     document.querySelectorAll('[data-lang="ja"]').forEach((node) => {
       node.textContent = "日本語";
+    });
+    document.querySelectorAll('[data-i18n="timeSpan"]').forEach((node) => {
+      node.textContent = "期間";
+    });
+    document.querySelectorAll('[data-i18n="timeSpanLifetime"]').forEach((node) => {
+      node.textContent = "全期間";
+    });
+    document.querySelectorAll('[data-i18n="timeSpanWeek"]').forEach((node) => {
+      node.textContent = "1週間";
+    });
+    document.querySelectorAll('[data-i18n="timeSpanMonth"]').forEach((node) => {
+      node.textContent = "1か月";
+    });
+    document.querySelectorAll('[data-i18n="timeSpanYear"]').forEach((node) => {
+      node.textContent = "1年";
+    });
+    document.querySelectorAll('[data-i18n="timeSpanCustom"]').forEach((node) => {
+      node.textContent = "カスタム";
+    });
+    document.querySelectorAll('[data-i18n="startDate"]').forEach((node) => {
+      node.textContent = "開始";
+    });
+    document.querySelectorAll('[data-i18n="endDate"]').forEach((node) => {
+      node.textContent = "終了";
+    });
+    document.querySelectorAll('[data-i18n="applyRange"]').forEach((node) => {
+      node.textContent = "適用";
     });
     if (els.wordAllowButton) els.wordAllowButton.textContent = "許可";
     if (els.wordBanButton) els.wordBanButton.textContent = "除外";
@@ -701,6 +1445,7 @@ function applyTranslations() {
   els.appidInput.placeholder = t("appInputPlaceholder");
   els.reviewSearchInput.placeholder = t("searchPlaceholder");
   els.wordPreferenceInput.placeholder = t("wordPreferencePlaceholder");
+  els.timelineKeywordInput.placeholder = t("timelineKeywordPlaceholder");
 
   updateToggleButtons(els.uiLanguageToggle, state.currentUiLanguage, "lang");
   updateToggleButtons(els.chartTypeToggle, state.chartType, "chart");
@@ -710,6 +1455,8 @@ function applyTranslations() {
   updateToggleButtons(els.wordSentimentToggle, state.wordCloudSentiment, "wordSentiment");
   updateReviewTabUi();
   updateWorkspaceTabs();
+  updateTimeRangeUi();
+  updateTimelineUi();
 
   populateLanguageSelect(els.reviewLanguageSelection);
   populateLanguageSelect(els.playtimeLanguageSelection);
@@ -728,6 +1475,7 @@ function applyTranslations() {
   renderReviews(state.reviewDisplayedReviews);
   if (state.reviewTab === "saved") els.reviewTitle.textContent = t("savedReviewsTitle");
   renderWordCloud();
+  if (state.currentAppId) void rerenderTimelineFromCache();
 }
 
 function openDb() {
@@ -1135,11 +1883,70 @@ function normalizeWordCloudText(text) {
     .toLowerCase()
     .normalize("NFKD")
     .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9'\s-]+/g, " ");
+    .replace(/[^\p{L}\p{N}'\s\-ー]+/gu, " ");
 }
 
 function normalizePreferenceTerm(text) {
   return normalizeWordCloudText(text).replace(/\s+/g, " ").trim();
+}
+
+function normalizeJapaneseToken(token) {
+  return String(token || "")
+    .trim()
+    .replace(/[ぁぃぅぇぉゃゅょっゎ]+$/u, "")
+    .replace(/^[ぁぃぅぇぉゃゅょっゎ]+/u, "");
+}
+
+function looksLikeContentTermEnhanced(token, blockedTerms) {
+  if (state.wordCloudPrefs.allowed.includes(token)) return true;
+  if (!token) return false;
+  if (blockedTerms.has(token)) return false;
+  if (containsKana(token)) {
+    if (token.length < 2) return false;
+    if (WORD_STOP_WORDS_JA.has(token) || WORD_GAME_STOP_WORDS_JA.has(token)) return false;
+    if (/^[ぁ-ゖー]+$/u.test(token)) return false;
+    if (/^\d+$/u.test(token)) return false;
+    return true;
+  }
+  if (containsChinese(token)) {
+    if (token.length < 2) return false;
+    if (WORD_STOP_WORDS_ZH.has(token) || WORD_GAME_STOP_WORDS_ZH.has(token)) return false;
+    return true;
+  }
+  if (containsHan(token)) {
+    if (token.length < 2) return false;
+    if (WORD_STOP_WORDS_JA.has(token) || WORD_GAME_STOP_WORDS_JA.has(token)) return false;
+    if (WORD_STOP_WORDS_ZH.has(token) || WORD_GAME_STOP_WORDS_ZH.has(token)) return false;
+    return true;
+  }
+  return looksLikeContentTerm(token, blockedTerms);
+}
+
+function extractEnglishWordCloudTokens(text, blockedTerms) {
+  return (normalizeWordCloudText(text).match(/[a-z][a-z'-]{2,}/g) || [])
+    .map((token) => token.replace(/^'+|'+$/g, ""))
+    .filter((token) => looksLikeContentTermEnhanced(token, blockedTerms));
+}
+
+function extractJapaneseWordCloudTokens(text, blockedTerms) {
+  const matches =
+    String(text || "").match(/[\u30A1-\u30FAー]{2,}|[\u4E00-\u9FFF]{2,6}|[\u4E00-\u9FFF]{1,6}[\u3041-\u3096]{1,4}/gu) || [];
+  return matches
+    .map((token) => normalizeJapaneseToken(token))
+    .filter((token) => looksLikeContentTermEnhanced(token, blockedTerms));
+}
+
+function extractChineseWordCloudTokens(text, blockedTerms) {
+  const matches = String(text || "").match(/[\u4E00-\u9FFF]{2,6}/gu) || [];
+  return matches.filter((token) => looksLikeContentTermEnhanced(token, blockedTerms));
+}
+
+function extractWordCloudTokens(text, blockedTerms) {
+  return [
+    ...extractEnglishWordCloudTokens(text, blockedTerms),
+    ...extractJapaneseWordCloudTokens(text, blockedTerms),
+    ...extractChineseWordCloudTokens(text, blockedTerms),
+  ];
 }
 
 function buildAllowedTermStats(reviews, allowedTerms) {
@@ -1151,8 +1958,7 @@ function buildAllowedTermStats(reviews, allowedTerms) {
   reviews.forEach((review) => {
     const normalizedReview = normalizeWordCloudText(review.review);
     allowedTerms.forEach((term) => {
-      const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const regex = new RegExp(`(^|\\s)${escaped}(?=\\s|$)`, "g");
+      const regex = createSearchRegex(term, true);
       const matches = normalizedReview.match(regex) || [];
       if (!matches.length) return;
       const entry = stats.get(term);
@@ -1169,12 +1975,12 @@ function buildAllowedTermStats(reviews, allowedTerms) {
 function getWordCloudBlockedTerms() {
   const app = state.appDetails.get(state.currentAppId)?.[state.currentAppId]?.data;
   const name = app?.name || "";
-  const tokens = (normalizeWordCloudText(name).match(/[a-z][a-z'-]{2,}/g) || [])
-    .map((token) => token.replace(/^'+|'+$/g, ""))
-    .filter(Boolean);
+  const tokens = extractWordCloudTokens(name, new Set()).filter(Boolean);
   const blocked = new Set(tokens);
   for (let index = 0; index < tokens.length - 1; index += 1) {
-    blocked.add(`${tokens[index]} ${tokens[index + 1]}`);
+    if (!containsHan(tokens[index]) && !containsHan(tokens[index + 1])) {
+      blocked.add(`${tokens[index]} ${tokens[index + 1]}`);
+    }
   }
   state.wordCloudPrefs.banned.forEach((term) => blocked.add(term));
   return blocked;
@@ -1182,8 +1988,16 @@ function getWordCloudBlockedTerms() {
 
 function looksLikeContentTerm(token, blockedTerms) {
   if (state.wordCloudPrefs.allowed.includes(token)) return true;
-  if (!token || token.length < 3) return false;
+  if (!token) return false;
   if (blockedTerms.has(token)) return false;
+  if (containsJapanese(token)) {
+    if (token.length < 2) return false;
+    if (WORD_STOP_WORDS_JA.has(token) || WORD_GAME_STOP_WORDS_JA.has(token)) return false;
+    if (/^[ぁ-ゖー]+$/u.test(token)) return false;
+    if (/^\d+$/u.test(token)) return false;
+    return true;
+  }
+  if (token.length < 3) return false;
   if (WORD_STOP_WORDS.has(token) || WORD_GAME_STOP_WORDS.has(token)) return false;
   if (WORD_KEEP_VERBS.has(token)) return true;
   if (WORD_VERB_STOP_WORDS.has(token)) return false;
@@ -1202,18 +2016,15 @@ function extractWordCloudTerms(reviews) {
   const minReviewCount = Math.max(3, Math.ceil(reviews.length * 0.02));
 
   reviews.forEach((review) => {
-    const normalizedReview = normalizeWordCloudText(review.review);
-    const tokens = (normalizedReview.match(/[a-z][a-z'-]{2,}/g) || [])
-      .map((token) => token.replace(/^'+|'+$/g, ""))
-      .filter((token) => looksLikeContentTerm(token, blockedTerms));
+    const tokens = extractWordCloudTokens(review.review, blockedTerms);
 
     const terms = [];
     tokens.forEach((token, index) => {
       terms.push(token);
       const next = tokens[index + 1];
-      if (next) {
+      if (next && !containsHan(token) && !containsHan(next)) {
         const phrase = `${token} ${next}`;
-        if (!blockedTerms.has(phrase) && looksLikeContentTerm(next, blockedTerms)) terms.push(phrase);
+        if (!blockedTerms.has(phrase) && looksLikeContentTermEnhanced(next, blockedTerms)) terms.push(phrase);
       }
     });
 
@@ -1305,27 +2116,15 @@ function renderWordCloud() {
   const rates = state.wordCloudTerms.map((entry) => entry.positiveRate);
   const minRate = Math.min(...rates);
   const maxRate = Math.max(...rates);
-  const STEAM_NEGATIVE = { r: 196, g: 69, b: 76 };
-  const STEAM_NEUTRAL = { r: 146, g: 118, b: 89 };
-  const STEAM_POSITIVE = { r: 138, g: 195, b: 74 };
-
-  const mixColor = (left, right, amount) => {
-    const t = Math.max(0, Math.min(1, amount));
-    const r = Math.round(left.r + (right.r - left.r) * t);
-    const g = Math.round(left.g + (right.g - left.g) * t);
-    const b = Math.round(left.b + (right.b - left.b) * t);
-    return `rgb(${r} ${g} ${b})`;
-  };
 
   state.wordCloudTerms.forEach((entry, index) => {
     const span = document.createElement("span");
     span.className = "word-cloud-term";
+    if (state.wordCloudPrefs.allowed.includes(entry.term)) {
+      span.classList.add("is-allowed");
+    }
     const scale = entry.score / maxScore;
-    const sentimentScale = maxRate === minRate ? 0.5 : (entry.positiveRate - minRate) / (maxRate - minRate);
-    const color =
-      sentimentScale >= 0.5
-        ? mixColor(STEAM_NEUTRAL, STEAM_POSITIVE, (sentimentScale - 0.5) / 0.5)
-        : mixColor(STEAM_NEGATIVE, STEAM_NEUTRAL, sentimentScale / 0.5);
+    const color = getPositiveRateColor(entry.positiveRate, minRate, maxRate);
     span.style.fontSize = `${0.95 + scale * 3.6}rem`;
     span.style.fontWeight = `${420 + Math.round(scale * 320)}`;
     span.style.color = color;
@@ -1512,6 +2311,7 @@ function renderPaging(loaded, total) {
 async function collectReviews(lang, force = false) {
   const targets = lang === "all" ? LANGUAGES.map(([, code]) => code) : [lang];
   const out = [];
+  const fetchFloor = getActiveRangeFetchFloor();
 
   for (const code of targets) {
     const seen = new Set();
@@ -1519,7 +2319,11 @@ async function collectReviews(lang, force = false) {
     while (!seen.has(cursor)) {
       seen.add(cursor);
       const payload = await getReviews(state.currentAppId, code, cursor, force);
-      out.push(...(payload.reviews || []).map((review) => ({ ...review, _appid: state.currentAppId })));
+      const reviews = (payload.reviews || []).map((review) => ({ ...review, _appid: state.currentAppId }));
+      out.push(...reviews);
+      if (fetchFloor && reviews.length && reviews[reviews.length - 1].timestamp_created * 1000 < fetchFloor) {
+        break;
+      }
       if (!payload.reviews?.length || !payload.cursor) break;
       cursor = payload.cursor;
     }
@@ -1550,7 +2354,9 @@ async function loadReviewTabData() {
   resetReviewViewState();
   setFetchState("loading", t("searchLoading"), 35);
   const reviews =
-    state.reviewTab === "saved" ? getSavedReviewsForCurrentApp(lang) : await collectReviews(lang);
+    state.reviewTab === "saved"
+      ? filterReviewsByActiveTimeRange(getSavedReviewsForCurrentApp(lang))
+      : filterReviewsByActiveTimeRange(await collectReviews(lang));
   state.reviewBaseReviews = reviews;
   state.reviewSourceReviews = reviews;
   els.reviewTitle.textContent =
@@ -1566,7 +2372,7 @@ async function loadReviewBrowserForLanguage() {
 async function loadPlaytime() {
   const lang = els.playtimeLanguageSelection.value;
   els.playtimeStatus.textContent = t("searchLoading");
-  const reviews = await collectReviews(lang);
+  const reviews = filterReviewsByActiveTimeRange(await collectReviews(lang));
   const playtimeBuckets = getPlaytimeBuckets();
   const buckets = playtimeBuckets.map(() => ({ posKey: 0, posSteam: 0, negKey: 0, negSteam: 0 }));
 
@@ -1646,9 +2452,10 @@ async function runReviewSearch() {
 
   els.searchSummary.textContent = t("searchLoading");
   const reviews =
-    state.reviewTab === "saved" ? getSavedReviewsForCurrentApp(lang) : await collectReviews(lang);
-  const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const regex = new RegExp(`\\b${escaped}\\b`, "gi");
+    state.reviewTab === "saved"
+      ? filterReviewsByActiveTimeRange(getSavedReviewsForCurrentApp(lang))
+      : filterReviewsByActiveTimeRange(await collectReviews(lang));
+  const regex = createSearchRegex(keyword, true);
   let hitCount = 0;
 
   const matched = reviews.filter((review) => {
@@ -1679,7 +2486,9 @@ async function generateWordCloud() {
   els.wordCloudStatus.textContent = t("wordCloudLoading");
   els.wordCloudContainer.innerHTML = `<div class="word-cloud-empty">${esc(t("wordCloudLoading"))}</div>`;
   const reviews =
-    state.wordCloudSentiment === "saved" ? getSavedReviewsForCurrentApp(language) : await collectReviews(language);
+    state.wordCloudSentiment === "saved"
+      ? filterReviewsByActiveTimeRange(getSavedReviewsForCurrentApp(language))
+      : filterReviewsByActiveTimeRange(await collectReviews(language));
   const filtered =
     state.wordCloudSentiment === "saved"
       ? reviews
@@ -1803,6 +2612,35 @@ async function commitPlaytimeEdit(index, rawValue) {
   await loadPlaytime();
 }
 
+async function refreshScopedData() {
+  if (!state.currentAppId) return;
+
+  setFetchState("loading", t("searchLoading"), 30);
+  const allReviews = filterReviewsByActiveTimeRange(await collectReviews("all"));
+  state.summaryRows = buildSummaryRowsFromReviews(allReviews);
+  renderReviewStatusBar(allReviews);
+  renderTimelineChart(allReviews);
+  renderDistributionChart(state.summaryRows);
+  populateLanguageSelect(els.reviewLanguageSelection);
+  populateLanguageSelect(els.playtimeLanguageSelection);
+  populateLanguageSelect(els.wordLanguageSelection);
+  await loadReviewBrowserForLanguage();
+  await generateWordCloud();
+  await loadPlaytime();
+  els.statusText.textContent = interp(t("loadedTotalReviews"), { count: fmt(allReviews.length) });
+  setFetchState("success", `${interp(t("loadedTotalReviews"), { count: fmt(allReviews.length) })} ${t("usingCache")}`, 100);
+}
+
+async function rerenderTimelineFromCache() {
+  if (!state.currentAppId) return;
+  const reviews = filterReviewsByActiveTimeRange(await collectReviews("all"));
+  renderTimelineChart(reviews);
+}
+
+function updateFetchControlsPin() {
+  return;
+}
+
 async function refreshCurrentCache() {
   if (!state.currentAppId) return;
 
@@ -1864,22 +2702,11 @@ async function loadSummary(appid, force = false) {
     rows.sort((left, right) => right.total_reviews - left.total_reviews);
     state.summaryRows = rows;
     state.wordCloudTerms = [];
-    renderDistributionChart(rows);
     populateLanguageSelect(els.reviewLanguageSelection);
     populateLanguageSelect(els.playtimeLanguageSelection);
     populateLanguageSelect(els.wordLanguageSelection);
     els.workspaceSection.classList.remove("hidden");
-    await loadReviewBrowserForLanguage();
-    await generateWordCloud();
-    await loadPlaytime();
-
-    const total = rows.reduce((sum, row) => sum + row.total_reviews, 0);
-    els.statusText.textContent = interp(t("loadedTotalReviews"), { count: fmt(total) });
-    setFetchState(
-      "success",
-      `${interp(t("loadedTotalReviews"), { count: fmt(total) })} ${t("usingCache")}`,
-      100
-    );
+    await refreshScopedData();
   } catch (error) {
     els.appHero.classList.add("empty");
     els.appHero.style.background = "";
@@ -1965,6 +2792,71 @@ els.dataTabToggle.addEventListener("click", (event) => {
   if (!button || state.dataTab === button.dataset.dataTab) return;
   state.dataTab = button.dataset.dataTab;
   updateWorkspaceTabs();
+});
+
+els.timelineModeToggle.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-timeline-mode]");
+  if (!button || state.timelineMode === button.dataset.timelineMode) return;
+  state.timelineMode = button.dataset.timelineMode;
+  updateTimelineUi();
+  await rerenderTimelineFromCache();
+});
+
+els.timelineKeywordAddButton.addEventListener("click", () => {
+  void addTimelineKeyword();
+});
+
+els.timelineKeywordButton.addEventListener("click", async () => {
+  state.timelineMode = "keywords";
+  const terms = parseTimelineKeywordInput(els.timelineKeywordInput.value);
+  if (terms.length) {
+    state.timelineKeywords = [...new Set([...state.timelineKeywords, ...terms])].slice(0, 6);
+    els.timelineKeywordInput.value = "";
+  }
+  updateTimelineUi();
+  await rerenderTimelineFromCache();
+});
+
+els.timelineKeywordInput.addEventListener("keydown", async (event) => {
+  if (event.key !== "Enter") return;
+  event.preventDefault();
+  await addTimelineKeyword();
+});
+
+els.timelineKeywordList.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-timeline-keyword-remove]");
+  if (!button) return;
+  void removeTimelineKeyword(button.dataset.timelineKeywordRemove);
+});
+
+window.addEventListener("scroll", updateFetchControlsPin, { passive: true });
+window.addEventListener("resize", updateFetchControlsPin);
+
+els.timeRangeToggle.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-time-range]");
+  if (!button) return;
+  state.timeRange.mode = button.dataset.timeRange;
+  if (state.timeRange.mode !== "custom") {
+    updateTimeRangeUi();
+    if (state.currentAppId) await refreshScopedData();
+    return;
+  }
+  updateTimeRangeUi();
+});
+
+els.applyCustomRangeButton.addEventListener("click", async () => {
+  const start = els.timeRangeStart.value;
+  const end = els.timeRangeEnd.value;
+  if (!start || !end) return;
+  if (end < start) {
+    setFetchState("error", t("invalidDateRange"), 100);
+    return;
+  }
+  state.timeRange.mode = "custom";
+  state.timeRange.start = start;
+  state.timeRange.end = end;
+  updateTimeRangeUi();
+  if (state.currentAppId) await refreshScopedData();
 });
 
 els.chartTypeToggle.addEventListener("click", () => {
@@ -2089,6 +2981,12 @@ els.playtimeChart.addEventListener(
 );
 
 Promise.all([loadSavedReviewsFromCache(), loadWordCloudPrefsFromCache()]).finally(() => {
+  const now = new Date();
+  const monthAgo = new Date(now.getTime() - 30 * DAY_MS);
+  state.timeRange.start = formatDateInputValue(monthAgo);
+  state.timeRange.end = formatDateInputValue(now);
+  els.timeRangeStart.value = state.timeRange.start;
+  els.timeRangeEnd.value = state.timeRange.end;
   applyTranslations();
   updateCacheTimestamp(null);
   setFetchState("idle", t("fetchIdleBody"), 0);
@@ -2096,4 +2994,5 @@ Promise.all([loadSavedReviewsFromCache(), loadWordCloudPrefsFromCache()]).finall
     els.deploymentNote.classList.remove("hidden");
     els.deploymentNote.innerHTML = t("proxyRequired");
   }
+  updateFetchControlsPin();
 });
