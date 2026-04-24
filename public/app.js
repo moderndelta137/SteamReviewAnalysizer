@@ -148,6 +148,7 @@ const I18N = {
     reviewShare: "By Language",
     chartType: "Chart Type",
     barChart: "Bar chart",
+    chartBar: "Bar Chart",
     pieChart: "Pie chart",
     reviewBrowser: "Review browser",
     reviewTimelineEyebrow: "Timeline",
@@ -244,6 +245,7 @@ const I18N = {
     aiApiKey: "Gemini API Key",
     aiConnect: "Connect",
     aiLoadModels: "Loading Gemini models...",
+    aiModelsPrompt: "Enter Gemini API key to load models",
     aiModelsLoaded: "Loaded {count} Gemini models. Choose one and connect.",
     aiModelsFailed: "Could not load Gemini models.",
     aiConnected: "AI connected.",
@@ -305,7 +307,195 @@ const I18N = {
     allowWord: "Allow",
     banWord: "Ban",
   },
-  ja: {},
+  ja: {
+    brandEyebrow: "Steamレビュー分析",
+    brandTitle: "Steam Review Analyzer",
+    uiLanguage: "表示言語",
+    positiveRateColors: "評価率カラー",
+    recentGames: "最近のゲーム",
+    fetchReviews: "レビューを取得",
+    appInputPlaceholder: "Steam AppID またはゲーム名を入力",
+    replicaEyebrow: "レプリカビルド",
+    heroTitle: "Steamアプリを読み込み、言語別のレビュー量を確認します。",
+    heroBody:
+      "この初期版では、SteamScoutの基本フローに沿って、アプリ情報、言語別内訳、レビュー閲覧、CSV出力、プレイ時間帯分析を扱います。",
+    wordCloudEyebrow: "ワードクラウド",
+    wordCloudTitle: "ワードクラウド",
+    wordCloudSentiment: "評価",
+    wordCloudView: "表示",
+    wordCloudGraph: "ワードクラウド",
+    scatterPlot: "散布図",
+    generateWordCloud: "生成",
+    wordCloudFootnote: "ストップワード除去、ゲーム用語除外、文書頻度、フレーズ抽出を使っています。",
+    wordCloudLoading: "レビューからワードクラウドを生成しています...",
+    wordCloudEmpty: "この条件では有効なキーワードが見つかりませんでした。",
+    wordCloudReady: "{reviews}件のレビューを分析し、{terms}件のキーワードを抽出しました。",
+    wordPreferenceLabel: "単語設定",
+    wordPreferencePlaceholder: "単語またはフレーズ",
+    allowWord: "許可",
+    banWord: "除外",
+    languageBreakdown: "言語別内訳",
+    reviewsByLanguage: "Steamレビューの言語別集計",
+    distribution: "分布",
+    reviewShare: "言語別",
+    chartType: "グラフ種類",
+    barChart: "棒グラフ",
+    chartBar: "棒グラフ",
+    pieChart: "円グラフ",
+    reviewBrowser: "レビュー閲覧",
+    reviewTimelineEyebrow: "推移",
+    reviewTimeline: "レビュー推移",
+    timelineModeReviews: "レビュー数",
+    timelineModeKeywords: "単語検索",
+    timelineKeywords: "キーワード",
+    timelineKeywordPlaceholder: "boss, crash, soundtrack",
+    timelineAddKeyword: "追加",
+    timelinePlotKeywords: "描画",
+    timelineKeywordEmpty: "描画するキーワードを1つ以上入力してください。",
+    timelineKeywordNoMatch: "この期間では該当キーワードを含むレビューが見つかりませんでした。",
+    timelineKeywordStatus: "{terms}個のキーワードを{buckets}期間で表示しています。",
+    selectedReviews: "選択中のレビュー",
+    prev: "前へ",
+    next: "次へ",
+    hoursPlayed: "プレイ時間",
+    reviewDistributionByPlaytime: "プレイ時間別",
+    load: "読み込み",
+    portion: "割合",
+    language: "言語",
+    total: "合計",
+    positive: "好評",
+    negative: "不評",
+    score: "スコア",
+    fetchIdleTitle: "準備完了",
+    fetchIdleBody: "開始するにはAppIDまたはゲーム名を入力してください。",
+    fetchLoadingTitle: "取得中",
+    fetchCompleteTitle: "読み込み完了",
+    fetchErrorTitle: "失敗",
+    proxyRequired:
+      "<strong>プロキシが必要です。</strong> アプリが `/api` プロキシと同一オリジンで動作していない場合は `public/config.js` の `apiBaseUrl` を設定してください。",
+    loadingAppDetails: "アプリ情報を読み込み中...",
+    resolvingGame: "ゲーム名を解決中...",
+    resolvedGame: "{name} ({appid}) に一致しました",
+    loadedLanguages: "{total}言語中 {loaded}言語を読み込み済み",
+    loadedTotalReviews: "合計 {count} 件のレビューを読み込み済み",
+    loadingLanguageReviews: "{language} のレビューを読み込み中: {pages} ページ、{reviews} 件",
+    noReviews: "この条件ではレビューが見つかりませんでした。",
+    requestFailed: "リクエストに失敗しました",
+    appNotFound: "アプリが見つかりません",
+    gameLookupFailed: "\"{query}\" に一致するSteamアプリは見つかりませんでした。",
+    checkAppId: "AppIDを確認して再試行してください。",
+    noProxyConfigured: "APIプロキシが設定されていません。",
+    reviewBy: "{sentiment}レビュー投稿者",
+    date: "日付",
+    steamPurchase: "Steamで購入",
+    playtime: "プレイ時間",
+    minutes: "分",
+    gamesOwned: "所持ゲーム数",
+    reviewCount: "レビュー数",
+    loadedPaging: "{total}件中 {loaded}件を表示",
+    positiveCount: "好評 {count}",
+    negativeCount: "不評 {count}",
+    allLanguage: "すべて",
+    communityMembersTracked: "コミュニティメンバー {count} 人を追跡中。",
+    steamApp: "Steamアプリ {appid}",
+    noShortDescription: "短い説明はありません。",
+    usingCache: "利用可能なキャッシュデータを読み込みました。",
+    chartPieTooltipReviews: "件のレビュー",
+    refreshCache: "キャッシュ更新",
+    cacheTimestampEmpty: "まだキャッシュは読み込まれていません。",
+    cacheTimestamp: "キャッシュ時刻: {time}",
+    timeSpan: "期間",
+    timeSpanLifetime: "全期間",
+    timeSpanWeek: "1週間",
+    timeSpanMonth: "1か月",
+    timeSpanYear: "1年",
+    timeSpanCustom: "カスタム",
+    startDate: "開始",
+    endDate: "終了",
+    applyRange: "適用",
+    invalidDateRange: "終了日は開始日以降である必要があります。",
+    reviewStatusPositive: "{count}件のレビュー ({portion}%)",
+    reviewStatusNegative: "{count}件のレビュー ({portion}%)",
+    reviewStatusScore: "好評率 {score}%",
+    keywordSearch: "キーワード検索",
+    search: "検索",
+    searchPlaceholder: "キーワード",
+    searchSummaryLead: "キーワード結果",
+    resultSummaryLead: "レビュー結果",
+    searchCount: "ヒット数",
+    searchReviews: "一致したレビュー",
+    searchShown: "表示中",
+    summaryPositiveRate: "好評率",
+    searchEmpty: "検索するキーワードを入力してください。",
+    searchLoading: "レビューを検索中...",
+    scanningKeywordMatches: "{reviews}件のレビューから \"{keyword}\" を検索中...",
+    searchNoMatch: "一致するレビューは見つかりませんでした。",
+    downloadCsv: "CSVをダウンロード",
+    aiSettings: "AIモデル",
+    aiBaseUrl: "Gemini Base URL",
+    aiModel: "モデル",
+    aiApiKey: "Gemini APIキー",
+    aiConnect: "接続",
+    aiLoadModels: "Geminiモデルを読み込み中...",
+    aiModelsPrompt: "Gemini APIキーを入力してモデルを読み込んでください",
+    aiModelsLoaded: "{count}件のGeminiモデルを読み込みました。選択して接続してください。",
+    aiModelsFailed: "Geminiモデルを読み込めませんでした。",
+    aiConnected: "AIに接続しました。",
+    aiDisconnected: "AIは未接続です。",
+    aiTesting: "AIモデルをテスト中...",
+    aiConnectFailed: "AI接続に失敗しました。",
+    aiAnalysisEyebrow: "根拠付きAI分析",
+    aiAnalysisTitle: "レビューアナリスト",
+    aiAnalysisScope: "現在の全体期間を対象に、構造化したレビュー根拠から回答します。",
+    aiAnalysisQuestion: "レビューについて質問する",
+    aiAnalysisPlaceholder: "今年の不評レビューで最も多い不満は何ですか？",
+    aiAnalysisAsk: "AIに質問",
+    aiAnalysisNeedConnection: "レビューについて根拠付きで質問するにはAIモデルを接続してください。",
+    aiAnalysisNeedApp: "先にゲームを読み込んでからレビューについて質問してください。",
+    aiAnalysisEmpty: "質問すると、レビュー統計と代表的な抜粋をもとにAIが回答します。",
+    aiAnalysisLoading: "レビューから根拠データを構築中...",
+    aiAnalysisNoReviews: "現在の全体期間では利用可能なレビューがありません。",
+    aiAnalysisCached: "キャッシュ済み回答",
+    aiAnalysisLive: "最新回答",
+    aiAnalysisEvidence: "{reviews}件のレビュー、{topics}件のトピック、{snippets}件の代表抜粋を根拠にしています。",
+    aiAnalysisFailed: "AI分析に失敗しました。",
+    translateReview: "翻訳",
+    translatingReview: "翻訳中...",
+    translationFailed: "翻訳に失敗しました。",
+    sortBy: "並び順",
+    sortDate: "新しい順",
+    sortPlaytime: "プレイ時間",
+    sortLength: "長さ",
+    filters: "フィルター",
+    savedFilter: "保存状態",
+    reviewMode: "表示",
+    reviewTabBrowse: "レビュー閲覧",
+    reviewTabSaved: "保存済みレビュー",
+    sentimentAll: "すべて",
+    savedAll: "すべて",
+    savedOnly: "保存済み",
+    unsavedOnly: "未保存",
+    filterPositive: "好評",
+    filterNegative: "不評",
+    playtimeFilter: "プレイ時間フィルター",
+    lengthFilter: "長さフィルター",
+    playtimeAll: "すべてのプレイ時間",
+    playtimeUnder60: "1時間未満",
+    playtime60to300: "1時間 - 5時間",
+    playtime300to1200: "5時間 - 20時間",
+    playtime1200plus: "20時間以上",
+    lengthAll: "すべての長さ",
+    lengthShort: "短い",
+    lengthMedium: "中",
+    lengthLong: "長い",
+    downloadSavedCsv: "保存済みCSVをダウンロード",
+    unsaveShown: "表示中を保存解除",
+    saveReview: "保存",
+    savedReview: "保存済み",
+    savedReviewsTitle: "保存済みレビュー",
+    playtimeCutoffs: "プレイ時間の区切り (分)",
+    cutoffLabel: "区切り {index}",
+  },
 };
 
 const runtimeConfig = window.STEAM_REVIEW_ANALYSIZER_CONFIG || {};
@@ -428,7 +618,26 @@ const TOPIC_UI_TEXT = {
     topicFilter: "Topic Filter",
     topicAll: "All topics",
   },
-  ja: {},
+  ja: {
+    topicClusters: "トピッククラスター",
+    topicClustersEyebrow: "トピッククラスター",
+    topicSource: "対象",
+    topicSourceAll: "すべてのレビュー",
+    topicSourceSaved: "保存済みレビュー",
+    chartLine: "折れ線グラフ",
+    topicStatusLoading: "トピッククラスターを分析中...",
+    topicStatusEmpty: "この条件ではトピック一致が見つかりませんでした。",
+    topicStatusReady: "{reviews}件のレビューから{topics}件のトピックを検出しました。",
+    topicShare: "言及割合",
+    topicTrendUp: "増加傾向",
+    topicTrendDown: "減少傾向",
+    topicTrendFlat: "横ばい",
+    topicPriorityHigh: "高優先度",
+    topicPriorityMedium: "中優先度",
+    topicPriorityLow: "低優先度",
+    topicFilter: "トピックフィルター",
+    topicAll: "すべてのトピック",
+  },
 };
 
 const state = {
@@ -1110,7 +1319,7 @@ function formatTimelineMarkerDate(dateMs) {
 
 function showTimelineMarkerTooltip(event, marker) {
   const tooltip = ensureSharedTooltip();
-  tooltip.innerHTML = `<strong>${esc(marker.label || (state.currentUiLanguage === "ja" ? "繝槭・繧ｫ繝ｼ" : "Marker"))}</strong><div>${esc(
+  tooltip.innerHTML = `<strong>${esc(marker.label || (state.currentUiLanguage === "ja" ? "マーカー" : "Marker"))}</strong><div>${esc(
     formatTimelineMarkerDate(marker.dateMs)
   )}</div>`;
   tooltip.style.display = "block";
@@ -1779,7 +1988,7 @@ function renderAiModelOptions() {
     ? models
         .map((model) => `<option value="${esc(model.name)}">${esc(model.displayName || model.name)}</option>`)
         .join("")
-    : `<option value="">Enter Gemini API key to load models</option>`;
+    : `<option value="">${esc(t("aiModelsPrompt"))}</option>`;
   els.aiModelSelect.value = state.ai.model && models.some((model) => model.name === state.ai.model) ? state.ai.model : models[0]?.name || "";
   state.ai.model = els.aiModelSelect.value;
 }
@@ -2275,6 +2484,8 @@ async function rememberRecentApp(appid, app) {
 }
 
 function applyTranslations() {
+  document.documentElement.lang = state.currentUiLanguage;
+  document.title = t("brandTitle");
   if (els.uiLanguageToggle) {
     els.uiLanguageToggle.innerHTML =
       '<span class="lang-pill" data-lang="ja">日本語</span><span class="lang-pill" data-lang="en">EN</span>';
@@ -2283,10 +2494,6 @@ function applyTranslations() {
     const key = node.dataset.i18n;
     if (key && t(key)) node.textContent = t(key);
   });
-  if (els.uiLanguageToggle) {
-    const jaPill = els.uiLanguageToggle.querySelector('[data-lang="ja"]');
-    if (jaPill) jaPill.textContent = "日本語";
-  }
 
   document.querySelectorAll('[data-i18n="topicClusters"]').forEach((node) => {
     node.textContent = topicText("topicClusters");
@@ -2306,85 +2513,11 @@ function applyTranslations() {
   document.querySelectorAll('[data-i18n="topicFilter"]').forEach((node) => {
     node.textContent = topicText("topicFilter");
   });
-  if (state.currentUiLanguage === "ja") {
-    document.querySelectorAll('[data-i18n="aiSettings"]').forEach((node) => (node.textContent = "AIモデル"));
-    document.querySelectorAll('[data-i18n="aiBaseUrl"]').forEach((node) => (node.textContent = "Gemini Base URL"));
-    document.querySelectorAll('[data-i18n="aiModel"]').forEach((node) => (node.textContent = "モデル"));
-    document.querySelectorAll('[data-i18n="aiApiKey"]').forEach((node) => (node.textContent = "Gemini APIキー"));
-    document.querySelectorAll('[data-i18n="aiConnect"]').forEach((node) => (node.textContent = "接続"));
-  }
-
-  document.querySelectorAll('[data-i18n="timelineModeReviews"]').forEach((node) => {
-    node.textContent = state.currentUiLanguage === "ja" ? "レビュー数" : "Review Count";
+  document.querySelectorAll(".ai-analysis-expand").forEach((node) => {
+    node.textContent = state.currentUiLanguage === "ja"
+      ? (node.dataset.expanded === "true" ? "詳細を隠す" : "詳細を表示")
+      : (node.dataset.expanded === "true" ? "Hide details" : "Show details");
   });
-  document.querySelectorAll('[data-i18n="timelineModeKeywords"]').forEach((node) => {
-    node.textContent = state.currentUiLanguage === "ja" ? "単語検索" : "Word Search";
-  });
-  document.querySelectorAll('[data-i18n="timelineKeywords"]').forEach((node) => {
-    node.textContent = state.currentUiLanguage === "ja" ? "キーワード" : "Keywords";
-  });
-  document.querySelectorAll('[data-i18n="timelineAddKeyword"]').forEach((node) => {
-    node.textContent = state.currentUiLanguage === "ja" ? "追加" : "Add";
-  });
-  document.querySelectorAll('[data-i18n="timelinePlotKeywords"]').forEach((node) => {
-    node.textContent = state.currentUiLanguage === "ja" ? "描画" : "Plot";
-  });
-
-  if (state.currentUiLanguage === "ja") {
-    document.querySelectorAll('[data-i18n="wordCloudTitle"]').forEach((node) => {
-      node.textContent = "ワードクラウド";
-    });
-    document.querySelectorAll('[data-i18n="reviewTimelineEyebrow"]').forEach((node) => {
-      node.textContent = "推移";
-    });
-    document.querySelectorAll('[data-i18n="reviewTimeline"]').forEach((node) => {
-      node.textContent = "レビュー推移";
-    });
-    document.querySelectorAll('[data-lang="ja"]').forEach((node) => {
-      node.textContent = "日本語";
-    });
-    document.querySelectorAll('[data-i18n="timeSpan"]').forEach((node) => {
-      node.textContent = "期間";
-    });
-    document.querySelectorAll('[data-i18n="timeSpanLifetime"]').forEach((node) => {
-      node.textContent = "全期間";
-    });
-    document.querySelectorAll('[data-i18n="timeSpanWeek"]').forEach((node) => {
-      node.textContent = "1週間";
-    });
-    document.querySelectorAll('[data-i18n="timeSpanMonth"]').forEach((node) => {
-      node.textContent = "1か月";
-    });
-    document.querySelectorAll('[data-i18n="timeSpanYear"]').forEach((node) => {
-      node.textContent = "1年";
-    });
-    document.querySelectorAll('[data-i18n="timeSpanCustom"]').forEach((node) => {
-      node.textContent = "カスタム";
-    });
-    document.querySelectorAll('[data-i18n="startDate"]').forEach((node) => {
-      node.textContent = "開始";
-    });
-    document.querySelectorAll('[data-i18n="endDate"]').forEach((node) => {
-      node.textContent = "終了";
-    });
-    document.querySelectorAll('[data-i18n="applyRange"]').forEach((node) => {
-      node.textContent = "適用";
-    });
-    if (els.wordAllowButton) els.wordAllowButton.textContent = "許可";
-    if (els.wordBanButton) els.wordBanButton.textContent = "除外";
-    document.querySelectorAll(".ai-analysis-expand").forEach((node) => {
-      node.textContent = node.dataset.expanded === "true" ? "詳細を隠す" : "詳細を表示";
-    });
-  } else {
-    document.querySelectorAll('[data-lang="ja"]').forEach((node) => {
-      node.textContent = "日本語";
-    });
-    if (els.wordAllowButton) els.wordAllowButton.textContent = "Allow";
-    if (els.wordBanButton) els.wordBanButton.textContent = "Ban";
-    document.querySelectorAll(".ai-analysis-expand").forEach((node) => {
-      node.textContent = node.dataset.expanded === "true" ? "Hide details" : "Show details";
-    });
-  }
 
   els.appidInput.placeholder = t("appInputPlaceholder");
   els.reviewSearchInput.placeholder = t("searchPlaceholder");
@@ -3968,7 +4101,7 @@ function renderTopicDetails(rows) {
     )}</div><div class="topic-card-badges"><span class="topic-priority ${row.priority}">${esc(
       topicText(`topicPriority${row.priority[0].toUpperCase()}${row.priority.slice(1)}`)
     )}</span><span class="topic-trend">${esc(
-      row.trend === "up" ? "竊・trend" : row.trend === "down" ? "竊・trend" : "竊・trend"
+      row.trend === "up" ? topicText("topicTrendUp") : row.trend === "down" ? topicText("topicTrendDown") : topicText("topicTrendFlat")
     )}</span></div></div><div class="chart-meta"><span>${topicText("topicShare")}</span><span>${fmt(
       row.reviewCount
     )} / ${fmt(row.totalReviews)} (${row.mentionShare.toFixed(
