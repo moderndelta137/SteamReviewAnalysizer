@@ -102,6 +102,91 @@ async function translateReview(request) {
   });
 }
 
+async function analyzeReviews(request) {
+  const body = await request.json();
+  const apiKey = String(body.apiKey || "").trim();
+  const model = String(body.model || "").trim();
+  const question = String(body.question || "").trim();
+  const questionMode = String(body.questionMode || "analytical").trim();
+  const answerLanguage = String(body.answerLanguage || "English").trim();
+  const baseUrl = String(body.baseUrl || "https://generativelanguage.googleapis.com/v1beta").trim().replace(/\/+$/, "");
+  const evidence = body.evidence && typeof body.evidence === "object" ? body.evidence : null;
+
+  if (!apiKey) return jsonResponse({ error: "Missing API key" }, 400);
+  if (!model) return jsonResponse({ error: "Missing model" }, 400);
+  if (!question) return jsonResponse({ error: "Missing question" }, 400);
+  if (!evidence) return jsonResponse({ error: "Missing evidence" }, 400);
+  if (!baseUrl.startsWith("https://")) return jsonResponse({ error: "AI base URL must use HTTPS" }, 400);
+
+  const modelName = model.startsWith("models/") ? model : `models/${model}`;
+  const prompt = [
+    `User question: ${question}`,
+    `Question mode: ${questionMode}`,
+    "",
+    "Evidence JSON:",
+    JSON.stringify(evidence),
+  ].join("\n");
+
+  const modeInstruction =
+    questionMode === "pillar"
+      ? "Infer the game's likely player-perceived pillars from repeated praise, repeated tolerance patterns, and recurring theme clusters. Rank the top 1-3 pillars and explain why each qualifies as a pillar."
+      : questionMode === "feature_request"
+        ? "Infer the most wanted features or changes from repeated request language, repeated complaints that imply missing features, and concentrated negative friction. Distinguish between explicit requests and implied requests."
+        : questionMode === "advisory"
+          ? "Answer like a professional game product analyst advising a real development team. Identify practical priorities, tradeoffs, and likely highest-impact actions."
+          : questionMode === "comparative"
+            ? "Focus on what changed, what stayed the same, and whether the evidence supports a meaningful shift."
+            : questionMode === "factual"
+              ? "Prefer direct factual reporting with minimal inference."
+              : "Provide analytical synthesis grounded in the evidence.";
+
+  const response = await fetch(`${baseUrl}/${modelName}:generateContent`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-goog-api-key": apiKey,
+    },
+    body: JSON.stringify({
+      systemInstruction: {
+        parts: [
+          {
+            text:
+              `You are a grounded analyst for Steam reviews. Answer only from the provided evidence JSON. ` +
+              `Treat population-level counts, rates, topics, and trends as the primary source of truth. ` +
+              `Use review excerpts only as illustrations, not as proof of prevalence. ` +
+              `You may synthesize higher-level themes, likely pillars, desired features, and strategic advice when they are strongly supported by multiple evidence sources. ` +
+              `Always distinguish observed facts from supported inferences. ` +
+              `Distinguish common issues, minority but severe issues, and emerging trends when supported. ` +
+              `If the evidence is insufficient, say so plainly. ` +
+              `Do not invent facts, hidden causes, player motives, or unsupported comparisons. ` +
+              `${modeInstruction} ` +
+              `Respond in ${answerLanguage}. ` +
+              `Keep the structure concise with: Answer, Why, Evidence, and Caveats.`,
+          },
+        ],
+      },
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: prompt }],
+        },
+      ],
+      generationConfig: {
+        temperature: 0.2,
+      },
+    }),
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    return jsonResponse({ error: payload.error?.message || `AI request failed: ${response.status}` }, response.status);
+  }
+
+  return jsonResponse({
+    answer: payload.candidates?.[0]?.content?.parts?.map((part) => part.text || "").join("").trim() || "",
+  });
+}
+
 async function listGeminiModels(request) {
   const url = new URL(request.url);
   const apiKey = String(url.searchParams.get("apiKey") || "").trim();
@@ -178,6 +263,10 @@ async function handleApi(request) {
 
   if (url.pathname === "/api/translate" && request.method === "POST") {
     return translateReview(request);
+  }
+
+  if (url.pathname === "/api/analyze" && request.method === "POST") {
+    return analyzeReviews(request);
   }
 
   if (url.pathname === "/api/ai/models") {

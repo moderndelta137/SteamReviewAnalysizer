@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -16,10 +16,15 @@
         <div class="toolbar">
           <div class="toolbar-label">
             <span data-i18n="uiLanguage">UI Language</span>
-            <button id="ui-language-toggle" class="lang-toggle" type="button" aria-label="Toggle UI language">
-              <span class="lang-pill" data-lang="ja">日本語</span>
-              <span class="lang-pill" data-lang="en">EN</span>
-            </button>
+            <div class="toolbar-toggles">
+              <button id="positive-rate-color-toggle" class="lang-toggle" type="button" aria-label="Toggle positive-rate colors">
+                <span class="lang-pill" data-positive-rate-colors="on" data-i18n="positiveRateColors">Rate Color</span>
+              </button>
+              <button id="ui-language-toggle" class="lang-toggle" type="button" aria-label="Toggle UI language">
+                <span class="lang-pill" data-lang="ja">日本語</span>
+                <span class="lang-pill" data-lang="en">EN</span>
+              </button>
+            </div>
           </div>
           <form id="fetch-form" class="search-form">
             <input id="appid-input" type="text" placeholder="Enter Steam AppID or game name" />
@@ -27,6 +32,10 @@
           </form>
         </div>
       </header>
+
+      <section id="recent-apps-panel" class="recent-apps-panel hidden">
+        <div id="recent-apps-list" class="recent-apps-list"></div>
+      </section>
 
       <main class="layout">
         <section id="fetch-state-panel" class="fetch-state-panel">
@@ -134,7 +143,13 @@
                     <button class="lang-pill" type="button" data-word-sentiment="saved" data-i18n="savedOnly">Saved</button>
                   </div>
                 </div>
-                <button id="generate-word-cloud-button" type="button" data-i18n="generateWordCloud">Generate</button>
+                <div class="control-field word-cloud-view-control">
+                  <span data-i18n="wordCloudView">View</span>
+                  <div id="word-view-toggle" class="lang-toggle review-toggle-group" aria-label="Word cloud view">
+                    <button class="lang-pill" type="button" data-word-view="cloud" data-i18n="wordCloudGraph">Word Cloud</button>
+                    <button class="lang-pill" type="button" data-word-view="scatter" data-i18n="scatterPlot">Scatter Plot</button>
+                  </div>
+                </div>
               </div>
               <div class="word-cloud-preferences">
                 <label class="control-field word-cloud-preference-input">
@@ -255,6 +270,7 @@
               </div>
               <div id="timeline-keyword-list" class="word-preference-list hidden"></div>
               <div id="timeline-chart" class="timeline-chart"></div>
+              <div id="timeline-markers" class="timeline-markers"></div>
             </section>
 
             <section id="analysis-panel-topics" class="workspace-body hidden">
@@ -275,6 +291,13 @@
                   <div id="topic-source-toggle" class="lang-toggle review-toggle-group" aria-label="Topic source">
                     <button class="lang-pill" type="button" data-topic-source="all" data-i18n="topicSourceAll">All Reviews</button>
                     <button class="lang-pill" type="button" data-topic-source="saved" data-i18n="topicSourceSaved">Saved Reviews</button>
+                  </div>
+                </div>
+                <div class="control-field topic-view-control">
+                  <span data-i18n="wordCloudView">View</span>
+                  <div id="topic-chart-view-toggle" class="lang-toggle review-toggle-group" aria-label="Topic chart view">
+                    <button class="lang-pill" type="button" data-topic-chart-view="bar" data-i18n="chartBar">Bar Chart</button>
+                    <button class="lang-pill" type="button" data-topic-chart-view="line" data-i18n="chartLine">Line Plot</button>
                   </div>
                 </div>
               </div>
@@ -326,6 +349,30 @@
             </section>
           </article>
         </section>
+
+        <section id="ai-analysis-panel" class="panel ai-analysis-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow" data-i18n="aiAnalysisEyebrow">Grounded AI Analysis</p>
+              <h3 data-i18n="aiAnalysisTitle">Review Analyst</h3>
+            </div>
+            <div id="ai-analysis-scope" class="status-text" data-i18n="aiAnalysisScope">
+              Answers from the current global time span using structured review evidence.
+            </div>
+          </div>
+          <div id="ai-analysis-messages" class="ai-analysis-messages"></div>
+          <form id="ai-analysis-form" class="ai-analysis-form">
+            <label class="control-field ai-analysis-input">
+              <span data-i18n="aiAnalysisQuestion">Ask about the reviews</span>
+              <textarea
+                id="ai-analysis-input"
+                rows="3"
+                placeholder="What are the most common complaints in negative reviews this year?"
+              ></textarea>
+            </label>
+            <button id="ai-analysis-send-button" type="submit" data-i18n="aiAnalysisAsk">Ask AI</button>
+          </form>
+        </section>
       </main>
     </div>
 
@@ -333,3 +380,4 @@
     <script src="./app.js"></script>
   </body>
 </html>
+
