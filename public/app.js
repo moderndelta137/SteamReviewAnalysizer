@@ -99,6 +99,10 @@ const WORD_STOP_WORDS_ZH = new Set([
 const WORD_GAME_STOP_WORDS_ZH = new Set([
   "游戏","评论","玩家","游玩","剧情","角色","画面","音乐","steam"
 ]);
+const WORD_STOP_CHARS_ZH = new Set([
+  "的","了","是","很","也","都","就","又","还","才","再","太","更","最","把","被","让","给","在","有","和","跟","与","及","并","而",
+  "但","却","还","并","或","啊","吗","呢","吧","呀","哦","噢","嘛","着","过","里","上","下","中","对","向","将","把","被","比",
+]);
 const WORD_VERB_STOP_WORDS = new Set([
   "is","are","was","were","be","been","being","do","did","does","done","go","goes","went","gone","come",
   "comes","came","coming","get","gets","got","getting","make","makes","made","making","take","takes","took",
@@ -110,8 +114,8 @@ const WORD_KEEP_VERBS = new Set([
   "crash","crashes","crashed","stutter","stutters","stuttering","freeze","freezes","frozen","lag","lags",
   "stuck","drop","drops","dropped","optimize","optimized","optimize","grind","grinding",
 ]);
-const TOPIC_TAGS_VERSION = 1;
-const TOPIC_CLUSTER_CACHE_VERSION = 1;
+const TOPIC_TAGS_VERSION = 2;
+const TOPIC_CLUSTER_CACHE_VERSION = 2;
 const TOPIC_DEFINITIONS = [];
 
 const I18N = {
@@ -508,7 +512,7 @@ const API_BASE = (
 
 const DB_NAME = "steam-review-analysizer-cache";
 const STORE_NAME = "responses";
-const CACHE_TTL = 1000 * 60 * 60 * 12;
+const CACHE_TTL = 1000 * 60 * 60 * 24 * 7;
 const APP_LIST_TTL = 1000 * 60 * 60 * 24 * 7;
 const ROMAN_NUMERALS = new Map([
   ["i", "1"],
@@ -825,7 +829,7 @@ const STEAM_NEGATIVE = { r: 196, g: 69, b: 76 };
 const STEAM_NEUTRAL = { r: 146, g: 118, b: 89 };
 const STEAM_POSITIVE = { r: 138, g: 195, b: 74 };
 const AI_ANALYSIS_SNIPPET_LIMIT = 10;
-const AI_ANALYSIS_CACHE_TTL = 1000 * 60 * 60 * 12;
+const AI_ANALYSIS_CACHE_TTL = 1000 * 60 * 60 * 24;
 const AI_QUESTION_STOPWORDS = new Set([
   "the","and","for","with","that","this","from","what","when","where","which","about","have","has","had","were","was",
   "into","than","then","them","they","their","there","does","did","how","why","can","could","would","should","will",
@@ -908,11 +912,20 @@ function getTopicCatalog() {
       id: "uiux",
       labels: { en: "UI / UX", ja: "UI / UX" },
       keywords: {
-        en: ["ui","ux","menu","hud","interface","inventory","map","tutorial"],
-        ja: ["ui","メニュー","hud","インターフェース","インベントリ","マップ","チュートリアル"],
-        zh: ["ui","菜单","界面","hud","背包","地图","教程"],
+        en: [
+          "ui","ux","menu","hud","interface","inventory","map","tutorial",
+          "translation","localization","localized","typo","english text","machine translation","wrong translation",
+        ],
+        ja: [
+          "ui","メニュー","hud","インターフェース","インベントリ","マップ","チュートリアル",
+          "翻訳","ローカライズ","誤字","英語表記","機械翻訳","翻訳ミス",
+        ],
+        zh: [
+          "ui","菜单","界面","hud","背包","地图","教程",
+          "翻译","本地化","错字","文本翻译","机翻","翻译问题",
+        ],
       },
-      severity: ["unusable","confusing","难用"],
+      severity: ["unusable","confusing","machine translation","wrong translation","难用","翻訳ミス"],
       color: "#f2c14e",
     },
     {
@@ -938,14 +951,21 @@ function getTopicCatalog() {
       color: "#f39c6b",
     },
     {
-      id: "localization",
-      labels: { en: "Localization", ja: "翻訳 / ローカライズ" },
+      id: "pricevalue",
+      labels: { en: "Price / Value", ja: "価格 / コスパ" },
       keywords: {
-        en: ["translation","localization","typo","english text"],
-        ja: ["翻訳","ローカライズ","誤字","英語表記"],
-        zh: ["翻译","本地化","错字","文本翻译"],
+        en: [
+          "price","priced","pricing","value","worth","worth it","worthwhile","too expensive","overpriced","cheap","sale","discount","cost",
+          "good value","great value","fair price","full price","price tag","money's worth",
+        ],
+        ja: [
+          "価格","値段","コスパ","高い","高すぎる","安い","お得","割引","セール","フルプライス","価値","値段相応",
+        ],
+        zh: [
+          "价格","价钱","性价比","太贵","便宜","超值","值得","折扣","特价","原价","物有所值",
+        ],
       },
-      severity: ["machine translation","wrong translation","翻译问题"],
+      severity: ["overpriced","too expensive","高すぎる","太贵"],
       color: "#8fd4ff",
     },
   ];
@@ -959,6 +979,10 @@ function getTopicLabel(id) {
   const def = getTopicDefinition(id);
   if (!def) return id;
   return def.labels?.[state.currentUiLanguage] || def.labels?.en || id;
+}
+
+function getTopicRowLabel(row) {
+  return getTopicLabel(row?.id) || row?.label || "";
 }
 
 function containsJapanese(text) {
@@ -1395,7 +1419,7 @@ function renderTimelineMarkersList() {
           marker.id
         )}" value="${esc(marker.label)}" /><input type="date" data-timeline-marker-date="${esc(marker.id)}" value="${esc(
           formatDateInputValue(new Date(marker.dateMs))
-        )}" /></label><button type="button" data-remove-timeline-marker="${esc(marker.id)}">${esc(removeText)}</button></div>`
+        )}" /></label><button class="timeline-marker-remove-button" type="button" data-remove-timeline-marker="${esc(marker.id)}">${esc(removeText)}</button></div>`
     )
     .join("")}`;
 }
@@ -1919,6 +1943,7 @@ function updateWorkspaceTabs() {
   els.analysisPanelTopics.classList.toggle("hidden", state.analysisTab !== "topics");
   els.dataPanelDistribution.classList.toggle("hidden", state.dataTab !== "distribution");
   els.dataPanelPlaytime.classList.toggle("hidden", state.dataTab !== "playtime");
+  updateTimelineUi();
 
   if (state.analysisTab === "reviews" && state.reviewRenderPending) {
     state.reviewRenderPending = false;
@@ -2001,6 +2026,38 @@ function hashText(value) {
     hash |= 0;
   }
   return `${hash >>> 0}`;
+}
+
+function buildAnonymousReviewerAlias(steamid, recommendationid) {
+  const seed = String(steamid || recommendationid || "reviewer");
+  return `Reviewer ${hashText(seed).slice(-8).toUpperCase()}`;
+}
+
+function anonymizeReviewAuthor(author, recommendationid) {
+  const safeAuthor = author && typeof author === "object" ? author : {};
+  const alias = buildAnonymousReviewerAlias(safeAuthor.steamid, recommendationid);
+  return {
+    ...safeAuthor,
+    steamid: alias,
+    personaname: alias,
+    profile_url: "",
+  };
+}
+
+function anonymizeReview(review) {
+  if (!review || typeof review !== "object") return review;
+  return {
+    ...review,
+    author: anonymizeReviewAuthor(review.author, review.recommendationid),
+  };
+}
+
+function anonymizeReviewPayload(payload) {
+  if (!payload || typeof payload !== "object" || !Array.isArray(payload.reviews)) return payload;
+  return {
+    ...payload,
+    reviews: payload.reviews.map((review) => anonymizeReview(review)),
+  };
 }
 
 function getCurrentAppName() {
@@ -2322,7 +2379,7 @@ function getAiAnalysisCacheKey(question) {
 }
 
 function getAiAnalysisPreview(content) {
-  const text = String(content || "").trim();
+  const text = stripMarkdownForPreview(content);
   if (!text) return "";
   const normalized = text.replace(/\r/g, "");
   const paragraphs = normalized
@@ -2333,6 +2390,171 @@ function getAiAnalysisPreview(content) {
   const firstSentence = firstBlock.split(/(?<=[.!?])\s+/)[0] || firstBlock;
   const preview = firstSentence.length <= 220 ? firstSentence : `${firstSentence.slice(0, 217).trimEnd()}...`;
   return preview;
+}
+
+function stripMarkdownForPreview(content) {
+  return String(content || "")
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, "$1")
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
+    .replace(/^>\s?/gm, "")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^\s*[-*+]\s+/gm, "")
+    .replace(/^\s*\d+\.\s+/gm, "")
+    .replace(/[*_~]/g, "")
+    .replace(/\r/g, "")
+    .replace(/\n{2,}/g, "\n")
+    .trim();
+}
+
+function sanitizeMarkdownUrl(url) {
+  const value = String(url || "").trim();
+  return /^(https?:|mailto:)/i.test(value) ? value : "";
+}
+
+function renderMarkdownInline(text) {
+  let html = esc(String(text || ""));
+  html = html.replace(/`([^`]+)`/g, (_, code) => `<code>${code}</code>`);
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, url) => {
+    const safeUrl = sanitizeMarkdownUrl(url);
+    return safeUrl ? `<a href="${esc(safeUrl)}" target="_blank" rel="noreferrer">${label}</a>` : label;
+  });
+  html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  html = html.replace(/__([^_]+)__/g, "<strong>$1</strong>");
+  html = html.replace(/(^|[^\w*])\*([^*\n]+)\*(?!\*)/g, "$1<em>$2</em>");
+  html = html.replace(/(^|[^\w_])_([^_\n]+)_(?!_)/g, "$1<em>$2</em>");
+  return html;
+}
+
+function renderMarkdownBlock(block) {
+  const lines = String(block || "").split("\n");
+  if (!lines.length) return "";
+  const parts = [];
+  let paragraph = [];
+  let listType = null;
+  let listItems = [];
+  let quoteLines = [];
+
+  const flushParagraph = () => {
+    if (!paragraph.length) return;
+    parts.push(`<p>${paragraph.map((line) => renderMarkdownInline(line)).join("<br>")}</p>`);
+    paragraph = [];
+  };
+
+  const flushList = () => {
+    if (!listType || !listItems.length) return;
+    parts.push(`<${listType}>${listItems.map((item) => `<li>${renderMarkdownInline(item)}</li>`).join("")}</${listType}>`);
+    listType = null;
+    listItems = [];
+  };
+
+  const flushQuote = () => {
+    if (!quoteLines.length) return;
+    parts.push(`<blockquote>${quoteLines.map((line) => renderMarkdownInline(line)).join("<br>")}</blockquote>`);
+    quoteLines = [];
+  };
+
+  lines.forEach((line) => {
+    const heading = line.match(/^\s*(#{1,6})\s+(.+)$/);
+    const unordered = line.match(/^\s*[-*+]\s+(.+)$/);
+    const ordered = line.match(/^\s*\d+\.\s+(.+)$/);
+    const quoted = line.match(/^\s*>\s?(.*)$/);
+
+    if (heading) {
+      flushParagraph();
+      flushList();
+      flushQuote();
+      const level = Math.min(6, heading[1].length);
+      parts.push(`<h${level}>${renderMarkdownInline(heading[2])}</h${level}>`);
+      return;
+    }
+
+    if (unordered) {
+      flushParagraph();
+      flushQuote();
+      if (listType && listType !== "ul") flushList();
+      listType = "ul";
+      listItems.push(unordered[1]);
+      return;
+    }
+
+    if (ordered) {
+      flushParagraph();
+      flushQuote();
+      if (listType && listType !== "ol") flushList();
+      listType = "ol";
+      listItems.push(ordered[1]);
+      return;
+    }
+
+    if (quoted) {
+      flushParagraph();
+      flushList();
+      quoteLines.push(quoted[1]);
+      return;
+    }
+
+    flushList();
+    flushQuote();
+    paragraph.push(line);
+  });
+
+  flushParagraph();
+  flushList();
+  flushQuote();
+  return parts.join("");
+}
+
+function renderMarkdownToHtml(content) {
+  const source = String(content || "").replace(/\r/g, "");
+  if (!source.trim()) return "";
+  const blocks = [];
+  const lines = source.split("\n");
+  let current = [];
+  let inFence = false;
+  let fenceLines = [];
+
+  const flushCurrent = () => {
+    if (!current.length) return;
+    blocks.push(renderMarkdownBlock(current.join("\n")));
+    current = [];
+  };
+
+  const flushFence = () => {
+    if (!fenceLines.length) return;
+    blocks.push(`<pre><code>${esc(fenceLines.join("\n"))}</code></pre>`);
+    fenceLines = [];
+  };
+
+  lines.forEach((line) => {
+    if (/^\s*```/.test(line)) {
+      if (inFence) {
+        flushFence();
+        inFence = false;
+      } else {
+        flushCurrent();
+        inFence = true;
+      }
+      return;
+    }
+
+    if (inFence) {
+      fenceLines.push(line);
+      return;
+    }
+
+    if (!line.trim()) {
+      flushCurrent();
+      return;
+    }
+
+    current.push(line);
+  });
+
+  if (inFence) flushFence();
+  flushCurrent();
+  return blocks.join("");
 }
 
 function renderAiAnalysisMessages() {
@@ -2356,11 +2578,13 @@ function renderAiAnalysisMessages() {
       const expanded = Boolean(message.expanded);
       const expandLabel =
         state.currentUiLanguage === "ja" ? (expanded ? "詳細を隠す" : "詳細を表示") : expanded ? "Hide details" : "Show details";
+      const renderedContent =
+        message.role === "assistant" ? renderMarkdownToHtml(message.content) : esc(message.content).replace(/\n/g, "<br>");
       const body = hasDetails
         ? `<div class="ai-analysis-message-summary">${esc(preview)}</div>
            <button class="ai-analysis-expand" type="button" data-ai-expand="${index}" data-expanded="${expanded ? "true" : "false"}">${expandLabel}</button>
-           <div class="ai-analysis-message-body${expanded ? "" : " hidden"}">${esc(message.content)}</div>`
-        : `<div class="ai-analysis-message-body">${esc(message.content)}</div>`;
+           <div class="ai-analysis-message-body markdown-body${expanded ? "" : " hidden"}">${renderedContent}</div>`
+        : `<div class="ai-analysis-message-body${message.role === "assistant" ? " markdown-body" : ""}">${renderedContent}</div>`;
       return `<article class="ai-analysis-message ${esc(message.role)}"><div class="ai-analysis-message-head"><span class="ai-analysis-message-role">${esc(
         label
       )}</span><span>${esc(message.timestamp || "")}</span></div>${body}${meta}</article>`;
@@ -2510,6 +2734,9 @@ function applyTranslations() {
   document.querySelectorAll('[data-i18n="topicSourceSaved"]').forEach((node) => {
     node.textContent = topicText("topicSourceSaved");
   });
+  document.querySelectorAll('[data-i18n="chartLine"]').forEach((node) => {
+    node.textContent = topicText("chartLine");
+  });
   document.querySelectorAll('[data-i18n="topicFilter"]').forEach((node) => {
     node.textContent = topicText("topicFilter");
   });
@@ -2525,6 +2752,7 @@ function applyTranslations() {
   els.timelineKeywordInput.placeholder = t("timelineKeywordPlaceholder");
   if (els.aiAnalysisInput) els.aiAnalysisInput.placeholder = t("aiAnalysisPlaceholder");
   if (els.aiBaseUrlInput) els.aiBaseUrlInput.value = state.ai.baseUrl;
+  if (els.aiApiKeyInput) els.aiApiKeyInput.value = state.ai.apiKey;
   renderAiModelOptions();
 
   updateToggleButtons(els.uiLanguageToggle, state.currentUiLanguage, "lang");
@@ -2669,7 +2897,8 @@ async function getCachedValue(key, loader, ttl = CACHE_TTL) {
 
 async function loadSavedReviewsFromCache() {
   const record = await getRecord("savedreviews");
-  state.savedReviews = Array.isArray(record?.value) ? record.value : [];
+  state.savedReviews = Array.isArray(record?.value) ? record.value.map((review) => anonymizeReview(review)) : [];
+  if (Array.isArray(record?.value)) await putRecord("savedreviews", state.savedReviews);
 }
 
 async function loadWordCloudPrefsFromCache() {
@@ -2711,6 +2940,7 @@ async function loadAiSettingsFromCache() {
   const record = await getRecord("aisettings");
   if (record?.value?.baseUrl) state.ai.baseUrl = record.value.baseUrl;
   if (record?.value?.model) state.ai.model = record.value.model;
+  if (record?.value?.apiKey) state.ai.apiKey = record.value.apiKey;
   if (Array.isArray(record?.value?.models)) state.ai.models = record.value.models;
   const translations = await getRecord("translations");
   state.translationCache = new Map(Object.entries(translations?.value || {}));
@@ -2752,6 +2982,7 @@ async function persistAiSettings() {
   await putRecord("aisettings", {
     baseUrl: state.ai.baseUrl,
     model: state.ai.model,
+    apiKey: state.ai.apiKey,
     models: state.ai.models,
   });
 }
@@ -3101,7 +3332,8 @@ async function getReviews(appid, lang, cursor = "*", force = false) {
       }).toString()}`
     );
 
-  const value = force ? await load() : await getCachedValue(`reviews::${key}`, load);
+  const value = anonymizeReviewPayload(force ? await load() : await getCachedValue(`reviews::${key}`, load));
+  await putRecord(`reviews::${key}`, value);
   state.reviewCache.set(key, value);
 
   const keyForCursors = cursorKey(appid, lang);
@@ -3306,8 +3538,31 @@ function extractJapaneseWordCloudTokens(text, blockedTerms) {
 }
 
 function extractChineseWordCloudTokens(text, blockedTerms) {
-  const matches = String(text || "").match(/[\u4E00-\u9FFF]{2,6}/gu) || [];
-  return matches.filter((token) => looksLikeContentTermEnhanced(token, blockedTerms));
+  const chunks = String(text || "").match(/[\u4E00-\u9FFF]{2,20}/gu) || [];
+  const tokens = new Set();
+
+  const addToken = (token) => {
+    const normalized = String(token || "").trim();
+    if (!normalized || normalized.length < 2) return;
+    if (WORD_STOP_CHARS_ZH.has(normalized[0]) || WORD_STOP_CHARS_ZH.has(normalized[normalized.length - 1])) return;
+    if ([...normalized].every((char) => WORD_STOP_CHARS_ZH.has(char))) return;
+    if (looksLikeContentTermEnhanced(normalized, blockedTerms)) tokens.add(normalized);
+  };
+
+  chunks.forEach((chunk) => {
+    if (chunk.length <= 4) {
+      addToken(chunk);
+      return;
+    }
+
+    for (let size = 2; size <= 4; size += 1) {
+      for (let index = 0; index <= chunk.length - size; index += 1) {
+        addToken(chunk.slice(index, index + size));
+      }
+    }
+  });
+
+  return [...tokens];
 }
 
 function extractWordCloudTokens(text, blockedTerms) {
@@ -3748,7 +4003,7 @@ function showTopicTooltip(event, row) {
     tooltip.className = "word-cloud-tooltip";
     document.body.appendChild(tooltip);
   }
-  tooltip.innerHTML = `<strong>${esc(row.label)}</strong><div>${fmt(row.reviewCount)} reviews</div><div>${t(
+  tooltip.innerHTML = `<strong>${esc(getTopicRowLabel(row))}</strong><div>${fmt(row.reviewCount)} reviews</div><div>${t(
     "positive"
   )}: ${fmt(row.positiveCount)}</div><div>${t("negative")}: ${fmt(row.negativeCount)}</div><div>${t(
     "summaryPositiveRate"
@@ -3860,7 +4115,7 @@ function renderTopicChart(rows) {
     column.className = "topic-bar-column";
     column.innerHTML = `<span class="topic-bar" style="height:${((row.reviewCount / maxValue) * 100).toFixed(
       2
-    )}%; background:${row.color}"></span><span class="topic-bar-label">${esc(row.label)}</span><span class="topic-bar-value">${fmt(
+    )}%; background:${row.color}"></span><span class="topic-bar-label">${esc(getTopicRowLabel(row))}</span><span class="topic-bar-value">${fmt(
       row.reviewCount
     )} ﾂｷ ${row.mentionShare.toFixed(1)}%</span>`;
     column.addEventListener("click", () => {
@@ -3879,7 +4134,7 @@ function getTopicTimelineSeries(reviews, buckets, rows) {
       row.id,
       {
         id: row.id,
-        label: row.label,
+        label: getTopicRowLabel(row),
         color: row.color,
         points: buckets.map((bucket) => ({
           key: bucket.key,
@@ -4097,7 +4352,7 @@ function renderTopicDetails(rows) {
     const positiveWidth = ((row.positiveCount / maxReviews) * 100).toFixed(2);
     const negativeWidth = ((row.negativeCount / maxReviews) * 100).toFixed(2);
     card.innerHTML = `<div class="topic-card-head"><div class="topic-card-title">${esc(
-      row.label
+      getTopicRowLabel(row)
     )}</div><div class="topic-card-badges"><span class="topic-priority ${row.priority}">${esc(
       topicText(`topicPriority${row.priority[0].toUpperCase()}${row.priority.slice(1)}`)
     )}</span><span class="topic-trend">${esc(
@@ -4316,9 +4571,7 @@ function buildReviewCard(review) {
   card.className = `review-card ${review.voted_up ? "positive" : "negative"}`;
   card.innerHTML = `<div class="review-banner">${esc(interp(t("reviewBy"), {
     sentiment,
-  }))} <a href="${esc(review.author.profile_url)}" target="_blank" rel="noreferrer">${esc(
-    review.author.personaname || review.author.steamid
-  )}</a><span class="review-topic-tags">${topicTags}</span>${translateButton}<button class="review-bookmark ${saved ? "is-saved" : ""}" type="button" data-bookmark-appid="${esc(
+  }))} <span>${esc(review.author.personaname || review.author.steamid)}</span><span class="review-topic-tags">${topicTags}</span>${translateButton}<button class="review-bookmark ${saved ? "is-saved" : ""}" type="button" data-bookmark-appid="${esc(
     getReviewAppId(review)
   )}" data-bookmark-review="${esc(review.recommendationid)}">${saved ? t("savedReview") : t(
     "saveReview"
@@ -4774,7 +5027,7 @@ function createCsvRow(review, includeSavedAt = false) {
     getReviewAppId(review),
     review.timestamp_created,
     ...(includeSavedAt ? [review.savedAt || ""] : []),
-    review.author.steamid,
+    review.author.personaname || review.author.steamid,
     review.language,
     review.author.playtime_forever,
     review.recommendationid,
@@ -4790,7 +5043,7 @@ function createCsvRow(review, includeSavedAt = false) {
 async function downloadSavedReviewsCsv() {
   await ensureTopicTagsForReviews(state.reviewDisplayedReviews);
   const rows = [
-    ["AppID", "Timestamp Created", "Saved At", "UserID", "Language", "PlayTimeTotal", "ReviewID", "Purchase", "Recommended", "Topics", "PrimaryTopic", "TopicMatches", "ReviewText"].join(","),
+    ["AppID", "Timestamp Created", "Saved At", "UserAlias", "Language", "PlayTimeTotal", "ReviewID", "Purchase", "Recommended", "Topics", "PrimaryTopic", "TopicMatches", "ReviewText"].join(","),
   ];
   state.reviewDisplayedReviews.forEach((review) => {
     rows.push(createCsvRow(review, true));
@@ -4817,7 +5070,7 @@ async function downloadAllReviewsCsv() {
   const reviews = [...reviewsByKey.values()];
   await ensureTopicTagsForReviews(reviews);
   const rows = [
-    ["AppID", "Timestamp Created", "UserID", "Language", "PlayTimeTotal", "ReviewID", "Purchase", "Recommended", "Topics", "PrimaryTopic", "TopicMatches", "ReviewText"].join(","),
+    ["AppID", "Timestamp Created", "UserAlias", "Language", "PlayTimeTotal", "ReviewID", "Purchase", "Recommended", "Topics", "PrimaryTopic", "TopicMatches", "ReviewText"].join(","),
   ];
   reviews.forEach((review) => {
     rows.push(createCsvRow(review));
@@ -5173,10 +5426,14 @@ if (els.aiAnalysisMessages) {
 }
 
 els.aiApiKeyInput.addEventListener("change", () => {
+  state.ai.apiKey = els.aiApiKeyInput.value.trim();
+  void persistAiSettings();
   void loadGeminiModels();
 });
 
 els.aiApiKeyInput.addEventListener("blur", () => {
+  state.ai.apiKey = els.aiApiKeyInput.value.trim();
+  void persistAiSettings();
   void loadGeminiModels();
 });
 

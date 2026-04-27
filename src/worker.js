@@ -36,6 +36,60 @@ function buildReviewUrl(searchParams) {
   return targetUrl;
 }
 
+function hashText(value) {
+  let hash = 0;
+  const input = String(value || "");
+  for (let index = 0; index < input.length; index += 1) {
+    hash = (hash << 5) - hash + input.charCodeAt(index);
+    hash |= 0;
+  }
+  return `${hash >>> 0}`;
+}
+
+function buildAnonymousReviewerAlias(steamid, recommendationid) {
+  const seed = String(steamid || recommendationid || "reviewer");
+  return `Reviewer ${hashText(seed).slice(-8).toUpperCase()}`;
+}
+
+function anonymizeReview(review) {
+  if (!review || typeof review !== "object") return review;
+  const author = review.author && typeof review.author === "object" ? review.author : {};
+  const alias = buildAnonymousReviewerAlias(author.steamid, review.recommendationid);
+  return {
+    ...review,
+    author: {
+      ...author,
+      steamid: alias,
+      personaname: alias,
+      profile_url: "",
+    },
+  };
+}
+
+async function proxyReviews(targetUrl) {
+  const response = await fetch(targetUrl, {
+    headers: {
+      "User-Agent": "SteamReviewAnalysizer/0.1",
+    },
+  });
+
+  const payload = await response.json().catch(() => null);
+  return new Response(
+    JSON.stringify(
+      payload && Array.isArray(payload.reviews)
+        ? { ...payload, reviews: payload.reviews.map(anonymizeReview) }
+        : payload || { success: 0 }
+    ),
+    {
+      status: response.status,
+      headers: {
+        "content-type": "application/json; charset=utf-8",
+        "cache-control": "no-store",
+      },
+    }
+  );
+}
+
 async function proxy(targetUrl) {
   const response = await fetch(targetUrl, {
     headers: {
@@ -255,7 +309,7 @@ async function handleApi(request) {
 
   if (url.pathname === "/api/reviews") {
     try {
-      return proxy(buildReviewUrl(url.searchParams));
+      return proxyReviews(buildReviewUrl(url.searchParams));
     } catch (error) {
       return jsonResponse({ error: error.message }, 400);
     }

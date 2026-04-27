@@ -219,6 +219,7 @@ select {
 .word-cloud-preferences button,
 .ai-analysis-form button,
 .timeline-keyword-controls button,
+.timeline-marker-remove-button,
 .review-toolbar input,
 .review-toolbar button,
 .playtime-actions button,
@@ -242,6 +243,7 @@ select {
 .word-cloud-preferences button,
 .ai-analysis-form button,
 .timeline-keyword-controls button,
+.timeline-marker-remove-button,
 .review-toolbar button,
 .playtime-actions button,
 .custom-time-range button,
@@ -1350,6 +1352,90 @@ select {
 .ai-analysis-message-body {
   white-space: pre-wrap;
   line-height: 1.65;
+}
+
+.ai-analysis-message-body.markdown-body {
+  white-space: normal;
+}
+
+.markdown-body p,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body blockquote,
+.markdown-body pre {
+  margin: 0 0 10px;
+}
+
+.markdown-body p:last-child,
+.markdown-body ul:last-child,
+.markdown-body ol:last-child,
+.markdown-body blockquote:last-child,
+.markdown-body pre:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  margin: 0 0 8px;
+  color: var(--text);
+  font-size: 0.98rem;
+  line-height: 1.4;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 20px;
+}
+
+.markdown-body li + li {
+  margin-top: 4px;
+}
+
+.markdown-body strong {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.markdown-body em {
+  font-style: italic;
+}
+
+.markdown-body code {
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #d8ecff;
+  font-size: 0.9em;
+}
+
+.markdown-body pre {
+  overflow-x: auto;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(13, 21, 29, 0.88);
+}
+
+.markdown-body pre code {
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.markdown-body blockquote {
+  padding-left: 12px;
+  border-left: 3px solid rgba(102, 192, 244, 0.45);
+  color: var(--muted);
+}
+
+.markdown-body a {
+  color: #8fd4ff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .ai-analysis-message-summary {
