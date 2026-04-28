@@ -242,6 +242,10 @@ const I18N = {
     searchLoading: "Loading reviews for search...",
     scanningKeywordMatches: 'Scanning "{keyword}" across {reviews} reviews...',
     searchNoMatch: "No matching reviews found.",
+    loadingOverlayTitle: "Loading",
+    loadingOverlayBody: "Preparing data...",
+    loadingCancel: "Cancel",
+    loadingCancelled: "Loading cancelled.",
     downloadCsv: "Download CSV",
     aiSettings: "AI Model",
     aiBaseUrl: "Gemini Base URL",
@@ -434,6 +438,10 @@ const I18N = {
     searchLoading: "レビューを検索中...",
     scanningKeywordMatches: "{reviews}件のレビューから \"{keyword}\" を検索中...",
     searchNoMatch: "一致するレビューは見つかりませんでした。",
+    loadingOverlayTitle: "読み込み中",
+    loadingOverlayBody: "データを準備しています...",
+    loadingCancel: "キャンセル",
+    loadingCancelled: "読み込みをキャンセルしました。",
     downloadCsv: "CSVをダウンロード",
     aiSettings: "AIモデル",
     aiBaseUrl: "Gemini Base URL",
@@ -707,6 +715,7 @@ const state = {
   playtimeCutoffs: [...DEFAULT_PLAYTIME_CUTOFFS],
   playtimeEditingIndex: null,
   savePersistTimer: null,
+  activeBlockingTask: null,
 };
 
 let dbPromise = null;
@@ -730,6 +739,10 @@ const els = {
   cacheTimestamp: document.getElementById("cache-timestamp"),
   refreshCacheButton: document.getElementById("refresh-cache-button"),
   downloadCsvButton: document.getElementById("download-csv-button"),
+  loadingOverlay: document.getElementById("loading-overlay"),
+  loadingTitle: document.getElementById("loading-title"),
+  loadingMessage: document.getElementById("loading-message"),
+  loadingCancelButton: document.getElementById("loading-cancel-button"),
   timeRangeToggle: document.getElementById("time-range-toggle"),
   customTimeRange: document.getElementById("custom-time-range"),
   timeRangeStart: document.getElementById("time-range-start"),
@@ -810,6 +823,94 @@ const els = {
   aiAnalysisInput: document.getElementById("ai-analysis-input"),
   aiAnalysisSendButton: document.getElementById("ai-analysis-send-button"),
 };
+
+function createAbortError() {
+  try {
+    return new DOMException(t("loadingCancelled"), "AbortError");
+  } catch (error) {
+    const abortError = new Error(t("loadingCancelled"));
+    abortError.name = "AbortError";
+    return abortError;
+  }
+}
+
+function isAbortError(error) {
+  return error?.name === "AbortError";
+}
+
+function getActiveTaskSignal() {
+  return state.activeBlockingTask?.controller?.signal;
+}
+
+function throwIfTaskCancelled() {
+  if (getActiveTaskSignal()?.aborted) throw createAbortError();
+}
+
+async function yieldToUi() {
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  throwIfTaskCancelled();
+}
+
+function updateLoadingOverlay(title, message) {
+  if (els.loadingTitle) els.loadingTitle.textContent = title || t("loadingOverlayTitle");
+  if (els.loadingMessage) els.loadingMessage.textContent = message || t("loadingOverlayBody");
+}
+
+function showLoadingOverlay(title, message) {
+  updateLoadingOverlay(title, message);
+  els.loadingOverlay?.classList.remove("hidden");
+  els.loadingOverlay?.setAttribute("aria-hidden", "false");
+  document.body.classList.add("loading-active");
+}
+
+function hideLoadingOverlay() {
+  els.loadingOverlay?.classList.add("hidden");
+  els.loadingOverlay?.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("loading-active");
+}
+
+function handleTaskCancelled() {
+  const message = t("loadingCancelled");
+  els.statusText.textContent = message;
+  setFetchState("idle", message, 0);
+}
+
+async function runBlockingTask(options, task) {
+  if (state.activeBlockingTask) return task();
+  const operation = {
+    controller: new AbortController(),
+  };
+  state.activeBlockingTask = operation;
+  showLoadingOverlay(options?.title || t("loadingOverlayTitle"), options?.message || t("loadingOverlayBody"));
+  try {
+    return await task();
+  } catch (error) {
+    if (isAbortError(error)) {
+      handleTaskCancelled();
+      return null;
+    }
+    throw error;
+  } finally {
+    if (state.activeBlockingTask === operation) {
+      state.activeBlockingTask = null;
+      hideLoadingOverlay();
+    }
+  }
+}
+
+function cancelActiveTask() {
+  state.activeBlockingTask?.controller?.abort(createAbortError());
+}
+
+function runDataTask(message, task) {
+  return runBlockingTask(
+    {
+      title: t("fetchLoadingTitle"),
+      message: message || t("loadingOverlayBody"),
+    },
+    task
+  );
+}
 
 const t = (key) => I18N[state.currentUiLanguage]?.[key] ?? I18N.en[key] ?? key;
 const fmt = (value) => Number(value || 0).toLocaleString();
@@ -1820,7 +1921,7 @@ function parseDurationInput(value) {
 
 function setFetchState(mode, message, progress) {
   els.fetchStatePanel.classList.toggle("error", mode === "error");
-  els.fetchStateTitle.textContent =
+  const title =
     mode === "loading"
       ? t("fetchLoadingTitle")
       : mode === "success"
@@ -1828,10 +1929,14 @@ function setFetchState(mode, message, progress) {
         : mode === "error"
           ? t("fetchErrorTitle")
           : t("fetchIdleTitle");
+  els.fetchStateTitle.textContent = title;
   els.fetchStateText.textContent = message;
   els.fetchProgressBar.style.width = `${Math.max(0, Math.min(100, progress))}%`;
   els.fetchProgressTrack.classList.toggle("hidden", mode === "success");
   els.reviewStatusBar.classList.toggle("hidden", mode !== "success");
+  if (state.activeBlockingTask && mode === "loading") {
+    updateLoadingOverlay(title, message);
+  }
   requestAnimationFrame(updateFetchControlsPin);
 }
 
@@ -1950,7 +2055,7 @@ function updateWorkspaceTabs() {
     renderReviews(state.reviewDisplayedReviews);
   }
   if (state.analysisTab === "topics" && state.currentAppId && state.topicLastRenderKey !== getTopicClusterAnalysisKey()) {
-    void renderTopicClusters();
+    void runDataTask(topicText("topicStatusLoading"), () => renderTopicClusters());
   }
 }
 
@@ -2653,6 +2758,7 @@ async function askAiAnalysis(question) {
       pushAiAnalysisMessage("assistant", payload.answer || "", `${t("aiAnalysisLive")} - ${meta}`);
     await putRecord(cacheKey, { answer: payload.answer || "", meta });
   } catch (error) {
+    if (isAbortError(error)) throw error;
     pushAiAnalysisMessage("assistant", `${t("aiAnalysisFailed")} ${error.message || error}`, "");
   } finally {
     els.aiAnalysisSendButton.disabled = false;
@@ -2753,6 +2859,12 @@ function applyTranslations() {
   if (els.aiAnalysisInput) els.aiAnalysisInput.placeholder = t("aiAnalysisPlaceholder");
   if (els.aiBaseUrlInput) els.aiBaseUrlInput.value = state.ai.baseUrl;
   if (els.aiApiKeyInput) els.aiApiKeyInput.value = state.ai.apiKey;
+  if (els.loadingCancelButton) els.loadingCancelButton.textContent = t("loadingCancel");
+  if (state.activeBlockingTask) {
+    updateLoadingOverlay(els.fetchStateTitle?.textContent || t("loadingOverlayTitle"), els.fetchStateText?.textContent || t("loadingOverlayBody"));
+  } else {
+    updateLoadingOverlay(t("loadingOverlayTitle"), t("loadingOverlayBody"));
+  }
   renderAiModelOptions();
 
   updateToggleButtons(els.uiLanguageToggle, state.currentUiLanguage, "lang");
@@ -2861,16 +2973,19 @@ async function deletePrefix(prefix) {
 }
 
 async function fetchJson(url) {
-  const response = await fetch(url);
+  throwIfTaskCancelled();
+  const response = await fetch(url, { signal: getActiveTaskSignal() });
   if (!response.ok) throw new Error(`Request failed: ${response.status}`);
   return response.json();
 }
 
 async function postJson(url, body) {
+  throwIfTaskCancelled();
   const response = await fetch(url, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(body),
+    signal: getActiveTaskSignal(),
   });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(payload.error || `Request failed: ${response.status}`);
@@ -2878,7 +2993,8 @@ async function postJson(url, body) {
 }
 
 async function fetchText(url) {
-  const response = await fetch(url);
+  throwIfTaskCancelled();
+  const response = await fetch(url, { signal: getActiveTaskSignal() });
   if (!response.ok) throw new Error(`Request failed: ${response.status}`);
   return response.text();
 }
@@ -3107,6 +3223,7 @@ async function ensureTopicTagsForReviews(reviews, options = {}) {
   let dirty = false;
 
   for (let index = 0; index < reviews.length; index += 1) {
+    throwIfTaskCancelled();
     const review = reviews[index];
     const key = getSavedReviewKey(review);
     let tag = cache.get(key);
@@ -3118,7 +3235,7 @@ async function ensureTopicTagsForReviews(reviews, options = {}) {
     attachTopicTag(review, tag);
     if (onProgress && (index === 0 || (index + 1) % 150 === 0 || index === reviews.length - 1)) {
       onProgress({ processed: index + 1, total: reviews.length });
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await yieldToUi();
     }
   }
 
@@ -4385,6 +4502,7 @@ function renderTopicDetails(rows) {
 
 async function renderTopicClusters() {
   if (!state.currentAppId) return;
+  throwIfTaskCancelled();
   if (!els.topicStatus || !els.topicChart || !els.topicDetails) return;
   els.topicStatus.textContent = topicText("topicStatusLoading");
   els.topicChart.innerHTML = `<div class="status-text">${esc(topicText("topicStatusLoading"))}</div>`;
@@ -4621,6 +4739,7 @@ function renderPaging(loaded, total) {
 
 async function collectReviews(lang, force = false, options = {}) {
   const onProgress = typeof options.onProgress === "function" ? options.onProgress : null;
+  throwIfTaskCancelled();
   const memoryKey = getCollectedReviewsCacheKey(lang);
   if (!force && state.collectedReviewsCache.has(memoryKey)) {
     const cached = state.collectedReviewsCache.get(memoryKey);
@@ -4635,7 +4754,7 @@ async function collectReviews(lang, force = false, options = {}) {
         totalCollected: cached.length,
         fromMemory: true,
       });
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await yieldToUi();
     }
     return cached;
   }
@@ -4645,11 +4764,13 @@ async function collectReviews(lang, force = false, options = {}) {
   const fetchFloor = getActiveRangeFetchFloor();
 
   for (const [languageIndex, code] of targets.entries()) {
+    throwIfTaskCancelled();
     const seen = new Set();
     let cursor = "*";
     let pagesLoaded = 0;
     let reviewsLoaded = 0;
     while (!seen.has(cursor)) {
+      throwIfTaskCancelled();
       seen.add(cursor);
       const payload = await getReviews(state.currentAppId, code, cursor, force);
       const reviews = (payload.reviews || []).map((review) => ({ ...review, _appid: state.currentAppId }));
@@ -4666,7 +4787,7 @@ async function collectReviews(lang, force = false, options = {}) {
           reviewsLoaded,
           totalCollected: out.length,
         });
-        await new Promise((resolve) => setTimeout(resolve, 0));
+        await yieldToUi();
       }
       if (fetchFloor && reviews.length && reviews[reviews.length - 1].timestamp_created * 1000 < fetchFloor) {
         break;
@@ -4748,6 +4869,7 @@ async function loadReviewBrowserForLanguage() {
 }
 
 async function loadPlaytime() {
+  throwIfTaskCancelled();
   const lang = els.playtimeLanguageSelection.value;
   els.playtimeStatus.textContent = t("searchLoading");
   const reviews = filterReviewsByActiveTimeRange(await collectReviews(lang));
@@ -4807,6 +4929,7 @@ async function loadPlaytime() {
 }
 
 async function runReviewSearch() {
+  throwIfTaskCancelled();
   const keyword = els.reviewSearchInput.value.trim();
   const lang = els.reviewLanguageSelection.value;
 
@@ -4861,6 +4984,7 @@ async function runReviewSearch() {
   const matched = [];
   const chunkSize = 200;
   for (let index = 0; index < reviews.length; index += chunkSize) {
+    throwIfTaskCancelled();
     const chunk = reviews.slice(index, index + chunkSize);
     chunk.forEach((review) => {
       const matches = review.review?.match(regex) || [];
@@ -4878,7 +5002,7 @@ async function runReviewSearch() {
       progress
     );
     if (processed < reviews.length) {
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await yieldToUi();
     }
   }
 
@@ -4906,6 +5030,7 @@ async function runReviewSearch() {
 
 async function generateWordCloud() {
   if (!state.currentAppId) return;
+  throwIfTaskCancelled();
   const language = els.wordLanguageSelection.value || "all";
   els.wordCloudStatus.textContent = t("wordCloudLoading");
   els.wordCloudContainer.innerHTML = `<div class="word-cloud-empty">${esc(t("wordCloudLoading"))}</div>`;
@@ -4935,7 +5060,7 @@ function queueWordCloudGeneration(delay = 120) {
   if (wordCloudGenerationTimer) clearTimeout(wordCloudGenerationTimer);
   wordCloudGenerationTimer = setTimeout(() => {
     wordCloudGenerationTimer = null;
-    void generateWordCloud();
+    void runDataTask(t("wordCloudLoading"), () => generateWordCloud());
   }, delay);
 }
 
@@ -5045,9 +5170,11 @@ async function downloadSavedReviewsCsv() {
   const rows = [
     ["AppID", "Timestamp Created", "Saved At", "UserAlias", "Language", "PlayTimeTotal", "ReviewID", "Purchase", "Recommended", "Topics", "PrimaryTopic", "TopicMatches", "ReviewText"].join(","),
   ];
-  state.reviewDisplayedReviews.forEach((review) => {
-    rows.push(createCsvRow(review, true));
-  });
+  for (let index = 0; index < state.reviewDisplayedReviews.length; index += 1) {
+    throwIfTaskCancelled();
+    rows.push(createCsvRow(state.reviewDisplayedReviews[index], true));
+    if ((index + 1) % 200 === 0) await yieldToUi();
+  }
 
   const blob = new Blob([`\uFEFF${rows.join("\n")}`], { type: "text/csv;charset=utf-8" });
   const link = document.createElement("a");
@@ -5059,6 +5186,7 @@ async function downloadSavedReviewsCsv() {
 
 async function downloadAllReviewsCsv() {
   if (!state.currentAppId) return;
+  throwIfTaskCancelled();
   const reviewsByKey = new Map();
   [...state.reviewCache.entries()].forEach(([key, payload]) => {
     if (!key.startsWith(`${state.currentAppId}::`)) return;
@@ -5072,9 +5200,11 @@ async function downloadAllReviewsCsv() {
   const rows = [
     ["AppID", "Timestamp Created", "UserAlias", "Language", "PlayTimeTotal", "ReviewID", "Purchase", "Recommended", "Topics", "PrimaryTopic", "TopicMatches", "ReviewText"].join(","),
   ];
-  reviews.forEach((review) => {
-    rows.push(createCsvRow(review));
-  });
+  for (let index = 0; index < reviews.length; index += 1) {
+    throwIfTaskCancelled();
+    rows.push(createCsvRow(reviews[index]));
+    if ((index + 1) % 200 === 0) await yieldToUi();
+  }
 
   const blob = new Blob([`\uFEFF${rows.join("\n")}`], { type: "text/csv;charset=utf-8" });
   const link = document.createElement("a");
@@ -5204,12 +5334,13 @@ async function commitPlaytimeEdit(index, rawValue) {
     state.playtimeCutoffs[index] = parsed;
     state.playtimeCutoffs.sort((a, b) => a - b);
   }
-  await loadPlaytime();
+  await runDataTask(t("searchLoading"), () => loadPlaytime());
 }
 
 async function refreshScopedData() {
   if (!state.currentAppId) return;
 
+  throwIfTaskCancelled();
   setFetchState("loading", t("searchLoading"), 30);
   await loadTimelineMarkersFromCache(state.currentAppId);
   const allReviews = filterReviewsByActiveTimeRange(await collectReviews("all"));
@@ -5227,13 +5358,13 @@ async function refreshScopedData() {
   applyReviewView();
   els.statusText.textContent = interp(t("loadedTotalReviews"), { count: fmt(allReviews.length) });
   setFetchState("success", `${interp(t("loadedTotalReviews"), { count: fmt(allReviews.length) })} ${t("usingCache")}`, 100);
-  void warmUpAnalysisPanels();
+  await warmUpAnalysisPanels();
 }
 
 async function warmUpAnalysisPanels() {
   if (!state.currentAppId) return;
   const appid = state.currentAppId;
-  await new Promise((resolve) => setTimeout(resolve, 0));
+  await yieldToUi();
   const tasks = [
     generateWordCloud(),
     loadPlaytime(),
@@ -5244,6 +5375,7 @@ async function warmUpAnalysisPanels() {
   ];
   if (state.analysisTab === "topics") tasks.push(renderTopicClusters());
   await Promise.allSettled(tasks);
+  throwIfTaskCancelled();
 }
 
 async function rerenderTimelineFromCache() {
@@ -5298,6 +5430,7 @@ async function loadSummary(appid, force = false) {
 
   try {
     if (!API_BASE) throw new Error(t("noProxyConfigured"));
+    throwIfTaskCancelled();
 
       state.currentAppId = appid;
       state.aiAnalysisMessages = [];
@@ -5343,6 +5476,7 @@ async function loadSummary(appid, force = false) {
     els.workspaceSection.classList.remove("hidden");
     await refreshScopedData();
   } catch (error) {
+    if (isAbortError(error)) throw error;
     els.appHero.classList.add("empty");
     els.appHero.style.background = "";
     els.appHero.innerHTML = `<div class="hero-copy"><p class="eyebrow">${t("requestFailed")}</p><h2>${esc(
@@ -5362,13 +5496,13 @@ els.fetchForm.addEventListener("submit", async (event) => {
 
   els.fetchButton.disabled = true;
   try {
-    const resolved = await resolveAppInput(input);
+    const resolved = await runDataTask(t("resolvingGame"), () => resolveAppInput(input));
     if (!resolved?.appid) return;
     if (resolved.name) {
       els.appidInput.value = resolved.name;
       els.statusText.textContent = interp(t("resolvedGame"), resolved);
     }
-    await loadSummary(resolved.appid);
+    await runDataTask(t("loadingAppDetails"), () => loadSummary(resolved.appid));
   } catch (error) {
     els.statusText.textContent = error.message;
     setFetchState("error", error.message, 100);
@@ -5385,14 +5519,20 @@ if (els.recentAppsList) {
     const recent = state.recentApps.find((entry) => entry.appid === appid);
     if (!appid) return;
     if (recent?.name) els.appidInput.value = recent.name;
-    void loadSummary(appid);
+    void runDataTask(t("loadingAppDetails"), () => loadSummary(appid));
   });
 }
 
-els.refreshCacheButton.addEventListener("click", refreshCurrentCache);
+els.refreshCacheButton.addEventListener("click", () => {
+  void runDataTask(t("loadingAppDetails"), () => refreshCurrentCache());
+});
 
 els.downloadCsvButton.addEventListener("click", () => {
-  void downloadAllReviewsCsv();
+  void runDataTask(t("downloadCsv"), () => downloadAllReviewsCsv());
+});
+
+els.loadingCancelButton?.addEventListener("click", () => {
+  cancelActiveTask();
 });
 
 els.aiSettingsButton.addEventListener("click", () => {
@@ -5407,7 +5547,8 @@ if (els.aiAnalysisForm) {
   els.aiAnalysisForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     try {
-      await askAiAnalysis(els.aiAnalysisInput.value);
+      const result = await runDataTask(t("aiAnalysisLoading"), () => askAiAnalysis(els.aiAnalysisInput.value));
+      if (result === null) return;
       els.aiAnalysisInput.value = "";
     } catch (error) {
       renderAiAnalysisMessages();
@@ -5462,7 +5603,7 @@ if (els.positiveRateColorToggle) {
       renderTopicChart(state.topicRows);
       renderTopicDetails(state.topicRows);
     }
-    if (els.playtimeChart.childElementCount) void loadPlaytime();
+    if (els.playtimeChart.childElementCount) void runDataTask(t("searchLoading"), () => loadPlaytime());
   });
 }
 
@@ -5485,11 +5626,11 @@ els.timelineModeToggle.addEventListener("click", async (event) => {
   if (!button || state.timelineMode === button.dataset.timelineMode) return;
   state.timelineMode = button.dataset.timelineMode;
   updateTimelineUi();
-  await rerenderTimelineFromCache();
+  await runDataTask(t("searchLoading"), () => rerenderTimelineFromCache());
 });
 
 els.timelineKeywordAddButton.addEventListener("click", () => {
-  void addTimelineKeyword();
+  void runDataTask(t("searchLoading"), () => addTimelineKeyword());
 });
 
 els.timelineKeywordButton.addEventListener("click", async () => {
@@ -5501,13 +5642,13 @@ els.timelineKeywordButton.addEventListener("click", async () => {
     await persistTimelineKeywords();
   }
   updateTimelineUi();
-  await rerenderTimelineFromCache();
+  await runDataTask(t("searchLoading"), () => rerenderTimelineFromCache());
 });
 
 els.timelineKeywordInput.addEventListener("keydown", async (event) => {
   if (event.key !== "Enter") return;
   event.preventDefault();
-  await addTimelineKeyword();
+  await runDataTask(t("searchLoading"), () => addTimelineKeyword());
 });
 
 els.timelineKeywordList.addEventListener("click", (event) => {
@@ -5549,7 +5690,7 @@ els.timeRangeToggle.addEventListener("click", async (event) => {
   state.timeRange.mode = button.dataset.timeRange;
   if (state.timeRange.mode !== "custom") {
     updateTimeRangeUi();
-    if (state.currentAppId) await refreshScopedData();
+    if (state.currentAppId) await runDataTask(t("searchLoading"), () => refreshScopedData());
     return;
   }
   updateTimeRangeUi();
@@ -5567,7 +5708,7 @@ els.applyCustomRangeButton.addEventListener("click", async () => {
   state.timeRange.start = start;
   state.timeRange.end = end;
   updateTimeRangeUi();
-  if (state.currentAppId) await refreshScopedData();
+  if (state.currentAppId) await runDataTask(t("searchLoading"), () => refreshScopedData());
 });
 
 els.chartTypeToggle.addEventListener("click", () => {
@@ -5615,14 +5756,16 @@ els.reviewTabToggle.addEventListener("click", async (event) => {
   if (!button || state.reviewTab === button.dataset.tab) return;
   state.reviewTab = button.dataset.tab;
   updateReviewTabUi();
-  await loadReviewTabData();
+  await runDataTask(t("searchLoading"), () => loadReviewTabData());
 });
 
-els.reviewLanguageSelection.addEventListener("change", loadReviewBrowserForLanguage);
+els.reviewLanguageSelection.addEventListener("change", () => {
+  void runDataTask(t("searchLoading"), () => loadReviewBrowserForLanguage());
+});
 if (els.topicLanguageSelection) {
   els.topicLanguageSelection.addEventListener("change", async () => {
     state.topicLanguage = els.topicLanguageSelection.value || "all";
-    await renderTopicClusters();
+    await runDataTask(topicText("topicStatusLoading"), () => renderTopicClusters());
   });
 }
 if (els.topicSourceToggle) {
@@ -5631,7 +5774,7 @@ if (els.topicSourceToggle) {
     if (!button || state.topicSource === button.dataset.topicSource) return;
     state.topicSource = button.dataset.topicSource;
     updateTopicUi();
-    await renderTopicClusters();
+    await runDataTask(topicText("topicStatusLoading"), () => renderTopicClusters());
   });
 }
 if (els.topicChartViewToggle) {
@@ -5641,13 +5784,19 @@ if (els.topicChartViewToggle) {
     state.topicChartView = button.dataset.topicChartView;
     updateTopicUi();
     if (state.currentAppId && state.analysisTab === "topics") {
-      await renderTopicClusters();
+      await runDataTask(topicText("topicStatusLoading"), () => renderTopicClusters());
     }
   });
 }
-els.reviewSearchButton.addEventListener("click", runReviewSearch);
-els.playtimeLoadButton.addEventListener("click", loadPlaytime);
-els.savedReviewsDownloadButton.addEventListener("click", downloadSavedReviewsCsv);
+els.reviewSearchButton.addEventListener("click", () => {
+  void runDataTask(t("searchLoading"), () => runReviewSearch());
+});
+els.playtimeLoadButton.addEventListener("click", () => {
+  void runDataTask(t("searchLoading"), () => loadPlaytime());
+});
+els.savedReviewsDownloadButton.addEventListener("click", () => {
+  void runDataTask(t("downloadSavedCsv"), () => downloadSavedReviewsCsv());
+});
 els.savedReviewsClearButton.addEventListener("click", unsaveDisplayedSavedReviews);
 
 els.reviewsList.addEventListener("click", async (event) => {
@@ -5715,7 +5864,7 @@ els.playtimeChart.addEventListener("click", (event) => {
   const button = event.target.closest("[data-playtime-edit-start]");
   if (!button) return;
   state.playtimeEditingIndex = Number(button.dataset.playtimeEditStart);
-  void loadPlaytime();
+  void runDataTask(t("searchLoading"), () => loadPlaytime());
 });
 
 els.playtimeChart.addEventListener("keydown", (event) => {
@@ -5727,7 +5876,7 @@ els.playtimeChart.addEventListener("keydown", (event) => {
   }
   if (event.key === "Escape") {
     state.playtimeEditingIndex = null;
-    void loadPlaytime();
+    void runDataTask(t("searchLoading"), () => loadPlaytime());
   }
 });
 

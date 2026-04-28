@@ -375,7 +375,22 @@
         </section>
       </main>
     </div>
-
+    <div id="loading-overlay" class="loading-overlay hidden" aria-hidden="true">
+      <div class="loading-overlay-dimmer"></div>
+      <div class="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="loading-title">
+        <img
+          id="loading-character"
+          class="loading-character"
+          src="./assets/sprites/anachan/AnaChan_laptop.png"
+          alt="Loading character"
+        />
+        <div class="loading-copy">
+          <p id="loading-title" class="loading-title">Loading</p>
+          <p id="loading-message" class="loading-message">Preparing data...</p>
+        </div>
+        <button id="loading-cancel-button" class="loading-cancel-button" type="button">Cancel</button>
+      </div>
+    </div>
     <script src="./config.js"></script>
     <script src="./app.js"></script>
   </body>
