@@ -213,9 +213,11 @@ async function analyzeReviews(request) {
               `Distinguish common issues, minority but severe issues, and emerging trends when supported. ` +
               `If the evidence is insufficient, say so plainly. ` +
               `Do not invent facts, hidden causes, player motives, or unsupported comparisons. ` +
+              `Use Markdown bold sparingly to highlight only the most important findings, priorities, or numbers in the main answer. Do not overuse bold. ` +
               `${modeInstruction} ` +
               `Respond in ${answerLanguage}. ` +
-              `Keep the structure concise with: Answer, Why, Evidence, and Caveats.`,
+              `Keep the structure concise with: Answer, Why, Evidence, and Caveats. ` +
+              `Make the Answer section information-dense and skimmable: 1 short paragraph or up to 3 short bullets, with the most important points first and selective bold emphasis on only the top takeaways.`,
           },
         ],
       },

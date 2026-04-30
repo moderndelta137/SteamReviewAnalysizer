@@ -246,6 +246,11 @@ const I18N = {
     loadingOverlayBody: "Preparing data...",
     loadingCancel: "Cancel",
     loadingCancelled: "Loading cancelled.",
+    aiStatusDisconnected: "Not connected",
+    aiStatusConnected: "Connected",
+    aiStatusConnecting: "Connecting",
+    aiStatusGenerating: "Generating",
+    aiStatusLoading: "Loading",
     downloadCsv: "Download CSV",
     aiSettings: "AI Model",
     aiBaseUrl: "Gemini Base URL",
@@ -265,6 +270,10 @@ const I18N = {
     aiAnalysisScope: "Answers from the current global time span using structured review evidence.",
     aiAnalysisQuestion: "Ask about the reviews",
     aiAnalysisPlaceholder: "What are the most common complaints in negative reviews this year?",
+    aiTemplatePillar: "What's the pillar of the game?",
+    aiTemplateFeature: "What's the most requested feature?",
+    aiTemplateTrend: "What's the noteworthy trend in the recent reviews?",
+    aiTemplateSales: "How to improve sales?",
     aiAnalysisAsk: "Ask AI",
     aiAnalysisNeedConnection: "Connect an AI model to ask grounded questions about the reviews.",
     aiAnalysisNeedApp: "Load a game first, then ask questions about its reviews.",
@@ -442,6 +451,11 @@ const I18N = {
     loadingOverlayBody: "データを準備しています...",
     loadingCancel: "キャンセル",
     loadingCancelled: "読み込みをキャンセルしました。",
+    aiStatusDisconnected: "未接続",
+    aiStatusConnected: "接続済み",
+    aiStatusConnecting: "接続中",
+    aiStatusGenerating: "生成中",
+    aiStatusLoading: "読込中",
     downloadCsv: "CSVをダウンロード",
     aiSettings: "AIモデル",
     aiBaseUrl: "Gemini Base URL",
@@ -461,6 +475,10 @@ const I18N = {
     aiAnalysisScope: "現在の全体期間を対象に、構造化したレビュー根拠から回答します。",
     aiAnalysisQuestion: "レビューについて質問する",
     aiAnalysisPlaceholder: "今年の不評レビューで最も多い不満は何ですか？",
+    aiTemplatePillar: "このゲームの柱は何？",
+    aiTemplateFeature: "最も要望が多い機能は？",
+    aiTemplateTrend: "最近のレビューで注目すべき傾向は？",
+    aiTemplateSales: "売上を改善するには？",
     aiAnalysisAsk: "AIに質問",
     aiAnalysisNeedConnection: "レビューについて根拠付きで質問するにはAIモデルを接続してください。",
     aiAnalysisNeedApp: "先にゲームを読み込んでからレビューについて質問してください。",
@@ -677,6 +695,13 @@ const state = {
     apiKey: "",
     models: [],
   },
+  aiAssistant: {
+    connecting: false,
+    generating: false,
+    temporaryMode: "",
+    temporaryUntil: 0,
+    timer: null,
+  },
   aiAnalysisMessages: [],
   translationCache: new Map(),
   timelineMode: "reviews",
@@ -729,6 +754,9 @@ const els = {
   fetchProgressBar: document.getElementById("fetch-progress-bar"),
   reviewStatusBar: document.getElementById("review-status-bar"),
   aiSettingsButton: document.getElementById("ai-settings-button"),
+  aiAssistantAnchor: document.getElementById("ai-assistant-anchor"),
+  aiAssistantSprite: document.getElementById("ai-assistant-sprite"),
+  aiAssistantStatus: document.getElementById("ai-assistant-status"),
   aiSettingsPanel: document.getElementById("ai-settings-panel"),
   aiBaseUrlInput: document.getElementById("ai-base-url-input"),
   aiModelSelect: document.getElementById("ai-model-select"),
@@ -819,6 +847,7 @@ const els = {
   aiAnalysisPanel: document.getElementById("ai-analysis-panel"),
   aiAnalysisScope: document.getElementById("ai-analysis-scope"),
   aiAnalysisMessages: document.getElementById("ai-analysis-messages"),
+  aiAnalysisTemplates: document.getElementById("ai-analysis-templates"),
   aiAnalysisForm: document.getElementById("ai-analysis-form"),
   aiAnalysisInput: document.getElementById("ai-analysis-input"),
   aiAnalysisSendButton: document.getElementById("ai-analysis-send-button"),
@@ -854,19 +883,16 @@ async function yieldToUi() {
 function updateLoadingOverlay(title, message) {
   if (els.loadingTitle) els.loadingTitle.textContent = title || t("loadingOverlayTitle");
   if (els.loadingMessage) els.loadingMessage.textContent = message || t("loadingOverlayBody");
+  updateAiUi();
 }
 
 function showLoadingOverlay(title, message) {
   updateLoadingOverlay(title, message);
-  els.loadingOverlay?.classList.remove("hidden");
-  els.loadingOverlay?.setAttribute("aria-hidden", "false");
-  document.body.classList.add("loading-active");
+  updateAiUi();
 }
 
 function hideLoadingOverlay() {
-  els.loadingOverlay?.classList.add("hidden");
-  els.loadingOverlay?.setAttribute("aria-hidden", "true");
-  document.body.classList.remove("loading-active");
+  updateAiUi();
 }
 
 function handleTaskCancelled() {
@@ -929,7 +955,7 @@ const IS_WINDOWS = typeof navigator !== "undefined" && /Windows/i.test(navigator
 const STEAM_NEGATIVE = { r: 196, g: 69, b: 76 };
 const STEAM_NEUTRAL = { r: 146, g: 118, b: 89 };
 const STEAM_POSITIVE = { r: 138, g: 195, b: 74 };
-const AI_ANALYSIS_SNIPPET_LIMIT = 10;
+const AI_ANALYSIS_SNIPPET_LIMIT = 20;
 const AI_ANALYSIS_CACHE_TTL = 1000 * 60 * 60 * 24;
 const AI_QUESTION_STOPWORDS = new Set([
   "the","and","for","with","that","this","from","what","when","where","which","about","have","has","had","were","was",
@@ -2095,16 +2121,92 @@ function getTranslationKey(review) {
   return [getSavedReviewKey(review), state.currentUiLanguage, state.ai.model].join("::");
 }
 
+const AI_ASSISTANT_SPRITES = {
+  sleep: "./assets/sprites/anachan/AnaChan_sleep.png",
+  rest: "./assets/sprites/anachan/AnaChan_rest.png",
+  hello: "./assets/sprites/anachan/AnaChan_hello.png",
+  stand: "./assets/sprites/anachan/AnaChan_stand.png",
+  laptop: "./assets/sprites/anachan/AnaChan_laptop.png",
+  exclamation: "./assets/sprites/anachan/AnaChan_exclamation.png",
+};
+
+function scheduleAiAssistantRefresh() {
+  if (state.aiAssistant.timer) {
+    clearTimeout(state.aiAssistant.timer);
+    state.aiAssistant.timer = null;
+  }
+  const remaining = state.aiAssistant.temporaryUntil - Date.now();
+  if (remaining > 0) {
+    state.aiAssistant.timer = setTimeout(() => {
+      state.aiAssistant.timer = null;
+      refreshAiAssistantSprite();
+    }, remaining);
+  }
+}
+
+function setAiAssistantTemporaryMode(mode, duration = 3200) {
+  state.aiAssistant.temporaryMode = mode;
+  state.aiAssistant.temporaryUntil = Date.now() + duration;
+  scheduleAiAssistantRefresh();
+  refreshAiAssistantSprite();
+}
+
+function getAiAssistantMode() {
+  if (state.aiAssistant.temporaryMode && state.aiAssistant.temporaryUntil > Date.now()) {
+    return state.aiAssistant.temporaryMode;
+  }
+  if (state.aiAssistant.temporaryMode) {
+    state.aiAssistant.temporaryMode = "";
+    state.aiAssistant.temporaryUntil = 0;
+  }
+  if (state.aiAssistant.generating) return "laptop";
+  if (state.activeBlockingTask) return "laptop";
+  if (state.aiAssistant.connecting) return "rest";
+  if (state.ai.connected) return "stand";
+  return "sleep";
+}
+
+function getAiAssistantStatusText() {
+  if (state.aiAssistant.generating) return t("aiStatusGenerating");
+  if (state.activeBlockingTask) return t("aiStatusLoading");
+  if (state.aiAssistant.connecting) return t("aiStatusConnecting");
+  if (state.ai.connected) return t("aiStatusConnected");
+  return t("aiStatusDisconnected");
+}
+
+function getAiAssistantStatusClass() {
+  if (state.aiAssistant.generating || state.activeBlockingTask || state.aiAssistant.connecting) return "status-busy";
+  if (state.ai.connected) return "status-connected";
+  return "status-disconnected";
+}
+
+function refreshAiAssistantSprite() {
+  if (!els.aiAssistantSprite) return;
+  const mode = getAiAssistantMode();
+  els.aiAssistantSprite.src = AI_ASSISTANT_SPRITES[mode] || AI_ASSISTANT_SPRITES.sleep;
+  els.aiAssistantSprite.classList.toggle("working", Boolean(state.aiAssistant.generating || state.activeBlockingTask || state.aiAssistant.connecting));
+}
+
 function updateAiUi(status = "") {
   if (!els.aiSettingsButton) return;
-  els.aiSettingsButton.classList.toggle("connected", state.ai.connected);
-  els.aiSettingsButton.classList.toggle("disconnected", !state.ai.connected);
-  els.aiSettingsButton.classList.remove("testing");
-  els.aiSettingsButton.textContent = state.ai.connected ? `AI: ${state.ai.model}` : t("aiSettings");
+  document.body.classList.toggle("ai-connected", state.ai.connected);
+  if (els.aiAssistantStatus) {
+    els.aiAssistantStatus.textContent = getAiAssistantStatusText();
+    els.aiAssistantStatus.classList.remove("status-disconnected", "status-connected", "status-busy");
+    els.aiAssistantStatus.classList.add(getAiAssistantStatusClass());
+  }
   if (els.aiConnectionStatus) {
     els.aiConnectionStatus.textContent = status || (state.ai.connected ? t("aiConnected") : t("aiDisconnected"));
   }
+  refreshAiAssistantSprite();
   renderAiAnalysisMessages();
+}
+
+function toggleAiSettingsPanel(forceOpen) {
+  if (!els.aiSettingsPanel || !els.aiSettingsButton) return;
+  const shouldOpen = typeof forceOpen === "boolean" ? forceOpen : els.aiSettingsPanel.classList.contains("hidden");
+  els.aiSettingsPanel.classList.toggle("hidden", !shouldOpen);
+  els.aiSettingsButton.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
 }
 
 function renderAiModelOptions() {
@@ -2484,17 +2586,31 @@ function getAiAnalysisCacheKey(question) {
 }
 
 function getAiAnalysisPreview(content) {
-  const text = stripMarkdownForPreview(content);
-  if (!text) return "";
-  const normalized = text.replace(/\r/g, "");
-  const paragraphs = normalized
-    .split(/\n\s*\n/)
-    .map((part) => part.trim())
-    .filter(Boolean);
-  const firstBlock = paragraphs[0] || normalized;
-  const firstSentence = firstBlock.split(/(?<=[.!?])\s+/)[0] || firstBlock;
-  const preview = firstSentence.length <= 220 ? firstSentence : `${firstSentence.slice(0, 217).trimEnd()}...`;
-  return preview;
+  const source = String(content || "").replace(/\r/g, "").trim();
+  if (!source) return "";
+  const lines = source.split("\n").map((line) => line.trim()).filter(Boolean);
+  const answerIndex = lines.findIndex((line) => /^#{0,3}\s*answer\b[:：]?/i.test(line));
+  const caveatIndex = lines.findIndex((line) => /^#{0,3}\s*caveats?\b[:：]?/i.test(line));
+  const summaryLines = [];
+
+  if (answerIndex >= 0) {
+    for (let index = answerIndex; index < lines.length; index += 1) {
+      const line = lines[index];
+      if (index > answerIndex && /^#{0,3}\s*(why|evidence|caveats?)\b[:：]?/i.test(line)) break;
+      summaryLines.push(line.replace(/^#{0,3}\s*answer\b[:：]?\s*/i, "").trim());
+    }
+  } else {
+    for (let index = 0; index < lines.length; index += 1) {
+      const line = lines[index];
+      if (caveatIndex >= 0 && index >= caveatIndex) break;
+      summaryLines.push(line);
+      if (summaryLines.length >= 3) break;
+    }
+  }
+
+  const normalized = summaryLines.join("\n").trim() || source;
+  const compact = normalized.length <= 380 ? normalized : `${normalized.slice(0, 377).trimEnd()}...`;
+  return compact;
 }
 
 function stripMarkdownForPreview(content) {
@@ -2676,7 +2792,7 @@ function renderAiAnalysisMessages() {
 
   els.aiAnalysisMessages.innerHTML = state.aiAnalysisMessages
     .map((message, index) => {
-      const label = message.role === "user" ? (state.currentUiLanguage === "ja" ? "あなた" : "You") : "AI";
+      const label = message.role === "user" ? (state.currentUiLanguage === "ja" ? "あなた" : "You") : "AnaChan";
       const meta = message.meta ? `<div class="ai-analysis-message-meta">${esc(message.meta)}</div>` : "";
       const preview = message.role === "assistant" ? getAiAnalysisPreview(message.content) : "";
       const hasDetails = message.role === "assistant" && preview && preview !== String(message.content || "").trim();
@@ -2686,7 +2802,7 @@ function renderAiAnalysisMessages() {
       const renderedContent =
         message.role === "assistant" ? renderMarkdownToHtml(message.content) : esc(message.content).replace(/\n/g, "<br>");
       const body = hasDetails
-        ? `<div class="ai-analysis-message-summary">${esc(preview)}</div>
+        ? `<div class="ai-analysis-message-summary markdown-body">${renderMarkdownToHtml(preview)}</div>
            <button class="ai-analysis-expand" type="button" data-ai-expand="${index}" data-expanded="${expanded ? "true" : "false"}">${expandLabel}</button>
            <div class="ai-analysis-message-body markdown-body${expanded ? "" : " hidden"}">${renderedContent}</div>`
         : `<div class="ai-analysis-message-body${message.role === "assistant" ? " markdown-body" : ""}">${renderedContent}</div>`;
@@ -2696,6 +2812,30 @@ function renderAiAnalysisMessages() {
     })
     .join("");
   els.aiAnalysisMessages.scrollTop = els.aiAnalysisMessages.scrollHeight;
+}
+
+function renderAiAnalysisTemplates() {
+  if (!els.aiAnalysisTemplates) return;
+  const labels = {
+    pillar: t("aiTemplatePillar"),
+    feature: t("aiTemplateFeature"),
+    trend: t("aiTemplateTrend"),
+    sales: t("aiTemplateSales"),
+  };
+  els.aiAnalysisTemplates.querySelectorAll("[data-ai-template]").forEach((button) => {
+    const key = button.dataset.aiTemplate;
+    button.textContent = labels[key] || "";
+  });
+}
+
+async function submitAiAnalysis() {
+  if (!els.aiAnalysisInput) return;
+  try {
+    await askAiAnalysis(els.aiAnalysisInput.value);
+    els.aiAnalysisInput.value = "";
+  } catch (error) {
+    renderAiAnalysisMessages();
+  }
 }
 
 function updateAiAnalysisScope() {
@@ -2731,6 +2871,8 @@ async function askAiAnalysis(question) {
   const cacheKey = getAiAnalysisCacheKey(trimmedQuestion);
   els.aiAnalysisSendButton.disabled = true;
   els.aiAnalysisSendButton.textContent = t("aiAnalysisLoading");
+  state.aiAssistant.generating = true;
+  refreshAiAssistantSprite();
 
   try {
     const cached = await getRecord(cacheKey);
@@ -2761,8 +2903,10 @@ async function askAiAnalysis(question) {
     if (isAbortError(error)) throw error;
     pushAiAnalysisMessage("assistant", `${t("aiAnalysisFailed")} ${error.message || error}`, "");
   } finally {
+    state.aiAssistant.generating = false;
     els.aiAnalysisSendButton.disabled = false;
     els.aiAnalysisSendButton.textContent = t("aiAnalysisAsk");
+    refreshAiAssistantSprite();
   }
 }
 
@@ -2857,6 +3001,7 @@ function applyTranslations() {
   els.wordPreferenceInput.placeholder = t("wordPreferencePlaceholder");
   els.timelineKeywordInput.placeholder = t("timelineKeywordPlaceholder");
   if (els.aiAnalysisInput) els.aiAnalysisInput.placeholder = t("aiAnalysisPlaceholder");
+  renderAiAnalysisTemplates();
   if (els.aiBaseUrlInput) els.aiBaseUrlInput.value = state.ai.baseUrl;
   if (els.aiApiKeyInput) els.aiApiKeyInput.value = state.ai.apiKey;
   if (els.loadingCancelButton) els.loadingCancelButton.textContent = t("loadingCancel");
@@ -5233,8 +5378,8 @@ async function connectAiModel() {
   state.ai.model = els.aiModelSelect.value || state.ai.models[0]?.name || "";
   state.ai.apiKey = els.aiApiKeyInput.value.trim();
   state.ai.connected = false;
-  els.aiSettingsButton.classList.add("testing");
-  els.aiSettingsButton.classList.remove("connected", "disconnected");
+  state.aiAssistant.connecting = true;
+  refreshAiAssistantSprite();
   els.aiConnectionStatus.textContent = t("aiTesting");
 
   try {
@@ -5246,11 +5391,14 @@ async function connectAiModel() {
       text: "Connection test.",
     });
     state.ai.connected = true;
+    state.aiAssistant.connecting = false;
     await persistAiSettings();
+    setAiAssistantTemporaryMode("hello");
     updateAiUi(t("aiConnected"));
     if (state.analysisTab === "reviews") renderReviews(state.reviewDisplayedReviews);
   } catch (error) {
     state.ai.connected = false;
+    state.aiAssistant.connecting = false;
     updateAiUi(`${t("aiConnectFailed")} ${error.message}`);
   }
 }
@@ -5261,8 +5409,8 @@ async function loadGeminiModels() {
   state.ai.apiKey = els.aiApiKeyInput.value.trim();
   if (!state.ai.apiKey) return;
   state.ai.connected = false;
-  els.aiSettingsButton.classList.add("testing");
-  els.aiSettingsButton.classList.remove("connected", "disconnected");
+  state.aiAssistant.connecting = true;
+  refreshAiAssistantSprite();
   els.aiConnectionStatus.textContent = t("aiLoadModels");
   try {
     const payload = await fetchJson(
@@ -5275,10 +5423,12 @@ async function loadGeminiModels() {
     state.ai.model = state.ai.models.find((model) => model.name === state.ai.model)?.name || state.ai.models[0]?.name || "";
     renderAiModelOptions();
     await persistAiSettings();
+    state.aiAssistant.connecting = false;
     updateAiUi(interp(t("aiModelsLoaded"), { count: fmt(state.ai.models.length) }));
   } catch (error) {
     state.ai.models = [];
     renderAiModelOptions();
+    state.aiAssistant.connecting = false;
     updateAiUi(`${t("aiModelsFailed")} ${error.message}`);
   }
 }
@@ -5536,7 +5686,8 @@ els.loadingCancelButton?.addEventListener("click", () => {
 });
 
 els.aiSettingsButton.addEventListener("click", () => {
-  els.aiSettingsPanel.classList.toggle("hidden");
+  setAiAssistantTemporaryMode("exclamation");
+  toggleAiSettingsPanel();
 });
 
 els.aiConnectButton.addEventListener("click", () => {
@@ -5546,15 +5697,12 @@ els.aiConnectButton.addEventListener("click", () => {
 if (els.aiAnalysisForm) {
   els.aiAnalysisForm.addEventListener("submit", async (event) => {
     event.preventDefault();
-    try {
-      const result = await runDataTask(t("aiAnalysisLoading"), () => askAiAnalysis(els.aiAnalysisInput.value));
-      if (result === null) return;
-      els.aiAnalysisInput.value = "";
-    } catch (error) {
-      renderAiAnalysisMessages();
-    }
+    await submitAiAnalysis();
   });
 }
+els.aiAnalysisSendButton?.addEventListener("click", () => {
+  void submitAiAnalysis();
+});
 if (els.aiAnalysisMessages) {
   els.aiAnalysisMessages.addEventListener("click", (event) => {
     const button = event.target.closest("[data-ai-expand]");
@@ -5565,6 +5713,26 @@ if (els.aiAnalysisMessages) {
     renderAiAnalysisMessages();
   });
 }
+if (els.aiAnalysisTemplates) {
+  els.aiAnalysisTemplates.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-ai-template]");
+    if (!button || !els.aiAnalysisInput) return;
+    const templateMap = {
+      pillar: t("aiTemplatePillar"),
+      feature: t("aiTemplateFeature"),
+      trend: t("aiTemplateTrend"),
+      sales: t("aiTemplateSales"),
+    };
+    els.aiAnalysisInput.value = templateMap[button.dataset.aiTemplate] || "";
+    els.aiAnalysisInput.focus();
+  });
+}
+
+document.addEventListener("click", (event) => {
+  if (!els.aiAssistantAnchor) return;
+  if (els.aiAssistantAnchor.contains(event.target)) return;
+  toggleAiSettingsPanel(false);
+});
 
 els.aiApiKeyInput.addEventListener("change", () => {
   state.ai.apiKey = els.aiApiKeyInput.value.trim();
@@ -5913,6 +6081,7 @@ Promise.all([
     els.deploymentNote.innerHTML = t("proxyRequired");
   }
   renderRecentApps();
+  updateAiUi();
   updateFetchControlsPin();
 });
 

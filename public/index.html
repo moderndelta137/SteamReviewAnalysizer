@@ -48,23 +48,6 @@
           </div>
           <div class="review-status-with-ai">
             <div id="review-status-bar" class="review-status-bar hidden"></div>
-            <button id="ai-settings-button" class="ai-settings-button disconnected" type="button" data-i18n="aiSettings">AI Model</button>
-          </div>
-          <div id="ai-settings-panel" class="ai-settings-panel hidden">
-            <label class="control-field">
-              <span data-i18n="aiBaseUrl">AI Base URL</span>
-              <input id="ai-base-url-input" type="url" placeholder="https://generativelanguage.googleapis.com/v1beta" />
-            </label>
-            <label class="control-field">
-              <span data-i18n="aiModel">Model</span>
-              <select id="ai-model-select"></select>
-            </label>
-            <label class="control-field">
-              <span data-i18n="aiApiKey">API Key</span>
-              <input id="ai-api-key-input" type="password" placeholder="Gemini API key" />
-            </label>
-            <button id="ai-connect-button" type="button" data-i18n="aiConnect">Connect</button>
-            <div id="ai-connection-status" class="status-text" data-i18n="aiDisconnected">AI not connected.</div>
           </div>
           <div id="fetch-controls-row" class="fetch-controls-row">
             <div class="time-range-group">
@@ -356,11 +339,17 @@
               <p class="eyebrow" data-i18n="aiAnalysisEyebrow">Grounded AI Analysis</p>
               <h3 data-i18n="aiAnalysisTitle">Review Analyst</h3>
             </div>
-            <div id="ai-analysis-scope" class="status-text" data-i18n="aiAnalysisScope">
+          <div id="ai-analysis-scope" class="status-text" data-i18n="aiAnalysisScope">
               Answers from the current global time span using structured review evidence.
             </div>
           </div>
           <div id="ai-analysis-messages" class="ai-analysis-messages"></div>
+          <div id="ai-analysis-templates" class="ai-analysis-templates">
+            <button type="button" data-ai-template="pillar"></button>
+            <button type="button" data-ai-template="feature"></button>
+            <button type="button" data-ai-template="trend"></button>
+            <button type="button" data-ai-template="sales"></button>
+          </div>
           <form id="ai-analysis-form" class="ai-analysis-form">
             <label class="control-field ai-analysis-input">
               <span data-i18n="aiAnalysisQuestion">Ask about the reviews</span>
@@ -370,25 +359,49 @@
                 placeholder="What are the most common complaints in negative reviews this year?"
               ></textarea>
             </label>
-            <button id="ai-analysis-send-button" type="submit" data-i18n="aiAnalysisAsk">Ask AI</button>
+            <button id="ai-analysis-send-button" type="button" data-i18n="aiAnalysisAsk">Ask AI</button>
           </form>
         </section>
       </main>
     </div>
-    <div id="loading-overlay" class="loading-overlay hidden" aria-hidden="true">
-      <div class="loading-overlay-dimmer"></div>
-      <div class="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="loading-title">
+    <div id="ai-assistant-anchor" class="ai-assistant-anchor">
+      <button
+        id="ai-settings-button"
+        class="ai-assistant-button"
+        type="button"
+        aria-label="Open AI assistant settings"
+        aria-expanded="false"
+        aria-controls="ai-settings-panel"
+      >
         <img
-          id="loading-character"
-          class="loading-character"
-          src="./assets/sprites/anachan/AnaChan_laptop.png"
-          alt="Loading character"
+          id="ai-assistant-sprite"
+          class="ai-assistant-sprite"
+          src="./assets/sprites/anachan/AnaChan_idle.png"
+          alt="AnaChan AI assistant"
         />
-        <div class="loading-copy">
-          <p id="loading-title" class="loading-title">Loading</p>
-          <p id="loading-message" class="loading-message">Preparing data...</p>
+      </button>
+      <button id="ai-assistant-status" class="ai-assistant-status" type="button" tabindex="-1" aria-live="polite">
+        Not connected
+      </button>
+      <div id="ai-settings-panel" class="ai-settings-panel hidden" role="dialog" aria-modal="false" aria-labelledby="ai-settings-title">
+        <div class="ai-settings-panel-head">
+          <p class="eyebrow">AnaChan</p>
+          <h3 id="ai-settings-title" data-i18n="aiAnalysisTitle">Review Analyst</h3>
         </div>
-        <button id="loading-cancel-button" class="loading-cancel-button" type="button">Cancel</button>
+        <label class="control-field">
+          <span data-i18n="aiBaseUrl">AI Base URL</span>
+          <input id="ai-base-url-input" type="url" placeholder="https://generativelanguage.googleapis.com/v1beta" />
+        </label>
+        <label class="control-field">
+          <span data-i18n="aiModel">Model</span>
+          <select id="ai-model-select"></select>
+        </label>
+        <label class="control-field">
+          <span data-i18n="aiApiKey">API Key</span>
+          <input id="ai-api-key-input" type="password" placeholder="Gemini API key" />
+        </label>
+        <button id="ai-connect-button" type="button" data-i18n="aiConnect">Connect</button>
+        <div id="ai-connection-status" class="status-text" data-i18n="aiDisconnected">AI not connected.</div>
       </div>
     </div>
     <script src="./config.js"></script>
