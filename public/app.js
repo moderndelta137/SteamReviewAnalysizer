@@ -117,6 +117,9 @@ const WORD_KEEP_VERBS = new Set([
 const TOPIC_TAGS_VERSION = 2;
 const TOPIC_CLUSTER_CACHE_VERSION = 2;
 const TOPIC_DEFINITIONS = [];
+const REVIEW_VELOCITY_WINDOW_DAYS = 7;
+const REVIEW_VELOCITY_PEAK_DAYS = 30;
+const REVIEW_VELOCITY_MIN_SCALE = 10;
 
 const I18N = {
   en: {
@@ -132,7 +135,7 @@ const I18N = {
     heroTitle: "Load a Steam app and inspect review volume by language.",
     heroBody:
       "This first pass mirrors SteamScout's core flow: app details, language breakdown, review browsing, CSV export, and playtime buckets.",
-    wordCloudEyebrow: "Word cloud",
+    wordCloudEyebrow: "Text Analysis",
     wordCloudTitle: "Word Cloud",
     wordCloudSentiment: "Sentiment",
     wordCloudView: "View",
@@ -158,13 +161,37 @@ const I18N = {
     languageBreakdown: "Language breakdown",
     reviewsByLanguage: "Steam Reviews by Language",
     distribution: "Distribution",
+    momentumTab: "Momentum",
+    momentumEyebrow: "Momentum",
+    momentumTitle: "Review Momentum",
+    momentumEmpty: "Fetch more recent reviews to see momentum.",
+    momentumDialLabel: "Review Velocity",
+    momentumVelocityUnit: "reviews/day",
+    momentumLast7d: "Last 7d",
+    momentumPositiveRate7d: "Positive Rate (7d)",
+    momentumSentimentDrift: "Sentiment Drift",
+    momentumLanguageLeader: "Top Recent Language",
+    momentumBurstDay: "Burst Day",
+    momentumRecentStrip: "Last 30 days",
+    momentumDailyTitle: "Daily New Reviews",
+    momentum30dTotal: "30d Total",
+    momentum30dAverage: "30d Avg/Day",
+    momentumVersusPeak: "{percent}% of peak",
+    momentumSentimentShift: "{value}% vs prev 7d",
+    momentumBurstDayValue: "{date} ({count})",
+    momentumStable: "Stable",
+    momentumRising: "Rising",
+    momentumCooling: "Cooling",
+    momentumNoPrior: "No prior baseline",
+    momentumCacheWarning: "Latest daily review count is 0. Cache data might be out of date. Please update the cache.",
     reviewShare: "By Language",
     chartType: "Chart Type",
     barChart: "Bar chart",
     chartBar: "Bar Chart",
     pieChart: "Pie chart",
     reviewBrowser: "Review browser",
-    reviewTimelineEyebrow: "Timeline",
+    reviewBrowserEyebrow: "Review Analysis",
+    reviewTimelineEyebrow: "Trend Analysis",
     reviewTimeline: "Timeline",
     timelineModeReviews: "Review Count",
     timelineModeKeywords: "Word Search",
@@ -192,6 +219,12 @@ const I18N = {
     fetchLoadingTitle: "Fetching",
     fetchCompleteTitle: "Loaded",
     fetchErrorTitle: "Failed",
+    reviewVelocityLabel: "Review Velocity",
+    reviewVelocityHelp: "Average new reviews per day across the last 7 days.",
+    reviewVelocityUnit: "reviews/day",
+    reviewVelocityLast7d: "{count} reviews last 7d",
+    reviewVelocityPeak: "{percent}% of 30d peak",
+    reviewVelocityScale: "30d peak {value}/day",
     proxyRequired:
       "<strong>Proxy required.</strong> Configure apiBaseUrl in public/config.js if the app is not running on the same origin as the /api proxy.",
     loadingAppDetails: "Loading app details...",
@@ -349,7 +382,7 @@ const I18N = {
     heroTitle: "Steamアプリを読み込み、言語別のレビュー量を確認します。",
     heroBody:
       "この初期版では、SteamScoutの基本フローに沿って、アプリ情報、言語別内訳、レビュー閲覧、CSV出力、プレイ時間帯分析を扱います。",
-    wordCloudEyebrow: "ワードクラウド",
+    wordCloudEyebrow: "テキスト分析",
     wordCloudTitle: "ワードクラウド",
     wordCloudSentiment: "評価",
     wordCloudView: "表示",
@@ -375,13 +408,37 @@ const I18N = {
     languageBreakdown: "言語別内訳",
     reviewsByLanguage: "Steamレビューの言語別集計",
     distribution: "分布",
+    momentumTab: "レビュー速度",
+    momentumEyebrow: "モメンタム",
+    momentumTitle: "レビュー速度",
+    momentumEmpty: "勢いを見るには最近レビューをもっと取得してください。",
+    momentumDialLabel: "レビュー速度",
+    momentumVelocityUnit: "件/日",
+    momentumLast7d: "直近7日",
+    momentumPositiveRate7d: "直近7日の好評率",
+    momentumSentimentDrift: "好評率変化",
+    momentumLanguageLeader: "直近最多言語",
+    momentumBurstDay: "最大日",
+    momentumRecentStrip: "直近30日",
+    momentumDailyTitle: "日別新規レビュー",
+    momentum30dTotal: "30日合計",
+    momentum30dAverage: "30日平均/日",
+    momentumVersusPeak: "ピーク比 {percent}%",
+    momentumSentimentShift: "前7日比 {value}%",
+    momentumBurstDayValue: "{date} ({count})",
+    momentumStable: "横ばい",
+    momentumRising: "上昇",
+    momentumCooling: "減速",
+    momentumNoPrior: "比較用の前期間なし",
+    momentumCacheWarning: "最新日の新規レビュー数が0です。キャッシュデータが古い可能性があります。キャッシュを更新してください。",
     reviewShare: "言語別",
     chartType: "グラフ種類",
     barChart: "棒グラフ",
     chartBar: "棒グラフ",
     pieChart: "円グラフ",
     reviewBrowser: "レビュー閲覧",
-    reviewTimelineEyebrow: "推移",
+    reviewBrowserEyebrow: "レビュー分析",
+    reviewTimelineEyebrow: "傾向分析",
     reviewTimeline: "レビュー推移",
     timelineModeReviews: "レビュー数",
     timelineModeKeywords: "単語検索",
@@ -409,6 +466,12 @@ const I18N = {
     fetchLoadingTitle: "取得中",
     fetchCompleteTitle: "読み込み完了",
     fetchErrorTitle: "失敗",
+    reviewVelocityLabel: "レビュー速度",
+    reviewVelocityHelp: "直近7日間で1日あたり何件のレビューが増えたかを示します。",
+    reviewVelocityUnit: "件/日",
+    reviewVelocityLast7d: "直近7日で{count}件",
+    reviewVelocityPeak: "30日ピーク比 {percent}%",
+    reviewVelocityScale: "30日ピーク {value}/日",
     proxyRequired:
       "<strong>プロキシが必要です。</strong> アプリが `/api` プロキシと同一オリジンで動作していない場合は `public/config.js` の `apiBaseUrl` を設定してください。",
     loadingAppDetails: "アプリ情報を読み込み中...",
@@ -654,7 +717,7 @@ const ACTIVE_TOPIC_DEFINITIONS = [];
 const TOPIC_UI_TEXT = {
   en: {
     topicClusters: "Topic Clusters",
-    topicClustersEyebrow: "Topic clusters",
+    topicClustersEyebrow: "Topic Analysis",
     topicSource: "Source",
     topicSourceAll: "All Reviews",
     topicSourceSaved: "Saved Reviews",
@@ -674,7 +737,7 @@ const TOPIC_UI_TEXT = {
   },
   ja: {
     topicClusters: "トピッククラスター",
-    topicClustersEyebrow: "トピッククラスター",
+    topicClustersEyebrow: "トピック分析",
     topicSource: "対象",
     topicSourceAll: "すべてのレビュー",
     topicSourceSaved: "保存済みレビュー",
@@ -701,7 +764,7 @@ const state = {
   splitReviewStatusBars: false,
   recentApps: [],
   analysisTab: "wordcloud",
-  dataTab: "distribution",
+  dataTab: "momentum",
   topicLanguage: "all",
   topicSource: "all",
   topicChartView: "bar",
@@ -723,6 +786,7 @@ const state = {
   aiAssistant: {
     connecting: false,
     generating: false,
+    chatExpanded: false,
     temporaryMode: "",
     temporaryUntil: 0,
     timer: null,
@@ -784,6 +848,9 @@ const els = {
   aiAssistantAnchor: document.getElementById("ai-assistant-anchor"),
   aiAssistantSprite: document.getElementById("ai-assistant-sprite"),
   aiAssistantStatus: document.getElementById("ai-assistant-status"),
+  aiChatPopup: document.getElementById("ai-chat-popup"),
+  aiChatExpandButton: document.getElementById("ai-chat-expand-button"),
+  aiChatCloseButton: document.getElementById("ai-chat-close-button"),
   aiSettingsPanel: document.getElementById("ai-settings-panel"),
   aiBaseUrlInput: document.getElementById("ai-base-url-input"),
   aiModelSelect: document.getElementById("ai-model-select"),
@@ -822,6 +889,7 @@ const els = {
   analysisPanelTimeline: document.getElementById("analysis-panel-timeline"),
   analysisPanelTopics: document.getElementById("analysis-panel-topics"),
   dataPanelDistribution: document.getElementById("data-panel-distribution"),
+  dataPanelMomentum: document.getElementById("data-panel-momentum"),
   dataPanelPlaytime: document.getElementById("data-panel-playtime"),
   statusText: document.getElementById("status-text"),
   wordLanguageSelection: document.getElementById("word-language-selection"),
@@ -843,6 +911,8 @@ const els = {
   topicChart: document.getElementById("topic-chart"),
   topicDetails: document.getElementById("topic-details"),
   chartContainer: document.getElementById("chart-container"),
+  momentumStatus: document.getElementById("momentum-status"),
+  momentumPanel: document.getElementById("momentum-panel"),
   chartTypeToggle: document.getElementById("chart-type-toggle"),
   reviewsList: document.getElementById("reviews-list"),
   reviewsPager: document.getElementById("reviews-pager"),
@@ -1048,6 +1118,274 @@ function renderReviewStatusBarMarkup(positiveCount, negativeCount, widthBase = p
     return `<div class="${className}"><div class="seg seg-pos-steam" style="width:${positiveWidth}%"></div><div class="seg seg-neg-steam" style="width:${negativeWidth}%"></div></div>`;
   }
   return `<div class="${className} split"><div class="stack-bar-lane"><div class="seg seg-pos-steam" style="width:${positiveWidth}%"></div></div><div class="stack-bar-lane"><div class="seg seg-neg-steam" style="width:${negativeWidth}%"></div></div></div>`;
+}
+
+function getLocalDayStartMs(value) {
+  const date = new Date(value);
+  date.setHours(0, 0, 0, 0);
+  return date.getTime();
+}
+
+function formatVelocityRate(value) {
+  const numeric = Number(value) || 0;
+  if (numeric >= 100) return numeric.toFixed(0);
+  return numeric.toFixed(1);
+}
+
+function getFetchedReviewPool(appid) {
+  const reviewsByKey = new Map();
+  [...state.reviewCache.entries()].forEach(([key, payload]) => {
+    if (!key.startsWith(`${appid}::`)) return;
+    (payload?.reviews || []).forEach((review) => {
+      const normalized = { ...review, _appid: appid };
+      reviewsByKey.set(getSavedReviewKey(normalized), normalized);
+    });
+  });
+  return [...reviewsByKey.values()];
+}
+
+function computeReviewVelocityMetrics(reviews, nowMs = Date.now()) {
+  const todayStartMs = getLocalDayStartMs(nowMs);
+  const countsByDay = new Map();
+
+  reviews.forEach((review) => {
+    const createdMs = Number(review.timestamp_created || 0) * 1000;
+    if (!createdMs) return;
+    const dayMs = getLocalDayStartMs(createdMs);
+    countsByDay.set(dayMs, (countsByDay.get(dayMs) || 0) + 1);
+  });
+
+  const sumWindowDays = (endDayMs, days) => {
+    let total = 0;
+    for (let offset = 0; offset < days; offset += 1) {
+      total += countsByDay.get(endDayMs - offset * DAY_MS) || 0;
+    }
+    return total;
+  };
+
+  const recentTotal = sumWindowDays(todayStartMs, REVIEW_VELOCITY_WINDOW_DAYS);
+  let peakTotal = 0;
+  for (let offset = 0; offset < REVIEW_VELOCITY_PEAK_DAYS; offset += 1) {
+    peakTotal = Math.max(peakTotal, sumWindowDays(todayStartMs - offset * DAY_MS, REVIEW_VELOCITY_WINDOW_DAYS));
+  }
+
+  const averagePerDay = recentTotal / REVIEW_VELOCITY_WINDOW_DAYS;
+  const peakAveragePerDay = peakTotal / REVIEW_VELOCITY_WINDOW_DAYS;
+  const dialMax = Math.max(REVIEW_VELOCITY_MIN_SCALE, peakAveragePerDay);
+  const fillRatio = Math.max(0, Math.min(1, averagePerDay / dialMax));
+  const peakRatio = peakAveragePerDay ? Math.max(0, Math.min(100, (averagePerDay / peakAveragePerDay) * 100)) : 0;
+
+  return {
+    todayStartMs,
+    countsByDay,
+    recentTotal,
+    averagePerDay,
+    peakAveragePerDay,
+    dialMax,
+    fillRatio,
+    peakRatio,
+  };
+}
+
+function getPreviousVelocityWindowMetrics(reviews, nowMs = Date.now()) {
+  const priorNowMs = nowMs - REVIEW_VELOCITY_WINDOW_DAYS * DAY_MS;
+  return computeReviewVelocityMetrics(reviews, priorNowMs);
+}
+
+function formatSignedPercent(value, digits = 0) {
+  const numeric = Number(value) || 0;
+  return `${numeric > 0 ? "+" : numeric < 0 ? "" : ""}${numeric.toFixed(digits)}%`;
+}
+
+function formatSignedPoints(value, digits = 1) {
+  const numeric = Number(value) || 0;
+  return `${numeric > 0 ? "+" : numeric < 0 ? "" : ""}${numeric.toFixed(digits)}`;
+}
+
+function getMomentumTrendLabel(currentAverage, previousAverage) {
+  if (!previousAverage) return t("momentumStable");
+  const ratio = currentAverage / Math.max(previousAverage, 0.01);
+  if (ratio >= 1.15) return t("momentumRising");
+  if (ratio <= 0.85) return t("momentumCooling");
+  return t("momentumStable");
+}
+
+function buildMomentumInsights(reviews, nowMs = Date.now()) {
+  const metrics = computeReviewVelocityMetrics(reviews, nowMs);
+  const previousMetrics = getPreviousVelocityWindowMetrics(reviews, nowMs);
+  const recentStartMs = metrics.todayStartMs - (REVIEW_VELOCITY_WINDOW_DAYS - 1) * DAY_MS;
+  const previousEndMs = recentStartMs - 1;
+  const previousStartMs = previousEndMs - (REVIEW_VELOCITY_WINDOW_DAYS * DAY_MS - 1);
+  let recentPositive = 0;
+  let previousPositive = 0;
+  let recentTotal = 0;
+  let previousTotal = 0;
+  const languageCounts = new Map();
+
+  reviews.forEach((review) => {
+    const createdMs = Number(review.timestamp_created || 0) * 1000;
+    if (!createdMs) return;
+    if (createdMs >= recentStartMs && createdMs <= metrics.todayStartMs + DAY_MS - 1) {
+      recentTotal += 1;
+      if (review.voted_up) recentPositive += 1;
+      languageCounts.set(review.language, (languageCounts.get(review.language) || 0) + 1);
+    } else if (createdMs >= previousStartMs && createdMs <= previousEndMs) {
+      previousTotal += 1;
+      if (review.voted_up) previousPositive += 1;
+    }
+  });
+
+  const recentPositiveRate = recentTotal ? (recentPositive / recentTotal) * 100 : 0;
+  const previousPositiveRate = previousTotal ? (previousPositive / previousTotal) * 100 : 0;
+  const sentimentDrift = recentPositiveRate - previousPositiveRate;
+  const accelerationPercent = previousMetrics.averagePerDay
+    ? ((metrics.averagePerDay - previousMetrics.averagePerDay) / previousMetrics.averagePerDay) * 100
+    : 0;
+  const languageLeaderEntry = [...languageCounts.entries()].sort((a, b) => b[1] - a[1])[0] || null;
+  const burstEntry =
+    [...metrics.countsByDay.entries()]
+      .filter(([dayMs]) => dayMs >= metrics.todayStartMs - 29 * DAY_MS && dayMs <= metrics.todayStartMs)
+      .sort((a, b) => b[1] - a[1] || b[0] - a[0])[0] || null;
+
+  const strip = Array.from({ length: 30 }, (_, index) => {
+    const dayMs = metrics.todayStartMs - (29 - index) * DAY_MS;
+    return {
+      dayMs,
+      count: metrics.countsByDay.get(dayMs) || 0,
+    };
+  });
+
+  return {
+    metrics,
+    previousMetrics,
+    recentPositive,
+    recentTotal,
+    recentPositiveRate,
+    previousPositiveRate,
+    sentimentDrift,
+    accelerationPercent,
+    languageLeaderEntry,
+    burstEntry,
+    strip,
+  };
+}
+
+function describeDialArc(cx, cy, radius, startAngle, endAngle) {
+  const start = {
+    x: cx + radius * Math.cos((startAngle * Math.PI) / 180),
+    y: cy + radius * Math.sin((startAngle * Math.PI) / 180),
+  };
+  const end = {
+    x: cx + radius * Math.cos((endAngle * Math.PI) / 180),
+    y: cy + radius * Math.sin((endAngle * Math.PI) / 180),
+  };
+  const largeArcFlag = Math.abs(endAngle - startAngle) > 180 ? 1 : 0;
+  return `M ${start.x.toFixed(2)} ${start.y.toFixed(2)} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${end.x.toFixed(2)} ${end.y.toFixed(2)}`;
+}
+
+function renderMomentumPanel(reviews) {
+  if (!els.momentumPanel || !els.momentumStatus) return;
+  if (!reviews.length) {
+    els.momentumStatus.textContent = t("momentumEmpty");
+    els.momentumPanel.innerHTML = `<div class="status-text">${esc(t("momentumEmpty"))}</div>`;
+    return;
+  }
+
+  const insight = buildMomentumInsights(reviews);
+  const { metrics, previousMetrics } = insight;
+  const startAngle = 150;
+  const endAngle = 390;
+  const fillEndAngle = startAngle + (endAngle - startAngle) * metrics.fillRatio;
+  const arcPath = describeDialArc(90, 92, 62, startAngle, endAngle);
+  const fillPath = metrics.fillRatio > 0 ? describeDialArc(90, 92, 62, startAngle, fillEndAngle) : "";
+  const needleX = 90 + 49 * Math.cos((fillEndAngle * Math.PI) / 180);
+  const needleY = 92 + 49 * Math.sin((fillEndAngle * Math.PI) / 180);
+  const stripMax = Math.max(...insight.strip.map((entry) => entry.count), 1);
+  const stripTotal = insight.strip.reduce((sum, entry) => sum + entry.count, 0);
+  const stripAverage = stripTotal / Math.max(1, insight.strip.length);
+  const stripStartLabel = new Date(insight.strip[0]?.dayMs || Date.now()).toLocaleDateString(
+    state.currentUiLanguage === "ja" ? "ja-JP" : "en-US",
+    { month: "short", day: "numeric" }
+  );
+  const stripMidLabel = new Date(insight.strip[Math.floor(insight.strip.length / 2)]?.dayMs || Date.now()).toLocaleDateString(
+    state.currentUiLanguage === "ja" ? "ja-JP" : "en-US",
+    { month: "short", day: "numeric" }
+  );
+  const stripEndLabel = new Date(insight.strip[insight.strip.length - 1]?.dayMs || Date.now()).toLocaleDateString(
+    state.currentUiLanguage === "ja" ? "ja-JP" : "en-US",
+    { month: "short", day: "numeric" }
+  );
+  const latestDailyCount = insight.strip[insight.strip.length - 1]?.count || 0;
+  const stripMarkup = insight.strip
+    .map((entry) => {
+      const height = Math.max(8, (entry.count / stripMax) * 100);
+      const label = new Date(entry.dayMs).toLocaleDateString(state.currentUiLanguage === "ja" ? "ja-JP" : "en-US", {
+        month: "short",
+        day: "numeric",
+      });
+      return `<div class="momentum-strip-col"><span class="momentum-strip-bar" style="height:${height.toFixed(
+        2
+      )}%" data-momentum-tooltip-label="${esc(label)}" data-momentum-tooltip-count="${entry.count}" aria-label="${esc(
+        `${label}: ${fmt(entry.count)}`
+      )}"></span></div>`;
+    })
+    .join("");
+  const leaderLabel = insight.languageLeaderEntry
+    ? `${getLanguageDisplayName(insight.languageLeaderEntry[0])} (${fmt(insight.languageLeaderEntry[1])})`
+    : t("allLanguage");
+  const burstLabel = insight.burstEntry
+    ? interp(t("momentumBurstDayValue"), {
+        date: new Date(insight.burstEntry[0]).toLocaleDateString(state.currentUiLanguage === "ja" ? "ja-JP" : "en-US", {
+          month: "short",
+          day: "numeric",
+        }),
+        count: fmt(insight.burstEntry[1]),
+      })
+    : "-";
+  const sentimentLabel = previousMetrics.recentTotal
+    ? interp(t("momentumSentimentShift"), { value: formatSignedPoints(insight.sentimentDrift, 1) })
+    : t("momentumNoPrior");
+
+  els.momentumStatus.textContent = "";
+  els.momentumPanel.innerHTML = `<div class="momentum-dial-row"><div class="momentum-dial-card"><div class="momentum-dial-head"><span class="momentum-kicker">${esc(
+    t("momentumDialLabel")
+  )}</span><span class="momentum-chip">${esc(getMomentumTrendLabel(metrics.averagePerDay, previousMetrics.averagePerDay))}</span></div><svg class="momentum-dial" viewBox="0 0 180 140" aria-hidden="true"><defs><linearGradient id="momentum-dial-gradient" x1="24" y1="92" x2="156" y2="92" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#6de3bf" /><stop offset="55%" stop-color="#66c0f4" /><stop offset="100%" stop-color="#f0d277" /></linearGradient></defs><path class="momentum-dial-track" d="${arcPath}" />${fillPath ? `<path class="momentum-dial-fill" d="${fillPath}" />` : ""}<line class="momentum-dial-needle" x1="90" y1="92" x2="${needleX.toFixed(
+    2
+  )}" y2="${needleY.toFixed(2)}" /><circle class="momentum-dial-hub" cx="90" cy="92" r="5" /></svg><div class="momentum-dial-value"><strong>${esc(
+    formatVelocityRate(metrics.averagePerDay)
+  )}</strong><span>${esc(t("momentumVelocityUnit"))}</span></div></div></div><div class="momentum-stat-grid"><div class="momentum-stat-card"><span class="momentum-stat-label">${esc(
+    t("momentumLast7d")
+  )}</span><strong>${fmt(metrics.recentTotal)}</strong><span class="momentum-stat-sub">${esc(
+    interp(t("momentumVersusPeak"), { percent: Math.round(metrics.peakRatio) })
+  )}</span></div><div class="momentum-stat-card"><span class="momentum-stat-label">${esc(
+    t("momentumPositiveRate7d")
+  )}</span><strong>${renderPositiveRateValue(insight.recentPositiveRate)}</strong><span class="momentum-stat-sub">${esc(
+    `${fmt(insight.recentPositive)} / ${fmt(insight.recentTotal)}`
+  )}</span></div><div class="momentum-stat-card"><span class="momentum-stat-label">${esc(
+    t("momentumSentimentDrift")
+  )}</span><strong>${esc(previousMetrics.recentTotal ? formatSignedPoints(insight.sentimentDrift, 1) : "-")}</strong><span class="momentum-stat-sub">${esc(
+    sentimentLabel
+  )}</span></div><div class="momentum-stat-card"><span class="momentum-stat-label">${esc(
+    t("momentum30dTotal")
+  )}</span><strong>${fmt(stripTotal)}</strong><span class="momentum-stat-sub">${esc(
+    `${esc(t("momentum30dAverage"))}: ${formatVelocityRate(stripAverage)}`
+  )}</span></div><div class="momentum-stat-card"><span class="momentum-stat-label">${esc(
+    t("momentumLanguageLeader")
+  )}</span><strong>${esc(leaderLabel)}</strong><span class="momentum-stat-sub">${esc(
+    interp(t("momentumLast7d"), { count: "" }).replace(/\s*\{count\}\s*/g, "").trim() || t("momentumLast7d")
+  )}</span></div><div class="momentum-stat-card"><span class="momentum-stat-label">${esc(
+    t("momentumBurstDay")
+  )}</span><strong>${esc(burstLabel)}</strong><span class="momentum-stat-sub">${esc(t("momentumRecentStrip"))}</span></div></div></div><div class="momentum-strip-shell"><div class="momentum-strip-head"><span class="momentum-kicker">${esc(
+    t("momentumDailyTitle")
+  )}</span><span class="momentum-strip-max">${fmt(stripMax)}</span></div><div class="momentum-strip-copy"><div class="momentum-strip-summary"><span>${esc(t("momentum30dTotal"))}: ${fmt(stripTotal)}</span><span>${esc(
+    t("momentum30dAverage")
+  )}: ${esc(formatVelocityRate(stripAverage))}</span><span>${esc(t("momentumBurstDay"))}: ${fmt(stripMax)}</span></div></div><div class="momentum-strip-chart"><div class="momentum-strip-yaxis"><span>${fmt(
+    stripMax
+  )}</span><span>0</span></div><div class="momentum-strip-plot"><div class="momentum-strip">${stripMarkup}</div><div class="momentum-strip-xaxis"><span>${esc(
+    stripStartLabel
+  )}</span><span>${esc(stripMidLabel)}</span><span>${esc(stripEndLabel)}</span></div></div></div>${latestDailyCount === 0 ? `<div class="momentum-warning">${esc(
+    t("momentumCacheWarning")
+  )}</div>` : ""}</div>`;
 }
 
 function topicText(key) {
@@ -1522,6 +1860,19 @@ function showTimelineMarkerTooltip(event, marker) {
   tooltip.style.display = "block";
   tooltip.style.left = `${event.clientX + 14}px`;
   tooltip.style.top = `${event.clientY + 14}px`;
+}
+
+function showMomentumBarTooltip(event, label, count) {
+  const tooltip = ensureSharedTooltip();
+  tooltip.innerHTML = `<strong>${esc(label)}</strong><div>${fmt(count)} ${esc(t("reviewCount"))}</div>`;
+  tooltip.style.display = "block";
+  tooltip.style.left = `${event.clientX + 14}px`;
+  tooltip.style.top = `${event.clientY + 14}px`;
+}
+
+function hideSharedTooltip() {
+  const tooltip = document.querySelector(".word-cloud-tooltip");
+  if (tooltip) tooltip.style.display = "none";
 }
 
 function getTimelineMarkersForRange() {
@@ -2123,6 +2474,7 @@ function updateWorkspaceTabs() {
   els.analysisPanelReviews.classList.toggle("hidden", state.analysisTab !== "reviews");
   els.analysisPanelTimeline.classList.toggle("hidden", state.analysisTab !== "timeline");
   els.analysisPanelTopics.classList.toggle("hidden", state.analysisTab !== "topics");
+  els.dataPanelMomentum.classList.toggle("hidden", state.dataTab !== "momentum");
   els.dataPanelDistribution.classList.toggle("hidden", state.dataTab !== "distribution");
   els.dataPanelPlaytime.classList.toggle("hidden", state.dataTab !== "playtime");
   updateTimelineUi();
@@ -2238,10 +2590,51 @@ function refreshAiAssistantSprite() {
   els.aiAssistantSprite.classList.toggle("working", Boolean(state.aiAssistant.generating || state.activeBlockingTask || state.aiAssistant.connecting));
 }
 
+function syncAiAssistantButtonState() {
+  if (!els.aiSettingsButton) return;
+  els.aiSettingsButton.setAttribute("aria-controls", state.ai.connected ? "ai-chat-popup" : "ai-settings-panel");
+  const expanded = Boolean(
+    (els.aiChatPopup && !els.aiChatPopup.classList.contains("hidden")) ||
+    (els.aiSettingsPanel && !els.aiSettingsPanel.classList.contains("hidden"))
+  );
+  els.aiSettingsButton.setAttribute("aria-expanded", expanded ? "true" : "false");
+}
+
+function syncAiChatPopupState() {
+  if (!els.aiChatPopup) return;
+  els.aiChatPopup.classList.toggle("expanded", Boolean(state.aiAssistant.chatExpanded));
+  if (els.aiChatExpandButton) {
+    const expanded = Boolean(state.aiAssistant.chatExpanded);
+    els.aiChatExpandButton.textContent = expanded ? "⤡" : "⤢";
+    els.aiChatExpandButton.setAttribute("aria-label", expanded ? "Shrink AI chat" : "Expand AI chat");
+    els.aiChatExpandButton.setAttribute("aria-pressed", expanded ? "true" : "false");
+  }
+}
+
+function toggleAiChatPopup(forceOpen) {
+  if (!els.aiChatPopup) return;
+  const shouldOpen = typeof forceOpen === "boolean" ? forceOpen : els.aiChatPopup.classList.contains("hidden");
+  if (!shouldOpen) state.aiAssistant.chatExpanded = false;
+  els.aiChatPopup.classList.toggle("hidden", !shouldOpen);
+  syncAiChatPopupState();
+  if (shouldOpen) {
+    toggleAiSettingsPanel(false);
+    queueMicrotask(() => els.aiAnalysisInput?.focus());
+  }
+  syncAiAssistantButtonState();
+}
+
+function toggleAiChatExpanded(forceExpanded) {
+  state.aiAssistant.chatExpanded =
+    typeof forceExpanded === "boolean" ? forceExpanded : !state.aiAssistant.chatExpanded;
+  syncAiChatPopupState();
+}
+
 function updateAiUi(status = "") {
   if (!els.aiSettingsButton) return;
   document.body.classList.toggle("ai-connected", state.ai.connected);
   els.wordAiSuggestButton?.classList.toggle("hidden", !state.ai.connected);
+  if (!state.ai.connected) toggleAiChatPopup(false);
   if (els.aiAssistantStatus) {
     els.aiAssistantStatus.textContent = getAiAssistantStatusText();
     els.aiAssistantStatus.classList.remove("status-disconnected", "status-connected", "status-busy");
@@ -2251,6 +2644,8 @@ function updateAiUi(status = "") {
     els.aiConnectionStatus.textContent = status || (state.ai.connected ? t("aiConnected") : t("aiDisconnected"));
   }
   refreshAiAssistantSprite();
+  syncAiChatPopupState();
+  syncAiAssistantButtonState();
   renderAiAnalysisMessages();
 }
 
@@ -2258,7 +2653,8 @@ function toggleAiSettingsPanel(forceOpen) {
   if (!els.aiSettingsPanel || !els.aiSettingsButton) return;
   const shouldOpen = typeof forceOpen === "boolean" ? forceOpen : els.aiSettingsPanel.classList.contains("hidden");
   els.aiSettingsPanel.classList.toggle("hidden", !shouldOpen);
-  els.aiSettingsButton.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
+  if (shouldOpen) toggleAiChatPopup(false);
+  syncAiAssistantButtonState();
 }
 
 function renderAiModelOptions() {
@@ -3227,6 +3623,9 @@ function applyTranslations() {
   if (!API_BASE) els.deploymentNote.innerHTML = t("proxyRequired");
   if (state.summaryRows.length) {
     renderDistributionChart(state.summaryRows);
+  }
+  if (state.currentAppId) {
+    renderMomentumPanel(getFetchedReviewPool(state.currentAppId));
   }
 
   updateReviewSummary();
@@ -5715,9 +6114,12 @@ async function refreshScopedData() {
   throwIfTaskCancelled();
   setFetchState("loading", t("searchLoading"), 30);
   await loadTimelineMarkersFromCache(state.currentAppId);
-  const allReviews = filterReviewsByActiveTimeRange(await collectReviews("all"));
+  const fetchedReviews = await collectReviews("all");
+  const velocitySource = getFetchedReviewPool(state.currentAppId);
+  const allReviews = filterReviewsByActiveTimeRange(fetchedReviews);
   state.summaryRows = buildSummaryRowsFromReviews(allReviews);
   renderReviewStatusBar(allReviews);
+  renderMomentumPanel(velocitySource);
   renderTimelineChart(allReviews);
   renderDistributionChart(state.summaryRows);
   populateLanguageSelect(els.reviewLanguageSelection);
@@ -5909,7 +6311,27 @@ els.loadingCancelButton?.addEventListener("click", () => {
 
 els.aiSettingsButton.addEventListener("click", () => {
   setAiAssistantTemporaryMode("exclamation");
+  if (state.ai.connected) {
+    toggleAiChatPopup();
+    return;
+  }
   toggleAiSettingsPanel();
+});
+
+els.aiAssistantStatus?.addEventListener("click", () => {
+  toggleAiSettingsPanel();
+});
+
+els.aiChatCloseButton?.addEventListener("click", () => {
+  toggleAiChatPopup(false);
+});
+
+els.aiChatExpandButton?.addEventListener("click", () => {
+  toggleAiChatExpanded();
+});
+
+els.aiChatPopup?.addEventListener("click", (event) => {
+  event.stopPropagation();
 });
 
 els.aiConnectButton.addEventListener("click", () => {
@@ -5927,6 +6349,7 @@ els.aiAnalysisSendButton?.addEventListener("click", () => {
 });
 if (els.aiAnalysisMessages) {
   els.aiAnalysisMessages.addEventListener("click", (event) => {
+    event.stopPropagation();
     const button = event.target.closest("[data-ai-expand]");
     if (!button) return;
     const index = Number(button.dataset.aiExpand);
@@ -5953,6 +6376,13 @@ if (els.aiAnalysisTemplates) {
 document.addEventListener("click", (event) => {
   if (!els.aiAssistantAnchor) return;
   if (els.aiAssistantAnchor.contains(event.target)) return;
+  toggleAiChatPopup(false);
+  toggleAiSettingsPanel(false);
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") return;
+  toggleAiChatPopup(false);
   toggleAiSettingsPanel(false);
 });
 
@@ -5971,6 +6401,7 @@ els.aiApiKeyInput.addEventListener("blur", () => {
 els.aiModelSelect.addEventListener("change", () => {
   state.ai.model = els.aiModelSelect.value;
   state.ai.connected = false;
+  toggleAiChatPopup(false);
   updateAiUi();
   void persistAiSettings();
 });
@@ -6177,6 +6608,14 @@ els.wordPreferenceList.addEventListener("click", async (event) => {
   const button = event.target.closest("[data-pref-term]");
   if (!button) return;
   await removeWordPreference(button.dataset.prefType, button.dataset.prefTerm);
+});
+els.momentumPanel?.addEventListener("mousemove", (event) => {
+  const bar = event.target.closest("[data-momentum-tooltip-label]");
+  if (!bar) return;
+  showMomentumBarTooltip(event, bar.dataset.momentumTooltipLabel, Number(bar.dataset.momentumTooltipCount || 0));
+});
+els.momentumPanel?.addEventListener("mouseleave", () => {
+  hideSharedTooltip();
 });
 els.reviewsPager?.addEventListener("click", (event) => {
   const button = event.target.closest("[data-review-page]");

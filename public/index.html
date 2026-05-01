@@ -110,7 +110,7 @@
             <section id="analysis-panel-wordcloud" class="workspace-body">
               <div class="panel-heading">
                 <div>
-                  <p class="eyebrow" data-i18n="wordCloudEyebrow">Word cloud</p>
+                  <p class="eyebrow" data-i18n="wordCloudEyebrow">Text Analysis</p>
                   <h3 data-i18n="wordCloudTitle">Rule-Based Review Keywords</h3>
                 </div>
                 <div id="status-text" class="status-text"></div>
@@ -158,7 +158,7 @@
             <section id="analysis-panel-reviews" class="workspace-body hidden">
               <div class="panel-heading">
                 <div>
-                  <p class="eyebrow" data-i18n="reviewBrowser">Review browser</p>
+                  <p class="eyebrow" data-i18n="reviewBrowserEyebrow">Review Analysis</p>
                   <h3 id="review-title" data-i18n="selectedReviews">Selected Reviews</h3>
                 </div>
                 <div class="control-field panel-heading-toggle">
@@ -237,7 +237,7 @@
             <section id="analysis-panel-timeline" class="workspace-body hidden">
               <div class="panel-heading">
                 <div>
-                  <p class="eyebrow" data-i18n="reviewTimelineEyebrow">Timeline</p>
+                  <p class="eyebrow" data-i18n="reviewTimelineEyebrow">Trend Analysis</p>
                   <h3 data-i18n="reviewTimeline">Timeline</h3>
                 </div>
                 <div class="timeline-heading-tools">
@@ -264,7 +264,7 @@
             <section id="analysis-panel-topics" class="workspace-body hidden">
               <div class="panel-heading">
                 <div>
-                  <p class="eyebrow" data-i18n="topicClustersEyebrow">Topic clusters</p>
+                  <p class="eyebrow" data-i18n="topicClustersEyebrow">Topic Analysis</p>
                   <h3 data-i18n="topicClusters">Topic Clusters</h3>
                 </div>
                 <div id="topic-status" class="status-text"></div>
@@ -296,11 +296,23 @@
 
           <article class="panel workspace-panel data-panel">
             <div class="workspace-tabs" id="data-tab-toggle" aria-label="Data panel tabs">
+              <button class="workspace-tab" type="button" data-data-tab="momentum" data-i18n="momentumTab">Momentum</button>
               <button class="workspace-tab" type="button" data-data-tab="distribution" data-i18n="reviewShare">By Language</button>
               <button class="workspace-tab" type="button" data-data-tab="playtime" data-i18n="reviewDistributionByPlaytime">By Playtime</button>
             </div>
 
-            <section id="data-panel-distribution" class="workspace-body">
+            <section id="data-panel-momentum" class="workspace-body">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow" data-i18n="momentumEyebrow">Momentum</p>
+                  <h3 data-i18n="momentumTitle">Review Momentum</h3>
+                </div>
+                <div id="momentum-status" class="status-text"></div>
+              </div>
+              <div id="momentum-panel" class="momentum-panel"></div>
+            </section>
+
+            <section id="data-panel-distribution" class="workspace-body hidden">
               <div class="panel-heading">
                 <div>
                   <p class="eyebrow" data-i18n="distribution">Distribution</p>
@@ -320,7 +332,7 @@
             <section id="data-panel-playtime" class="workspace-body hidden">
               <div class="panel-heading">
                 <div>
-                  <p class="eyebrow" data-i18n="hoursPlayed">Hours played</p>
+                  <p class="eyebrow" data-i18n="distribution">Distribution</p>
                   <h3 data-i18n="reviewDistributionByPlaytime">By Playtime</h3>
                 </div>
               </div>
@@ -338,35 +350,6 @@
           </article>
         </section>
 
-        <section id="ai-analysis-panel" class="panel ai-analysis-panel">
-          <div class="panel-heading">
-            <div>
-              <p class="eyebrow" data-i18n="aiAnalysisEyebrow">Grounded AI Analysis</p>
-              <h3 data-i18n="aiAnalysisTitle">Review Analyst</h3>
-            </div>
-          <div id="ai-analysis-scope" class="status-text" data-i18n="aiAnalysisScope">
-              Answers from the current global time span using structured review evidence.
-            </div>
-          </div>
-          <div id="ai-analysis-messages" class="ai-analysis-messages"></div>
-          <div id="ai-analysis-templates" class="ai-analysis-templates">
-            <button type="button" data-ai-template="pillar"></button>
-            <button type="button" data-ai-template="feature"></button>
-            <button type="button" data-ai-template="trend"></button>
-            <button type="button" data-ai-template="sales"></button>
-          </div>
-          <form id="ai-analysis-form" class="ai-analysis-form">
-            <label class="control-field ai-analysis-input">
-              <span data-i18n="aiAnalysisQuestion">Ask about the reviews</span>
-              <textarea
-                id="ai-analysis-input"
-                rows="3"
-                placeholder="What are the most common complaints in negative reviews this year?"
-              ></textarea>
-            </label>
-            <button id="ai-analysis-send-button" type="button" data-i18n="aiAnalysisAsk">Ask AI</button>
-          </form>
-        </section>
       </main>
     </div>
     <div id="ai-assistant-anchor" class="ai-assistant-anchor">
@@ -385,9 +368,48 @@
           alt="AnaChan AI assistant"
         />
       </button>
-      <button id="ai-assistant-status" class="ai-assistant-status" type="button" tabindex="-1" aria-live="polite">
+      <button id="ai-assistant-status" class="ai-assistant-status" type="button" aria-live="polite">
         Not connected
       </button>
+      <section
+        id="ai-chat-popup"
+        class="ai-chat-popup hidden"
+        role="dialog"
+        aria-modal="false"
+        aria-labelledby="ai-chat-title"
+      >
+        <div class="ai-chat-popup-head">
+          <div>
+            <p class="eyebrow" data-i18n="aiAnalysisEyebrow">Grounded AI Analysis</p>
+            <h3 id="ai-chat-title" data-i18n="aiAnalysisTitle">Review Analyst</h3>
+          </div>
+          <div class="ai-chat-popup-actions">
+            <button id="ai-chat-expand-button" class="ai-chat-expand-button" type="button" aria-label="Expand AI chat">⤢</button>
+            <button id="ai-chat-close-button" class="ai-chat-close-button" type="button" aria-label="Close AI chat">×</button>
+          </div>
+        </div>
+        <div id="ai-analysis-scope" class="status-text" data-i18n="aiAnalysisScope">
+          Answers from the current global time span using structured review evidence.
+        </div>
+        <div id="ai-analysis-messages" class="ai-analysis-messages"></div>
+        <div id="ai-analysis-templates" class="ai-analysis-templates">
+          <button type="button" data-ai-template="pillar"></button>
+          <button type="button" data-ai-template="feature"></button>
+          <button type="button" data-ai-template="trend"></button>
+          <button type="button" data-ai-template="sales"></button>
+        </div>
+        <form id="ai-analysis-form" class="ai-analysis-form">
+          <label class="control-field ai-analysis-input">
+            <span data-i18n="aiAnalysisQuestion">Ask about the reviews</span>
+            <textarea
+              id="ai-analysis-input"
+              rows="3"
+              placeholder="What are the most common complaints in negative reviews this year?"
+            ></textarea>
+          </label>
+          <button id="ai-analysis-send-button" type="button" data-i18n="aiAnalysisAsk">Ask AI</button>
+        </form>
+      </section>
       <div id="ai-settings-panel" class="ai-settings-panel hidden" role="dialog" aria-modal="false" aria-labelledby="ai-settings-title">
         <div class="ai-settings-panel-head">
           <p class="eyebrow">AnaChan</p>

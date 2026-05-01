@@ -482,6 +482,7 @@ body.loading-active {
 
 .review-status-with-ai {
   display: block;
+  margin-top: 10px;
 }
 
 .ai-assistant-button,
@@ -545,7 +546,7 @@ body.loading-active {
   bottom: 18px;
   z-index: 1240;
   display: grid;
-  justify-items: center;
+  justify-items: start;
   gap: 8px;
 }
 
@@ -593,7 +594,84 @@ body.loading-active {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  pointer-events: none;
+  cursor: pointer;
+}
+
+.ai-chat-popup {
+  position: fixed;
+  left: 172px;
+  bottom: 36px;
+  width: min(700px, calc(100vw - 236px));
+  height: min(74vh, 760px);
+  padding: 20px 20px 18px;
+  border: 1px solid rgba(102, 192, 244, 0.24);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(20, 30, 42, 0.98), rgba(10, 16, 24, 0.98)),
+    radial-gradient(circle at top left, rgba(102, 192, 244, 0.12), transparent 46%);
+  box-shadow:
+    0 28px 80px rgba(0, 0, 0, 0.46),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  gap: 14px;
+  transform-origin: left bottom;
+  transition:
+    left 220ms ease,
+    bottom 220ms ease,
+    width 220ms ease,
+    height 220ms ease,
+    transform 220ms ease,
+    box-shadow 220ms ease;
+  will-change: left, bottom, width, height, transform;
+}
+
+.ai-chat-popup.expanded {
+  left: clamp(160px, 8.4vw, 176px);
+  bottom: 18px;
+  width: min(1660px, calc(100vw - 350px));
+  height: min(968px, calc(100vh - 108px));
+  z-index: 1290;
+  box-shadow:
+    0 34px 92px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.ai-chat-popup-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: start;
+}
+
+.ai-chat-popup-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.ai-chat-popup-head h3 {
+  margin: 0;
+}
+
+.ai-chat-expand-button,
+.ai-chat-close-button {
+  width: 38px;
+  min-width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.ai-chat-expand-button:hover,
+.ai-chat-close-button:hover {
+  background: rgba(102, 192, 244, 0.16);
+  border-color: rgba(102, 192, 244, 0.4);
 }
 
 .ai-assistant-status.status-disconnected {
@@ -1157,6 +1235,243 @@ body.loading-active {
   gap: 12px;
 }
 
+.momentum-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.momentum-dial-row {
+  display: grid;
+}
+
+.momentum-dial-card,
+.momentum-stat-card,
+.momentum-strip-shell {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(27, 38, 50, 0.98), rgba(16, 24, 34, 0.98)),
+    radial-gradient(circle at top, rgba(102, 192, 244, 0.1), transparent 48%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.24);
+}
+
+.momentum-dial-card {
+  display: grid;
+  gap: 10px;
+  padding: 16px 18px;
+  align-content: start;
+  justify-items: center;
+}
+
+.momentum-dial-head,
+.momentum-strip-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+}
+
+.momentum-kicker {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--muted) 80%, #ffffff 20%);
+}
+
+.momentum-chip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(102, 192, 244, 0.2);
+  color: #d7f4ff;
+  background: rgba(102, 192, 244, 0.1);
+  font-size: 0.78rem;
+}
+
+.momentum-dial {
+  width: min(100%, 420px);
+  height: auto;
+  display: block;
+}
+
+.momentum-dial-track {
+  stroke: rgba(170, 184, 198, 0.16);
+  stroke-width: 14;
+  fill: none;
+  stroke-linecap: round;
+}
+
+.momentum-dial-fill {
+  stroke: url(#momentum-dial-gradient);
+  stroke-width: 14;
+  fill: none;
+  stroke-linecap: round;
+}
+
+.momentum-dial-needle {
+  stroke: #f5fbff;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+}
+
+.momentum-dial-hub {
+  fill: #f5fbff;
+}
+
+.momentum-dial-value {
+  margin-top: -10px;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+}
+
+.momentum-dial-value strong {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.momentum-dial-value span,
+.momentum-strip-max {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.momentum-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.momentum-stat-card {
+  display: grid;
+  gap: 8px;
+  padding: 12px 13px;
+}
+
+.momentum-stat-label {
+  color: color-mix(in srgb, var(--muted) 84%, #ffffff 16%);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.momentum-stat-card strong {
+  font-size: 1.08rem;
+  line-height: 1.25;
+}
+
+.momentum-stat-sub {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.momentum-strip-shell {
+  display: grid;
+  gap: 12px;
+  padding: 12px 14px 14px;
+}
+
+.momentum-strip-copy {
+  display: grid;
+  gap: 8px;
+}
+
+.momentum-strip-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  color: #d6e5f2;
+  font-size: 0.82rem;
+}
+
+.momentum-strip-chart {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 10px;
+  align-items: stretch;
+}
+
+.momentum-strip-yaxis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  color: var(--muted);
+  font-size: 0.76rem;
+  padding: 2px 0 20px;
+}
+
+.momentum-strip-plot {
+  display: grid;
+  gap: 8px;
+}
+
+.momentum-strip {
+  display: grid;
+  grid-template-columns: repeat(30, minmax(0, 1fr));
+  gap: 5px;
+  align-items: end;
+  min-height: 118px;
+  padding: 8px 0 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.momentum-strip-col {
+  height: 100%;
+  display: flex;
+  align-items: end;
+}
+
+.momentum-strip-bar {
+  width: 100%;
+  min-height: 8px;
+  border-radius: 10px 10px 2px 2px;
+  cursor: help;
+  background:
+    linear-gradient(180deg, rgba(126, 243, 220, 0.96), rgba(57, 215, 199, 0.86)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(230, 255, 250, 0.28),
+    0 8px 18px rgba(16, 188, 168, 0.14);
+}
+
+.momentum-warning {
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 209, 102, 0.34);
+  border-radius: 14px;
+  background: rgba(74, 55, 18, 0.34);
+  color: #ffe7a3;
+  font-size: 0.84rem;
+}
+
+.momentum-strip-xaxis {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+@media (max-width: 1080px) {
+  .momentum-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .momentum-stat-grid {
+    grid-template-columns: 1fr;
+  }
+  .momentum-strip-chart {
+    grid-template-columns: 1fr;
+  }
+  .momentum-strip-yaxis {
+    display: none;
+  }
+}
+
 .timeline-shell {
   display: grid;
   grid-template-columns: 52px minmax(0, 1fr);
@@ -1485,18 +1800,15 @@ body.loading-active {
   padding: 8px 12px;
 }
 
-.ai-analysis-panel {
-  margin-top: 18px;
-  display: grid;
-  gap: 14px;
-}
-
 .ai-analysis-messages {
   display: grid;
   gap: 12px;
-  height: 360px;
+  min-height: 0;
+  height: 100%;
   overflow-y: auto;
   padding-right: 4px;
+  align-content: start;
+  justify-items: start;
 }
 
 .ai-analysis-message {
@@ -1506,19 +1818,20 @@ body.loading-active {
   border: 1px solid var(--line);
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.03);
+  width: fit-content;
+  max-width: min(92%, 960px);
 }
 
 .ai-analysis-message.user {
   border-color: rgba(102, 192, 244, 0.34);
   background: rgba(26, 159, 255, 0.08);
   justify-self: end;
-  width: min(92%, 720px);
 }
 
 .ai-analysis-message.assistant {
   border-color: rgba(121, 227, 159, 0.22);
   justify-self: start;
-  width: 100%;
+  max-width: min(97%, 1240px);
 }
 
 .ai-analysis-message-head {
@@ -1539,6 +1852,14 @@ body.loading-active {
 .ai-analysis-message-role {
   font-weight: 700;
   color: var(--text);
+}
+
+.ai-analysis-message.assistant .ai-analysis-message-role {
+  color: #8dff77;
+  text-shadow:
+    0 0 6px rgba(125, 255, 122, 0.42),
+    0 0 14px rgba(79, 195, 255, 0.18),
+    0 0 22px rgba(255, 106, 213, 0.12);
 }
 
 .ai-analysis-message-body {
@@ -1644,14 +1965,18 @@ body.loading-active {
 
 .ai-analysis-expand {
   justify-self: start;
-  min-width: 0;
-  width: auto;
-  padding: 8px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 112px;
+  height: 40px;
+  padding: 0 14px;
   border: 1px solid rgba(102, 192, 244, 0.28);
   border-radius: 999px;
   background: rgba(26, 159, 255, 0.1);
   color: #dff3ff;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .ai-analysis-expand:hover {
@@ -1690,6 +2015,7 @@ body.loading-active {
 
 body.ai-connected .ai-assistant-status,
 body.ai-connected .ai-settings-panel button,
+body.ai-connected .ai-chat-close-button,
 body.ai-connected .ai-analysis-templates button,
 body.ai-connected .ai-analysis-form button,
 body.ai-connected .ai-analysis-expand,
@@ -1707,7 +2033,8 @@ body.ai-connected .review-translate-button {
 }
 
 body.ai-connected .ai-analysis-form button,
-body.ai-connected .ai-settings-panel button {
+body.ai-connected .ai-settings-panel button,
+body.ai-connected .ai-chat-close-button {
   background:
     linear-gradient(135deg, rgba(64, 120, 255, 0.16), rgba(0, 229, 255, 0.12)),
     rgba(255, 255, 255, 0.04);
@@ -1724,6 +2051,7 @@ body.ai-connected .ai-assistant-status {
 
 body.ai-connected .ai-assistant-status::before,
 body.ai-connected .ai-settings-panel button::before,
+body.ai-connected .ai-chat-close-button::before,
 body.ai-connected .ai-analysis-templates button::before,
 body.ai-connected .ai-analysis-form button::before,
 body.ai-connected .ai-analysis-expand::before,
@@ -2464,5 +2792,19 @@ body.ai-connected .review-translate-button::before {
     width: 120px;
     min-width: 120px;
     max-width: 120px;
+  }
+
+  .ai-chat-popup {
+    left: 0;
+    bottom: 172px;
+    width: min(560px, calc(100vw - 20px));
+    height: min(72vh, 700px);
+  }
+
+  .ai-chat-popup.expanded {
+    left: 10px;
+    bottom: 10px;
+    width: calc(100vw - 20px);
+    height: min(82vh, 700px);
   }
 }
