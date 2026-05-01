@@ -20,6 +20,9 @@
               <button id="positive-rate-color-toggle" class="lang-toggle" type="button" aria-label="Toggle positive-rate colors">
                 <span class="lang-pill" data-positive-rate-colors="on" data-i18n="positiveRateColors">Rate Color</span>
               </button>
+              <button id="review-status-layout-toggle" class="lang-toggle" type="button" aria-label="Toggle review status layout">
+                <span class="lang-pill" data-review-status-layout="split" data-i18n="reviewStatusLayout">Split Bars</span>
+              </button>
               <button id="ui-language-toggle" class="lang-toggle" type="button" aria-label="Toggle UI language">
                 <span class="lang-pill" data-lang="ja">日本語</span>
                 <span class="lang-pill" data-lang="en">EN</span>
@@ -141,6 +144,7 @@
                 </label>
                 <button id="word-allow-button" type="button" data-i18n="allowWord">Allow</button>
                 <button id="word-ban-button" type="button" data-i18n="banWord">Ban</button>
+                <button id="word-ai-suggest-button" class="hidden ai-feature-button" type="button" data-i18n="wordAiSuggest">AI Suggest</button>
               </div>
               <div id="word-preference-list" class="word-preference-list"></div>
               <div id="word-cloud-status" class="status-text"></div>
@@ -227,6 +231,7 @@
               <div id="search-summary" class="status-text"></div>
               <div id="paging-label" class="paging-label"></div>
               <div id="reviews-list" class="reviews-list"></div>
+              <div id="reviews-pager" class="pager"></div>
             </section>
 
             <section id="analysis-panel-timeline" class="workspace-body hidden">

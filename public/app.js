@@ -124,6 +124,7 @@ const I18N = {
     brandTitle: "Steam Review Analyzer",
     uiLanguage: "UI Language",
     positiveRateColors: "Rate Color",
+    reviewStatusLayout: "Split Bars",
     recentGames: "Recent Games",
     fetchReviews: "Fetch Reviews",
     appInputPlaceholder: "Enter Steam AppID or game name",
@@ -144,6 +145,14 @@ const I18N = {
     wordCloudReady: "Analyzed {reviews} reviews and surfaced {terms} keywords.",
     wordPreferenceLabel: "Word Preference",
     wordPreferencePlaceholder: "term or phrase",
+    wordAiSuggest: "AI Suggest",
+    wordAiSuggestLoading: "AI Suggesting...",
+    wordAiSuggestNeedConnection: "Connect AI first to suggest word-cloud phrases.",
+    wordAiSuggestNeedApp: "Load a game first to get AI word-cloud suggestions.",
+    wordAiSuggestApplied: "AI added {allow} allowed phrases and {ban} banned phrases.",
+    wordAiSuggestNoChanges: "AI suggestions did not add any new phrases.",
+    wordAiSuggestFailed: "AI word-cloud suggestion failed.",
+    clearAllWordPrefs: "Clear All",
     allowWord: "Allow",
     banWord: "Ban",
     languageBreakdown: "Language breakdown",
@@ -205,6 +214,9 @@ const I18N = {
     gamesOwned: "Games Owned",
     reviewCount: "Review Count",
     loadedPaging: "{loaded} / {total} shown",
+    pageLabel: "Page {current} / {total}",
+    pagePrev: "Prev",
+    pageNext: "Next",
     positiveCount: "Positive {count}",
     negativeCount: "Negative {count}",
     allLanguage: "All",
@@ -329,6 +341,7 @@ const I18N = {
     brandTitle: "Steam Review Analyzer",
     uiLanguage: "表示言語",
     positiveRateColors: "評価率カラー",
+    reviewStatusLayout: "分割バー",
     recentGames: "最近のゲーム",
     fetchReviews: "レビューを取得",
     appInputPlaceholder: "Steam AppID またはゲーム名を入力",
@@ -349,6 +362,14 @@ const I18N = {
     wordCloudReady: "{reviews}件のレビューを分析し、{terms}件のキーワードを抽出しました。",
     wordPreferenceLabel: "単語設定",
     wordPreferencePlaceholder: "単語またはフレーズ",
+    wordAiSuggest: "AI提案",
+    wordAiSuggestLoading: "AI提案中...",
+    wordAiSuggestNeedConnection: "単語クラウド提案には先にAIを接続してください。",
+    wordAiSuggestNeedApp: "先にゲームを読み込んでからAI提案を使ってください。",
+    wordAiSuggestApplied: "AIが許可{allow}件、禁止{ban}件を追加しました。",
+    wordAiSuggestNoChanges: "AI提案で新しいフレーズは追加されませんでした。",
+    wordAiSuggestFailed: "AI単語クラウド提案に失敗しました。",
+    clearAllWordPrefs: "全解除",
     allowWord: "許可",
     banWord: "除外",
     languageBreakdown: "言語別内訳",
@@ -492,6 +513,9 @@ const I18N = {
     translateReview: "翻訳",
     translatingReview: "翻訳中...",
     translationFailed: "翻訳に失敗しました。",
+    pageLabel: "{current} / {total} ページ",
+    pagePrev: "前へ",
+    pageNext: "次へ",
     sortBy: "並び順",
     sortDate: "新しい順",
     sortPlaytime: "プレイ時間",
@@ -674,6 +698,7 @@ const state = {
   currentAppId: null,
   currentUiLanguage: "ja",
   showPositiveRateColors: true,
+  splitReviewStatusBars: false,
   recentApps: [],
   analysisTab: "wordcloud",
   dataTab: "distribution",
@@ -730,6 +755,8 @@ const state = {
   reviewBaseReviews: [],
   reviewSourceReviews: [],
   reviewDisplayedReviews: [],
+  reviewPage: 1,
+  reviewPageSize: 10,
   reviewRenderPending: false,
   reviewRenderToken: 0,
   reviewSearchStats: null,
@@ -785,6 +812,7 @@ const els = {
   fetchButton: document.getElementById("fetch-button"),
   uiLanguageToggle: document.getElementById("ui-language-toggle"),
   positiveRateColorToggle: document.getElementById("positive-rate-color-toggle"),
+  reviewStatusLayoutToggle: document.getElementById("review-status-layout-toggle"),
   workspaceSection: document.getElementById("workspace-section"),
   reviewsSection: document.getElementById("reviews-section"),
   analysisTabToggle: document.getElementById("analysis-tab-toggle"),
@@ -803,6 +831,7 @@ const els = {
   wordPreferenceInput: document.getElementById("word-preference-input"),
   wordAllowButton: document.getElementById("word-allow-button"),
   wordBanButton: document.getElementById("word-ban-button"),
+  wordAiSuggestButton: document.getElementById("word-ai-suggest-button"),
   wordPreferenceList: document.getElementById("word-preference-list"),
   wordCloudStatus: document.getElementById("word-cloud-status"),
   wordCloudContainer: document.getElementById("word-cloud-container"),
@@ -816,6 +845,7 @@ const els = {
   chartContainer: document.getElementById("chart-container"),
   chartTypeToggle: document.getElementById("chart-type-toggle"),
   reviewsList: document.getElementById("reviews-list"),
+  reviewsPager: document.getElementById("reviews-pager"),
   reviewTitle: document.getElementById("review-title"),
   timelineStatus: document.getElementById("timeline-status"),
   timelineModeToggle: document.getElementById("timeline-mode-toggle"),
@@ -968,6 +998,13 @@ const AI_REQUEST_PATTERNS = [
   /(欲しい|ほしい|あれば|追加して|追加してほしい|必要|改善してほしい)/u,
   /(希望|想要|需要|应该加|希望加入|最好有)/u,
 ];
+const WORD_AI_BAN_PROTECTED_TERMS = new Set([
+  "performance", "optimization", "optimisation", "optimize", "optimise", "optimized", "optimised",
+  "fps", "frame rate", "framerate", "lag", "stutter", "stuttering", "freeze", "freezing",
+  "crash", "crashes", "crashing", "memory leak", "cpu", "gpu", "loading", "load times",
+  "input lag", "latency", "network lag", "rubberbanding", "microstutter",
+  "パフォーマンス", "最適化", "最適", "重い", "軽量化", "ラグ", "カクつき", "スタッター", "フリーズ", "クラッシュ", "fps低下",
+]);
 const AI_RETENTION_PATTERNS = [
   /\b(despite|even with|still|kept playing|hooked|addictive|hard to stop|came back)\b/i,
   /(それでも|それでもなお|なのに|でも続け|やめられ|ハマ)/u,
@@ -1002,6 +1039,15 @@ function renderPositiveRateValue(value, decimals = 1) {
   const text = `${numeric.toFixed(decimals)}%`;
   if (!state.showPositiveRateColors) return text;
   return `<span class="positive-rate-value" style="color:${getAbsolutePositiveRateColor(numeric)}">${text}</span>`;
+}
+
+function renderReviewStatusBarMarkup(positiveCount, negativeCount, widthBase = positiveCount + negativeCount || 1, className = "stack-bar") {
+  const positiveWidth = ((positiveCount / Math.max(1, widthBase)) * 100).toFixed(2);
+  const negativeWidth = ((negativeCount / Math.max(1, widthBase)) * 100).toFixed(2);
+  if (!state.splitReviewStatusBars) {
+    return `<div class="${className}"><div class="seg seg-pos-steam" style="width:${positiveWidth}%"></div><div class="seg seg-neg-steam" style="width:${negativeWidth}%"></div></div>`;
+  }
+  return `<div class="${className} split"><div class="stack-bar-lane"><div class="seg seg-pos-steam" style="width:${positiveWidth}%"></div></div><div class="stack-bar-lane"><div class="seg seg-neg-steam" style="width:${negativeWidth}%"></div></div></div>`;
 }
 
 function topicText(key) {
@@ -1793,7 +1839,7 @@ function renderTimelineKeywordChart(reviews, buckets) {
     row.className = "chart-row timeline-keyword-row";
     row.innerHTML = `<div class="chart-labels"><span class="timeline-keyword-row-label"><span class="timeline-keyword-swatch" style="background:${lineColor}"></span>${esc(
       entry.keyword
-    )}</span><span>${fmt(totalReviews)} ${esc(t("reviewCount"))}</span></div><div class="stacked-track"><div class="stacked-positive" style="width:${positivePortion}%"></div><div class="stacked-negative" style="width:${negativePortion}%"></div></div><div class="chart-labels review-status-breakdown"><span>${esc(
+    )}</span><span>${fmt(totalReviews)} ${esc(t("reviewCount"))}</span></div>${renderReviewStatusBarMarkup(totalPositive, totalNegative, totalReviews, "stacked-track")}<div class="chart-labels review-status-breakdown"><span>${esc(
       `${t("positive")} ${fmt(totalPositive)} (${positivePortion}%)`
     )}</span><span>${esc(`${t("negative")} ${fmt(totalNegative)} (${negativePortion}%)`)}</span></div>`;
     summaryList.appendChild(row);
@@ -1858,7 +1904,12 @@ function renderReviewStatusBar(reviews) {
 
   els.reviewStatusBar.innerHTML = `<div class="chart-row review-status-row"><div class="chart-labels"><span>${
     t("summaryPositiveRate")
-  }: ${renderPositiveRateValue(positivePortion)}</span><span>${fmt(total)} ${esc(t("reviewCount"))}</span></div><div class="stack-bar"><div class="seg seg-pos-steam" style="width:${positivePortion}%"></div><div class="seg seg-neg-steam" style="width:${negativePortion}%"></div></div><div class="chart-labels review-status-breakdown"><span>${esc(
+  }: ${renderPositiveRateValue(positivePortion)}</span><span>${fmt(total)} ${esc(t("reviewCount"))}</span></div>${renderReviewStatusBarMarkup(
+    positive,
+    negative,
+    total,
+    "stack-bar"
+  )}<div class="chart-labels review-status-breakdown"><span>${esc(
     `${t("positive")} ${positiveText}`
   )}</span><span>${esc(`${t("negative")} ${negativeText}`)}</span></div></div>`;
 }
@@ -2190,6 +2241,7 @@ function refreshAiAssistantSprite() {
 function updateAiUi(status = "") {
   if (!els.aiSettingsButton) return;
   document.body.classList.toggle("ai-connected", state.ai.connected);
+  els.wordAiSuggestButton?.classList.toggle("hidden", !state.ai.connected);
   if (els.aiAssistantStatus) {
     els.aiAssistantStatus.textContent = getAiAssistantStatusText();
     els.aiAssistantStatus.classList.remove("status-disconnected", "status-connected", "status-busy");
@@ -2922,7 +2974,134 @@ function renderWordPreferenceList() {
       `<span class="word-preference-chip banned">${esc(term)} <button type="button" aria-label="Remove banned phrase" data-pref-type="banned" data-pref-term="${esc(term)}">×</button></span>`
     );
   });
+  if (state.wordCloudPrefs.allowed.length || state.wordCloudPrefs.banned.length) {
+    chips.push(`<button class="word-preference-chip clear-all" type="button" data-clear-word-prefs="true">${esc(t("clearAllWordPrefs"))}</button>`);
+  }
   els.wordPreferenceList.innerHTML = chips.join("");
+}
+
+function getCurrentAppMetadata() {
+  const app = state.appDetails.get(state.currentAppId)?.[state.currentAppId]?.data;
+  return {
+    appid: state.currentAppId,
+    name: app?.name || getCurrentAppName(),
+    genres: Array.isArray(app?.genres) ? app.genres.map((entry) => entry.description).filter(Boolean) : [],
+    categories: Array.isArray(app?.categories) ? app.categories.map((entry) => entry.description).filter(Boolean) : [],
+    shortDescription: app?.short_description || "",
+  };
+}
+
+function selectWordCloudSuggestionReviews(reviews, limit = 14) {
+  const positives = reviews
+    .filter((review) => review.voted_up)
+    .sort((left, right) => (right.timestamp_created || 0) - (left.timestamp_created || 0))
+    .slice(0, Math.ceil(limit / 2));
+  const negatives = reviews
+    .filter((review) => !review.voted_up)
+    .sort((left, right) => (right.timestamp_created || 0) - (left.timestamp_created || 0))
+    .slice(0, Math.ceil(limit / 2));
+  return [...negatives, ...positives].slice(0, limit).map((review) => ({
+    language: getLanguageName(review.language),
+    sentiment: review.voted_up ? t("positive") : t("negative"),
+    createdAt: new Date((review.timestamp_created || 0) * 1000).toISOString(),
+    playtimeMinutes: review.author?.playtime_forever || 0,
+    topics: (review._topics || []).map((topicId) => getTopicLabel(topicId)),
+    snippet: trimReviewSnippet(review.review, 220),
+  }));
+}
+
+async function buildWordCloudSuggestionEvidence() {
+  if (!state.currentAppId) return null;
+  const language = els.wordLanguageSelection.value || "all";
+  const reviews =
+    state.wordCloudSentiment === "saved"
+      ? filterReviewsByActiveTimeRange(getSavedReviewsForCurrentApp(language))
+      : filterReviewsByActiveTimeRange(await collectReviews(language));
+  const filtered =
+    state.wordCloudSentiment === "saved"
+      ? reviews
+      : state.wordCloudSentiment === "positive"
+        ? reviews.filter((review) => review.voted_up)
+        : state.wordCloudSentiment === "negative"
+          ? reviews.filter((review) => !review.voted_up)
+          : reviews;
+  if (!filtered.length) return null;
+  await ensureTopicTagsForReviews(filtered);
+  const topTerms = (state.wordCloudTerms.length ? state.wordCloudTerms : extractWordCloudTerms(filtered)).slice(0, 28).map((entry) => ({
+    term: entry.term,
+    reviewCount: entry.reviewCount,
+    occurrences: entry.occurrences,
+    positiveReviews: entry.positiveReviews,
+    negativeReviews: entry.negativeReviews,
+    positiveRate: Number(entry.positiveRate.toFixed(1)),
+  }));
+  const topicRows = computeTopicRows(filtered).slice(0, 8).map((row) => ({
+    topic: row.label,
+    keywords: row.keywords?.slice(0, 6) || [],
+    reviewCount: row.reviewCount,
+    positiveRate: Number(row.positiveRate.toFixed(1)),
+    trend: row.trend,
+  }));
+  return {
+    app: getCurrentAppMetadata(),
+    timeRange: {
+      mode: state.timeRange.mode,
+      label: getActiveTimeRangeLabel(),
+      ...getDisplayTimeRangeDates(),
+    },
+    wordCloudScope: {
+      language: language === "all" ? "All" : getLanguageName(language),
+      sentiment: state.wordCloudSentiment,
+      reviewCount: filtered.length,
+    },
+    currentPreferences: {
+      allowed: state.wordCloudPrefs.allowed.slice(0, 30),
+      banned: state.wordCloudPrefs.banned.slice(0, 30),
+    },
+    topTerms,
+    topics: topicRows,
+    representativeReviews: selectWordCloudSuggestionReviews(filtered, 14),
+  };
+}
+
+function sanitizeWordPreferenceTerms(terms) {
+  return [...new Set(
+    (Array.isArray(terms) ? terms : [])
+      .map((term) => normalizePreferenceTerm(term))
+      .filter(Boolean)
+  )];
+}
+
+function filterProtectedBanTerms(terms) {
+  return terms.filter((term) => !WORD_AI_BAN_PROTECTED_TERMS.has(String(term || "").toLowerCase()));
+}
+
+async function requestAiWordCloudSuggestions() {
+  if (!API_BASE) throw new Error(t("noProxyConfigured"));
+  if (!state.currentAppId) throw new Error(t("wordAiSuggestNeedApp"));
+  if (!state.ai.connected || !state.ai.apiKey || !state.ai.model) throw new Error(t("wordAiSuggestNeedConnection"));
+  const evidence = await buildWordCloudSuggestionEvidence();
+  if (!evidence) throw new Error(t("wordCloudEmpty"));
+  const payload = await postJson(`${API_BASE}/wordcloud/suggest`, {
+    apiKey: state.ai.apiKey,
+    baseUrl: state.ai.baseUrl,
+    model: state.ai.model,
+    answerLanguage: getAiAnalysisTargetLanguage(),
+    evidence,
+  });
+  const allowed = sanitizeWordPreferenceTerms(payload.allow_phrases);
+  const banned = filterProtectedBanTerms(sanitizeWordPreferenceTerms(payload.ban_phrases)).filter((term) => !allowed.includes(term));
+  state.wordCloudPrefs.allowed = allowed.filter((term) => !banned.includes(term));
+  state.wordCloudPrefs.banned = banned;
+  const addedAllowed = state.wordCloudPrefs.allowed.length;
+  const addedBanned = state.wordCloudPrefs.banned.length;
+  renderWordPreferenceList();
+  await persistWordCloudPrefs();
+  queueWordCloudGeneration();
+  els.wordCloudStatus.textContent =
+    addedAllowed || addedBanned
+      ? interp(t("wordAiSuggestApplied"), { allow: fmt(addedAllowed), ban: fmt(addedBanned) })
+      : t("wordAiSuggestNoChanges");
 }
 
 function renderPlaytimeCutoffControls() {
@@ -3016,6 +3195,10 @@ function applyTranslations() {
   if (els.positiveRateColorToggle) {
     const pill = els.positiveRateColorToggle.querySelector("[data-positive-rate-colors]");
     if (pill) pill.classList.toggle("active", state.showPositiveRateColors);
+  }
+  if (els.reviewStatusLayoutToggle) {
+    const pill = els.reviewStatusLayoutToggle.querySelector("[data-review-status-layout]");
+    if (pill) pill.classList.toggle("active", state.splitReviewStatusBars);
   }
   updateToggleButtons(els.chartTypeToggle, state.chartType, "chart");
   updateToggleButtons(els.reviewSortToggle, state.reviewSort, "sort");
@@ -3212,6 +3395,9 @@ async function loadUiSettingsFromCache() {
   if (typeof record?.value?.showPositiveRateColors === "boolean") {
     state.showPositiveRateColors = record.value.showPositiveRateColors;
   }
+  if (typeof record?.value?.splitReviewStatusBars === "boolean") {
+    state.splitReviewStatusBars = record.value.splitReviewStatusBars;
+  }
 }
 
 async function loadRecentAppsFromCache() {
@@ -3251,6 +3437,7 @@ async function persistAiSettings() {
 async function persistUiSettings() {
   await putRecord("uisettings", {
     showPositiveRateColors: state.showPositiveRateColors,
+    splitReviewStatusBars: state.splitReviewStatusBars,
   });
 }
 
@@ -3724,13 +3911,7 @@ function renderBarChart(rows) {
       row.total_reviews
     )}</span></div><div class="chart-meta"><span>${t("portion")}: ${share}%</span><span>${t("score")}: ${renderPositiveRateValue(score, 0)} (${esc(
       row.review_score_desc
-    )})</span></div><div class="stacked-track"><div class="stacked-positive" style="width:${(
-      (row.total_positive / max) *
-      100
-    ).toFixed(2)}%"></div><div class="stacked-negative" style="width:${(
-      (row.total_negative / max) *
-      100
-    ).toFixed(2)}%"></div></div><div class="chart-subtext"><span>${t("positiveCount").replace(
+    )})</span></div>${renderReviewStatusBarMarkup(row.total_positive, row.total_negative, max, "stacked-track")}<div class="chart-subtext"><span>${t("positiveCount").replace(
       "{count}",
       fmt(row.total_positive)
     )}</span><span>${t("negativeCount").replace("{count}", fmt(row.total_negative))}</span></div>`;
@@ -3748,12 +3929,20 @@ function normalizeWordCloudText(text) {
   return String(text || "")
     .toLowerCase()
     .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/(?<![\u3040-\u30ff])[\u0300-\u036f]/g, "")
     .replace(/[^\p{L}\p{N}'\s\-繝ｼ]+/gu, " ");
 }
 
 function normalizePreferenceTerm(text) {
-  return normalizeWordCloudText(text).replace(/\s+/g, " ").trim();
+  const raw = String(text || "").trim().normalize("NFC");
+  if (!raw) return "";
+  if (containsJapanese(raw) || containsKana(raw)) {
+    return raw
+      .replace(/[‐‑‒–—―ｰ]+/g, "ー")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+  return normalizeWordCloudText(raw).replace(/\s+/g, " ").trim();
 }
 
 function normalizeJapaneseToken(token) {
@@ -4330,13 +4519,12 @@ function renderWordCloud() {
       entry.reviewCount
     )}</span></div><div class="chart-meta"><span>${t("summaryPositiveRate")}: ${renderPositiveRateValue(
       entry.positiveRate
-    )}</span><span>${fmt(entry.occurrences)} uses</span></div><div class="stacked-track"><div class="stacked-positive" style="width:${(
-      (entry.positiveReviews / maxReviews) *
-      100
-    ).toFixed(2)}%"></div><div class="stacked-negative" style="width:${(
-      (entry.negativeReviews / maxReviews) *
-      100
-    ).toFixed(2)}%"></div></div><div class="chart-subtext"><span>${t("positiveCount").replace(
+    )}</span><span>${fmt(entry.occurrences)} uses</span></div>${renderReviewStatusBarMarkup(
+      entry.positiveReviews,
+      entry.negativeReviews,
+      maxReviews,
+      "stacked-track"
+    )}<div class="chart-subtext"><span>${t("positiveCount").replace(
       "{count}",
       fmt(entry.positiveReviews)
     )}</span><span>${t("negativeCount").replace("{count}", fmt(entry.negativeReviews))}</span></div>`;
@@ -4579,7 +4767,7 @@ function renderTopicLineChart(rows, reviews) {
     row.className = "chart-row timeline-keyword-row";
     row.innerHTML = `<div class="chart-labels"><span class="timeline-keyword-row-label"><span class="timeline-keyword-swatch" style="background:${entry.color}"></span>${esc(
       entry.label
-    )}</span><span>${fmt(totalReviews)} ${esc(t("reviewCount"))}</span></div><div class="stacked-track"><div class="stacked-positive" style="width:${positivePortion}%"></div><div class="stacked-negative" style="width:${negativePortion}%"></div></div><div class="chart-labels review-status-breakdown"><span>${esc(
+    )}</span><span>${fmt(totalReviews)} ${esc(t("reviewCount"))}</span></div>${renderReviewStatusBarMarkup(totalPositive, totalNegative, totalReviews, "stacked-track")}<div class="chart-labels review-status-breakdown"><span>${esc(
       `${t("positive")} ${fmt(totalPositive)} (${positivePortion}%)`
     )}</span><span>${esc(`${t("negative")} ${fmt(totalNegative)} (${negativePortion}%)`)}</span></div>`;
     summaryList.appendChild(row);
@@ -4598,7 +4786,6 @@ function renderTopicLineChart(rows, reviews) {
   shell.appendChild(axis);
   shell.appendChild(plot);
   els.topicChart.appendChild(shell);
-  if (summaryList.childElementCount) els.topicChart.appendChild(summaryList);
 }
 
 function renderTopicDetails(rows) {
@@ -4611,8 +4798,6 @@ function renderTopicDetails(rows) {
     card.className = "topic-card";
     card.style.borderColor = `${row.color}66`;
     card.style.boxShadow = `inset 0 0 0 1px ${row.color}22`;
-    const positiveWidth = ((row.positiveCount / maxReviews) * 100).toFixed(2);
-    const negativeWidth = ((row.negativeCount / maxReviews) * 100).toFixed(2);
     card.innerHTML = `<div class="topic-card-head"><div class="topic-card-title">${esc(
       getTopicRowLabel(row)
     )}</div><div class="topic-card-badges"><span class="topic-priority ${row.priority}">${esc(
@@ -4625,7 +4810,12 @@ function renderTopicDetails(rows) {
       1
     )}%)</span></div><div class="chart-meta"><span>${t("summaryPositiveRate")}: ${renderPositiveRateValue(
       row.positiveRate
-    )}</span><span>${fmt(row.reviewCount)} ${t("reviewCount")}</span></div><div class="stacked-track"><div class="stacked-positive" style="width:${positiveWidth}%"></div><div class="stacked-negative" style="width:${negativeWidth}%"></div></div><div class="chart-subtext"><span>${t("positiveCount").replace(
+    )}</span><span>${fmt(row.reviewCount)} ${t("reviewCount")}</span></div>${renderReviewStatusBarMarkup(
+      row.positiveCount,
+      row.negativeCount,
+      maxReviews,
+      "stacked-track"
+    )}<div class="chart-subtext"><span>${t("positiveCount").replace(
       "{count}",
       fmt(row.positiveCount)
     )} (${renderPositiveRateValue(row.positiveRate)})</span><span>${t("negativeCount").replace(
@@ -4762,9 +4952,12 @@ function updateReviewSummary() {
     : "0.0";
   const statusBarMarkup = `<div class="review-search-status-bar"><div class="review-search-status-head"><span>${t(
     "summaryPositiveRate"
-  )}: ${renderPositiveRateValue(positiveRate)}</span><span>${fmt(state.reviewDisplayedReviews.length)} ${t("reviewCount")}</span></div><div class="stacked-track"><div class="stacked-positive" style="width:${positiveRate}%"></div><div class="stacked-negative" style="width:${(
-    100 - Number(positiveRate)
-  ).toFixed(1)}%"></div></div><div class="review-search-status-foot"><span>${t("positive")}: ${fmt(
+  )}: ${renderPositiveRateValue(positiveRate)}</span><span>${fmt(state.reviewDisplayedReviews.length)} ${t("reviewCount")}</span></div>${renderReviewStatusBarMarkup(
+    positiveCount,
+    negativeCount,
+    state.reviewDisplayedReviews.length,
+    "stacked-track"
+  )}<div class="review-search-status-foot"><span>${t("positive")}: ${fmt(
     positiveCount
   )}</span><span>${t("negative")}: ${fmt(negativeCount)}</span></div></div>`;
 
@@ -4791,8 +4984,10 @@ function updateReviewSummary() {
 function applyReviewView() {
   const filtered = getFilteredReviews(state.reviewSourceReviews);
   state.reviewDisplayedReviews = getSortedReviews(filtered);
+  const totalPages = Math.max(1, Math.ceil(state.reviewDisplayedReviews.length / state.reviewPageSize));
+  state.reviewPage = Math.min(Math.max(1, state.reviewPage), totalPages);
   updateReviewSummary();
-  renderPaging(state.reviewDisplayedReviews.length, state.reviewSourceReviews.length);
+  renderPaging(state.reviewDisplayedReviews.length, state.reviewSourceReviews.length, state.reviewPage, totalPages);
   if (state.analysisTab === "reviews") {
     state.reviewRenderPending = false;
     renderReviews(state.reviewDisplayedReviews);
@@ -4853,33 +5048,48 @@ function buildReviewCard(review) {
 }
 
 function renderReviews(reviews) {
-  const token = ++state.reviewRenderToken;
   els.reviewsList.innerHTML = "";
   if (!reviews.length) {
     els.reviewsList.innerHTML = `<div class="status-text">${t("noReviews")}</div>`;
     return;
   }
-  const chunkSize = 48;
-  let index = 0;
-  const appendChunk = () => {
+  const token = ++state.reviewRenderToken;
+  const start = (state.reviewPage - 1) * state.reviewPageSize;
+  const pageReviews = reviews.slice(start, start + state.reviewPageSize);
+  requestAnimationFrame(() => {
     if (token !== state.reviewRenderToken) return;
     const fragment = document.createDocumentFragment();
-    for (let count = 0; count < chunkSize && index < reviews.length; count += 1, index += 1) {
-      fragment.appendChild(buildReviewCard(reviews[index]));
-    }
+    pageReviews.forEach((review) => fragment.appendChild(buildReviewCard(review)));
     els.reviewsList.appendChild(fragment);
-    if (index < reviews.length) {
-      requestAnimationFrame(appendChunk);
-    }
-  };
-  requestAnimationFrame(appendChunk);
+  });
 }
 
-function renderPaging(loaded, total) {
+function renderPaging(loaded, total, currentPage, totalPages) {
   els.pagingLabel.textContent = interp(t("loadedPaging"), {
-    loaded: fmt(loaded),
+    loaded: fmt(loaded ? Math.min(state.reviewPageSize, Math.max(0, loaded - (currentPage - 1) * state.reviewPageSize)) : 0),
     total: fmt(total),
   });
+  if (!els.reviewsPager) return;
+  if (!loaded) {
+    els.reviewsPager.innerHTML = "";
+    return;
+  }
+  const buttons = [];
+  buttons.push(
+    `<button type="button" data-review-page="${Math.max(1, currentPage - 1)}" ${currentPage <= 1 ? "disabled" : ""}>${esc(t("pagePrev"))}</button>`
+  );
+  const startPage = Math.max(1, currentPage - 2);
+  const endPage = Math.min(totalPages, startPage + 4);
+  const normalizedStart = Math.max(1, endPage - 4);
+  for (let page = normalizedStart; page <= endPage; page += 1) {
+    buttons.push(
+      `<button type="button" class="${page === currentPage ? "active" : ""}" data-review-page="${page}">${page}</button>`
+    );
+  }
+  buttons.push(
+    `<button type="button" data-review-page="${Math.min(totalPages, currentPage + 1)}" ${currentPage >= totalPages ? "disabled" : ""}>${esc(t("pageNext"))}</button>`
+  );
+  els.reviewsPager.innerHTML = `<span class="pager-label">${esc(interp(t("pageLabel"), { current: fmt(currentPage), total: fmt(totalPages) }))}</span>${buttons.join("")}`;
 }
 
 async function collectReviews(lang, force = false, options = {}) {
@@ -4954,6 +5164,7 @@ function resetReviewViewState() {
   state.reviewBaseReviews = [];
   state.reviewSourceReviews = [];
   state.reviewDisplayedReviews = [];
+  state.reviewPage = 1;
   state.reviewRenderPending = false;
   state.reviewRenderToken += 1;
   state.reviewSearchStats = null;
@@ -5050,11 +5261,14 @@ async function loadPlaytime() {
         : `<button class="playtime-label-button" type="button" data-playtime-edit-start="${cutoffIndex}">${playtimeBuckets[index].label}</button>`;
     const total = bucket.positive + bucket.negative;
     const positiveRate = total ? ((bucket.positive / total) * 100).toFixed(1) : "0.0";
-    const positiveWidth = ((bucket.positive / max) * 100 || 0).toFixed(2);
-    const negativeWidth = ((bucket.negative / max) * 100 || 0).toFixed(2);
     row.innerHTML = `<div class="playtime-label">${labelMarkup}</div><div class="chart-row playtime-summary"><div class="chart-meta"><span>${t(
       "summaryPositiveRate"
-    )}: ${renderPositiveRateValue(positiveRate)}</span><span>${fmt(total)} ${t("reviewCount")}</span></div><div class="stacked-track"><div class="stacked-positive" style="width:${positiveWidth}%"></div><div class="stacked-negative" style="width:${negativeWidth}%"></div></div><div class="chart-subtext"><span>${t(
+    )}: ${renderPositiveRateValue(positiveRate)}</span><span>${fmt(total)} ${t("reviewCount")}</span></div>${renderReviewStatusBarMarkup(
+      bucket.positive,
+      bucket.negative,
+      max,
+      "stacked-track"
+    )}<div class="chart-subtext"><span>${t(
       "positiveCount"
     ).replace("{count}", fmt(bucket.positive))}</span><span>${t("negativeCount").replace("{count}", fmt(bucket.negative))}</span></div></div>`;
     els.playtimeChart.appendChild(row);
@@ -5228,6 +5442,14 @@ async function updateWordPreference(kind) {
 async function removeWordPreference(kind, term) {
   if (kind === "allowed") state.wordCloudPrefs.allowed = state.wordCloudPrefs.allowed.filter((item) => item !== term);
   if (kind === "banned") state.wordCloudPrefs.banned = state.wordCloudPrefs.banned.filter((item) => item !== term);
+  renderWordPreferenceList();
+  await persistWordCloudPrefs();
+  queueWordCloudGeneration();
+}
+
+async function clearAllWordPreferences() {
+  state.wordCloudPrefs.allowed = [];
+  state.wordCloudPrefs.banned = [];
   renderWordPreferenceList();
   await persistWordCloudPrefs();
   queueWordCloudGeneration();
@@ -5774,6 +5996,22 @@ if (els.positiveRateColorToggle) {
     if (els.playtimeChart.childElementCount) void runDataTask(t("searchLoading"), () => loadPlaytime());
   });
 }
+if (els.reviewStatusLayoutToggle) {
+  els.reviewStatusLayoutToggle.addEventListener("click", async () => {
+    state.splitReviewStatusBars = !state.splitReviewStatusBars;
+    await persistUiSettings();
+    applyTranslations();
+    if (state.reviewBaseReviews.length) renderReviewStatusBar(state.reviewBaseReviews);
+    if (state.summaryRows.length) renderDistributionChart(state.summaryRows);
+    if (els.wordCloudTopList.childElementCount) renderWordCloud();
+    if (state.reviewDisplayedReviews.length) updateReviewSummary();
+    if (state.topicRows.length) {
+      renderTopicChart(state.topicRows);
+      renderTopicDetails(state.topicRows);
+    }
+    if (els.playtimeChart.childElementCount) void runDataTask(t("searchLoading"), () => loadPlaytime());
+  });
+}
 
 els.analysisTabToggle.addEventListener("click", (event) => {
   const button = event.target.closest("[data-analysis-tab]");
@@ -5913,10 +6151,47 @@ els.wordAllowButton.addEventListener("click", async () => {
 els.wordBanButton.addEventListener("click", async () => {
   await updateWordPreference("banned");
 });
+els.wordAiSuggestButton?.addEventListener("click", async () => {
+  const originalText = els.wordAiSuggestButton.textContent;
+  els.wordAiSuggestButton.disabled = true;
+  els.wordAiSuggestButton.textContent = t("wordAiSuggestLoading");
+  state.aiAssistant.generating = true;
+  refreshAiAssistantSprite();
+  try {
+    await requestAiWordCloudSuggestions();
+  } catch (error) {
+    els.wordCloudStatus.textContent = `${t("wordAiSuggestFailed")} ${error.message || error}`;
+  } finally {
+    state.aiAssistant.generating = false;
+    refreshAiAssistantSprite();
+    els.wordAiSuggestButton.disabled = false;
+    els.wordAiSuggestButton.textContent = originalText || t("wordAiSuggest");
+  }
+});
 els.wordPreferenceList.addEventListener("click", async (event) => {
+  const clearButton = event.target.closest("[data-clear-word-prefs]");
+  if (clearButton) {
+    await clearAllWordPreferences();
+    return;
+  }
   const button = event.target.closest("[data-pref-term]");
   if (!button) return;
   await removeWordPreference(button.dataset.prefType, button.dataset.prefTerm);
+});
+els.reviewsPager?.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-review-page]");
+  if (!button || button.disabled) return;
+  const nextPage = Number(button.dataset.reviewPage);
+  if (!Number.isInteger(nextPage) || nextPage < 1 || nextPage === state.reviewPage) return;
+  state.reviewPage = nextPage;
+  renderPaging(
+    state.reviewDisplayedReviews.length,
+    state.reviewSourceReviews.length,
+    state.reviewPage,
+    Math.max(1, Math.ceil(state.reviewDisplayedReviews.length / state.reviewPageSize))
+  );
+  renderReviews(state.reviewDisplayedReviews);
+  els.reviewsList.scrollTo({ top: 0, behavior: "smooth" });
 });
 
 els.reviewTabToggle.addEventListener("click", async (event) => {
@@ -5982,6 +6257,7 @@ els.reviewSortToggle.addEventListener("click", (event) => {
   const button = event.target.closest("[data-sort]");
   if (!button) return;
   state.reviewSort = button.dataset.sort;
+  state.reviewPage = 1;
   updateToggleButtons(els.reviewSortToggle, state.reviewSort, "sort");
   applyReviewView();
 });
@@ -5990,6 +6266,7 @@ els.reviewSentimentToggle.addEventListener("click", (event) => {
   const button = event.target.closest("[data-sentiment]");
   if (!button) return;
   state.reviewFilters.sentiment = button.dataset.sentiment;
+  state.reviewPage = 1;
   updateToggleButtons(els.reviewSentimentToggle, state.reviewFilters.sentiment, "sentiment");
   applyReviewView();
 });
@@ -5998,22 +6275,26 @@ els.reviewSavedToggle.addEventListener("click", (event) => {
   const button = event.target.closest("[data-saved-filter]");
   if (!button) return;
   state.reviewFilters.saved = button.dataset.savedFilter;
+  state.reviewPage = 1;
   updateToggleButtons(els.reviewSavedToggle, state.reviewFilters.saved, "savedFilter");
   applyReviewView();
 });
 
 els.reviewPlaytimeFilter.addEventListener("change", () => {
   state.reviewFilters.playtime = els.reviewPlaytimeFilter.value;
+  state.reviewPage = 1;
   applyReviewView();
 });
 
 els.reviewLengthFilter.addEventListener("change", () => {
   state.reviewFilters.length = els.reviewLengthFilter.value;
+  state.reviewPage = 1;
   applyReviewView();
 });
 if (els.reviewTopicFilter) {
   els.reviewTopicFilter.addEventListener("change", () => {
     state.reviewFilters.topic = els.reviewTopicFilter.value;
+    state.reviewPage = 1;
     applyReviewView();
   });
 }

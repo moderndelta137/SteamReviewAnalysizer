@@ -810,7 +810,7 @@ body.loading-active {
 
 .word-cloud-preferences {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 140px 140px;
+  grid-template-columns: minmax(0, 1fr) 140px 140px 160px;
   gap: 12px;
   align-items: end;
   margin-bottom: 12px;
@@ -849,6 +849,11 @@ body.loading-active {
 
 .word-preference-chip.banned {
   background: rgba(255, 111, 125, 0.12);
+}
+
+.word-preference-chip.clear-all {
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .word-preference-chip button {
@@ -1688,6 +1693,7 @@ body.ai-connected .ai-settings-panel button,
 body.ai-connected .ai-analysis-templates button,
 body.ai-connected .ai-analysis-form button,
 body.ai-connected .ai-analysis-expand,
+body.ai-connected .ai-feature-button,
 body.ai-connected .review-translate-button {
   position: relative;
   border-color: rgba(126, 246, 255, 0.72);
@@ -1721,6 +1727,7 @@ body.ai-connected .ai-settings-panel button::before,
 body.ai-connected .ai-analysis-templates button::before,
 body.ai-connected .ai-analysis-form button::before,
 body.ai-connected .ai-analysis-expand::before,
+body.ai-connected .ai-feature-button::before,
 body.ai-connected .review-translate-button::before {
   content: "";
   position: absolute;
@@ -1829,6 +1836,26 @@ body.ai-connected .review-translate-button::before {
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.08);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.stack-bar.split,
+.stacked-track.split {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 2px;
+  height: 16px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.stack-bar-lane {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .seg {
@@ -1989,8 +2016,32 @@ body.ai-connected .review-translate-button::before {
 }
 
 .reviews-list {
+  display: grid;
+  gap: 12px;
   max-height: 900px;
   overflow: auto;
+  padding-right: 4px;
+}
+
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.pager-label {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-right: 4px;
+}
+
+.pager button.active {
+  border-color: rgba(102, 192, 244, 0.6);
+  background: linear-gradient(135deg, rgba(102, 192, 244, 0.28), rgba(26, 159, 255, 0.24));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 .review-card {

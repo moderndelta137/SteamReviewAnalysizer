@@ -208,6 +208,83 @@ async function analyzeReviews(request) {
   });
 }
 __name(analyzeReviews, "analyzeReviews");
+function parseModelJsonPayload(text) {
+  const source = String(text || "").trim();
+  if (!source) return null;
+  const fenced = source.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  const candidate = fenced ? fenced[1].trim() : source;
+  try {
+    return JSON.parse(candidate);
+  } catch (error) {
+    const objectMatch = candidate.match(/\{[\s\S]*\}/);
+    if (!objectMatch) return null;
+    try {
+      return JSON.parse(objectMatch[0]);
+    } catch (innerError) {
+      return null;
+    }
+  }
+}
+__name(parseModelJsonPayload, "parseModelJsonPayload");
+async function suggestWordCloudPreferences(request) {
+  const body = await request.json();
+  const apiKey = String(body.apiKey || "").trim();
+  const model = String(body.model || "").trim();
+  const answerLanguage = String(body.answerLanguage || "English").trim();
+  const baseUrl = String(body.baseUrl || "https://generativelanguage.googleapis.com/v1beta").trim().replace(/\/+$/, "");
+  const evidence = body.evidence && typeof body.evidence === "object" ? body.evidence : null;
+  if (!apiKey) return jsonResponse({ error: "Missing API key" }, 400);
+  if (!model) return jsonResponse({ error: "Missing model" }, 400);
+  if (!evidence) return jsonResponse({ error: "Missing evidence" }, 400);
+  if (!baseUrl.startsWith("https://")) return jsonResponse({ error: "AI base URL must use HTTPS" }, 400);
+  const modelName = model.startsWith("models/") ? model : `models/${model}`;
+  const prompt = [
+    `Answer language for short reasoning: ${answerLanguage}`,
+    "",
+    "Evidence JSON:",
+    JSON.stringify(evidence)
+  ].join("\n");
+  const response = await fetch(`${baseUrl}/${modelName}:generateContent`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-goog-api-key": apiKey
+    },
+    body: JSON.stringify({
+      systemInstruction: {
+        parts: [
+          {
+            text: `You are helping tune word-cloud preferences for one specific Steam game. Suggest allow_phrases and ban_phrases for a review word cloud. Make suggestions specific to this game and its genre, not generic Steam vocabulary. Prioritize title-specific concepts, mechanics, factions, modes, maps, characters, weapons, resources, systems, bosses, memes, and repeated genre jargon. For ban_phrases, prefer generic review filler, low-signal sentiment filler, storefront boilerplate, and noisy terms that are frequent but not analytically useful for this title. Do not put performance, optimization, fps, lag, stutter, crash, loading, or similar technical-feedback terms in ban_phrases, because they are useful player feedback. Do not ban title-specific or genre-defining terms unless evidence clearly shows they are noisy. Prefer 1-3 word terms or short phrases suitable for a word cloud. Use only provided evidence. If evidence is weak, return fewer suggestions instead of guessing. Return JSON only in this exact shape: {"allow_phrases":["..."],"ban_phrases":["..."],"reasoning":{"allow_phrases":["short reason"],"ban_phrases":["short reason"]}} Suggest 8-16 allow phrases and 8-16 ban phrases.`
+          }
+        ]
+      },
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: prompt }]
+        }
+      ],
+      generationConfig: {
+        temperature: 0.15
+      }
+    })
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    return jsonResponse({ error: payload.error?.message || `AI request failed: ${response.status}` }, response.status);
+  }
+  const rawText = payload.candidates?.[0]?.content?.parts?.map((part) => part.text || "").join("").trim() || "";
+  const parsed = parseModelJsonPayload(rawText);
+  if (!parsed) {
+    return jsonResponse({ error: "AI returned invalid JSON for word-cloud suggestions" }, 502);
+  }
+  return jsonResponse({
+    allow_phrases: Array.isArray(parsed.allow_phrases) ? parsed.allow_phrases : [],
+    ban_phrases: Array.isArray(parsed.ban_phrases) ? parsed.ban_phrases : [],
+    reasoning: parsed.reasoning && typeof parsed.reasoning === "object" ? parsed.reasoning : {}
+  });
+}
+__name(suggestWordCloudPreferences, "suggestWordCloudPreferences");
 async function listGeminiModels(request) {
   const url = new URL(request.url);
   const apiKey = String(url.searchParams.get("apiKey") || "").trim();
@@ -275,6 +352,9 @@ async function handleApi(request) {
   }
   if (url.pathname === "/api/analyze" && request.method === "POST") {
     return analyzeReviews(request);
+  }
+  if (url.pathname === "/api/wordcloud/suggest" && request.method === "POST") {
+    return suggestWordCloudPreferences(request);
   }
   if (url.pathname === "/api/ai/models") {
     return listGeminiModels(request);
