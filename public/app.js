@@ -127,6 +127,7 @@ const I18N = {
     brandTitle: "Steam Review Analyzer",
     uiLanguage: "UI Language",
     positiveRateColors: "Rate Color",
+    warningsToggle: "Warnings",
     reviewStatusLayout: "Split Bars",
     recentGames: "Recent Games",
     fetchReviews: "Fetch Reviews",
@@ -184,6 +185,34 @@ const I18N = {
     momentumCooling: "Cooling",
     momentumNoPrior: "No prior baseline",
     momentumCacheWarning: "Latest daily review count is 0. Cache data might be out of date. Please update the cache.",
+    warningsPanelEyebrow: "Noteworthy Signals",
+    warningsPanelTitle: "Warnings",
+    warningsPanelEmpty: "No warnings active in loaded views.",
+    warningDismissLabel: 'Hide "{title}"',
+    warningSurfaceMomentum: "Momentum",
+    warningSurfaceDistribution: "By Language",
+    warningSurfacePlaytime: "By Playtime",
+    warningSurfaceWordCloud: "Word Cloud",
+    warningSurfaceTopics: "Topic Clusters",
+    warningSurfaceTimeline: "Timeline",
+    warningNegativeTitle: "Negative Majority",
+    warningNegativeReason: "{label} has more negative than positive reviews ({negative} negative vs {positive} positive, {rate}% negative).",
+    warningDangerTitle: "Strong Negative Majority",
+    warningDangerReason: "{label} is heavily negative ({negative} negative vs {positive} positive, {rate}% negative).",
+    warningFreshnessTitle: "Freshness Warning",
+    warningFreshnessReason: "Latest daily review count is 0. Cache data may be out of date.",
+    warningLowPositiveTitle: "Recent Sentiment Warning",
+    warningLowPositiveReason: "Positive Rate (7d) is only {rate}% ({positive} positive vs {negative} negative).",
+    warningLowPositiveDangerTitle: "Recent Sentiment Risk",
+    warningLowPositiveDangerReason: "Positive Rate (7d) fell to {rate}% ({positive} positive vs {negative} negative).",
+    warningSentimentDriftTitle: "Sentiment Drop",
+    warningSentimentDriftReason: "Positive rate fell {value}% vs previous 7d.",
+    warningSentimentDriftDangerTitle: "Sharp Sentiment Drop",
+    warningSentimentDriftDangerReason: "Positive rate fell {value}% vs previous 7d.",
+    warningSpikeTitle: "Review Spike",
+    warningSpikeReason: "{label} logged {count} new reviews, {ratio}x above the recent baseline.",
+    warningSpikeDangerTitle: "Major Review Spike",
+    warningSpikeDangerReason: "{label} logged {count} new reviews, {ratio}x above the recent baseline.",
     reviewShare: "By Language",
     chartType: "Chart Type",
     barChart: "Bar chart",
@@ -191,6 +220,8 @@ const I18N = {
     pieChart: "Pie chart",
     reviewBrowser: "Review browser",
     reviewBrowserEyebrow: "Review Analysis",
+    reviewBrowserExpand: "Expand review browser",
+    reviewBrowserShrink: "Shrink review browser",
     reviewTimelineEyebrow: "Trend Analysis",
     reviewTimeline: "Timeline",
     timelineModeReviews: "Review Count",
@@ -337,6 +368,8 @@ const I18N = {
     sortPlaytime: "Playtime",
     sortLength: "Length",
     filters: "Filters",
+    aiReviewFilter: "AI Filter",
+    aiRecommendReviews: "AI Recommend",
     savedFilter: "Saved State",
     reviewMode: "View",
     reviewTabBrowse: "Review Browser",
@@ -345,6 +378,12 @@ const I18N = {
     savedAll: "All",
     savedOnly: "Saved",
     unsavedOnly: "Unsaved",
+    meaningfulAll: "All",
+    meaningfulOnly: "Meaningful",
+    meaningfulReviewsLoading: "AI is reviewing candidate feedback...",
+    meaningfulReviewsReady: "AI marked {count} reviews as meaningful.",
+    meaningfulReviewsNone: "AI did not find meaningful reviews in this selection.",
+    meaningfulReviewsFailed: "AI meaningful-review filter failed.",
     filterPositive: "Positive",
     filterNegative: "Negative",
     playtimeFilter: "Playtime Filter",
@@ -374,6 +413,7 @@ const I18N = {
     brandTitle: "Steam Review Analyzer",
     uiLanguage: "表示言語",
     positiveRateColors: "評価率カラー",
+    warningsToggle: "警告",
     reviewStatusLayout: "分割バー",
     recentGames: "最近のゲーム",
     fetchReviews: "レビューを取得",
@@ -431,6 +471,34 @@ const I18N = {
     momentumCooling: "減速",
     momentumNoPrior: "比較用の前期間なし",
     momentumCacheWarning: "最新日の新規レビュー数が0です。キャッシュデータが古い可能性があります。キャッシュを更新してください。",
+    warningsPanelEyebrow: "注目シグナル",
+    warningsPanelTitle: "警告一覧",
+    warningsPanelEmpty: "読み込み済み表示に警告はありません。",
+    warningDismissLabel: "「{title}」を非表示",
+    warningSurfaceMomentum: "レビュー速度",
+    warningSurfaceDistribution: "言語別分布",
+    warningSurfacePlaytime: "プレイ時間帯",
+    warningSurfaceWordCloud: "ワードクラウド",
+    warningSurfaceTopics: "トピッククラスター",
+    warningSurfaceTimeline: "タイムライン",
+    warningNegativeTitle: "不評超過",
+    warningNegativeReason: "{label} は好評より不評が多いです（不評 {negative} 件 / 好評 {positive} 件、{rate}% が不評）。",
+    warningDangerTitle: "強い不評傾向",
+    warningDangerReason: "{label} は強い不評傾向です（不評 {negative} 件 / 好評 {positive} 件、{rate}% が不評）。",
+    warningFreshnessTitle: "更新警告",
+    warningFreshnessReason: "最新日の新規レビュー数が0です。キャッシュデータが古い可能性があります。",
+    warningLowPositiveTitle: "直近評価警告",
+    warningLowPositiveReason: "直近7日の好評率は {rate}% です（好評 {positive} 件 / 不評 {negative} 件）。",
+    warningLowPositiveDangerTitle: "直近評価リスク",
+    warningLowPositiveDangerReason: "直近7日の好評率が {rate}% まで低下しています（好評 {positive} 件 / 不評 {negative} 件）。",
+    warningSentimentDriftTitle: "評価低下",
+    warningSentimentDriftReason: "前の7日間比で好評率が {value}% 低下しました。",
+    warningSentimentDriftDangerTitle: "急激な評価低下",
+    warningSentimentDriftDangerReason: "前の7日間比で好評率が {value}% 低下しました。",
+    warningSpikeTitle: "レビュー急増",
+    warningSpikeReason: "{label} の新規レビューは {count} 件で、直近基準の {ratio} 倍です。",
+    warningSpikeDangerTitle: "大きなレビュー急増",
+    warningSpikeDangerReason: "{label} の新規レビューは {count} 件で、直近基準の {ratio} 倍です。",
     reviewShare: "言語別",
     chartType: "グラフ種類",
     barChart: "棒グラフ",
@@ -438,6 +506,8 @@ const I18N = {
     pieChart: "円グラフ",
     reviewBrowser: "レビュー閲覧",
     reviewBrowserEyebrow: "レビュー分析",
+    reviewBrowserExpand: "レビュー閲覧を拡大",
+    reviewBrowserShrink: "レビュー閲覧を縮小",
     reviewTimelineEyebrow: "傾向分析",
     reviewTimeline: "レビュー推移",
     timelineModeReviews: "レビュー数",
@@ -584,6 +654,8 @@ const I18N = {
     sortPlaytime: "プレイ時間",
     sortLength: "長さ",
     filters: "フィルター",
+    aiReviewFilter: "AIフィルター",
+    aiRecommendReviews: "AIおすすめ",
     savedFilter: "保存状態",
     reviewMode: "表示",
     reviewTabBrowse: "レビュー閲覧",
@@ -592,6 +664,12 @@ const I18N = {
     savedAll: "すべて",
     savedOnly: "保存済み",
     unsavedOnly: "未保存",
+    meaningfulAll: "すべて",
+    meaningfulOnly: "意味あるレビュー",
+    meaningfulReviewsLoading: "AIが候補レビューを確認中...",
+    meaningfulReviewsReady: "AIが{count}件を意味あるレビューとして選びました。",
+    meaningfulReviewsNone: "この条件ではAIが意味あるレビューを選びませんでした。",
+    meaningfulReviewsFailed: "AI意味レビューの絞り込みに失敗しました。",
     filterPositive: "好評",
     filterNegative: "不評",
     playtimeFilter: "プレイ時間フィルター",
@@ -761,6 +839,7 @@ const state = {
   currentAppId: null,
   currentUiLanguage: "ja",
   showPositiveRateColors: true,
+  showWarnings: true,
   splitReviewStatusBars: false,
   recentApps: [],
   analysisTab: "wordcloud",
@@ -793,6 +872,7 @@ const state = {
   },
   aiAnalysisMessages: [],
   translationCache: new Map(),
+  reviewBrowserExpanded: false,
   timelineMode: "reviews",
   timelineKeywords: [],
   timelineMarkers: [],
@@ -825,13 +905,15 @@ const state = {
   reviewRenderToken: 0,
   reviewSearchStats: null,
   reviewSort: "date",
-  reviewFilters: { sentiment: "all", saved: "all", playtime: "all", length: "all", topic: "all" },
+  reviewFilters: { sentiment: "all", saved: "all", playtime: "all", length: "all", topic: "all", meaningful: "all" },
   reviewTab: "browse",
+  reviewMeaningfulCache: new Map(),
   savedReviews: [],
   playtimeCutoffs: [...DEFAULT_PLAYTIME_CUTOFFS],
   playtimeEditingIndex: null,
   savePersistTimer: null,
   activeBlockingTask: null,
+  dismissedWarningFeedIds: new Set(),
 };
 
 let dbPromise = null;
@@ -879,6 +961,7 @@ const els = {
   fetchButton: document.getElementById("fetch-button"),
   uiLanguageToggle: document.getElementById("ui-language-toggle"),
   positiveRateColorToggle: document.getElementById("positive-rate-color-toggle"),
+  warningsToggle: document.getElementById("warnings-toggle"),
   reviewStatusLayoutToggle: document.getElementById("review-status-layout-toggle"),
   workspaceSection: document.getElementById("workspace-section"),
   reviewsSection: document.getElementById("reviews-section"),
@@ -886,11 +969,15 @@ const els = {
   dataTabToggle: document.getElementById("data-tab-toggle"),
   analysisPanelWordcloud: document.getElementById("analysis-panel-wordcloud"),
   analysisPanelReviews: document.getElementById("analysis-panel-reviews"),
+  reviewResultsShell: document.getElementById("review-results-shell"),
+  reviewBrowserExpandButton: document.getElementById("review-browser-expand-button"),
   analysisPanelTimeline: document.getElementById("analysis-panel-timeline"),
   analysisPanelTopics: document.getElementById("analysis-panel-topics"),
   dataPanelDistribution: document.getElementById("data-panel-distribution"),
   dataPanelMomentum: document.getElementById("data-panel-momentum"),
   dataPanelPlaytime: document.getElementById("data-panel-playtime"),
+  warningsPanelStatus: document.getElementById("warnings-panel-status"),
+  warningsList: document.getElementById("warnings-list"),
   statusText: document.getElementById("status-text"),
   wordLanguageSelection: document.getElementById("word-language-selection"),
   wordSentimentToggle: document.getElementById("word-sentiment-toggle"),
@@ -940,6 +1027,7 @@ const els = {
   reviewSortToggle: document.getElementById("review-sort-toggle"),
   reviewSentimentToggle: document.getElementById("review-sentiment-toggle"),
   reviewSavedToggle: document.getElementById("review-saved-toggle"),
+  reviewMeaningfulButton: document.getElementById("review-meaningful-button"),
   reviewPlaytimeFilter: document.getElementById("review-playtime-filter"),
   reviewLengthFilter: document.getElementById("review-length-filter"),
   reviewTopicFilter: document.getElementById("review-topic-filter"),
@@ -1057,6 +1145,9 @@ const STEAM_NEUTRAL = { r: 146, g: 118, b: 89 };
 const STEAM_POSITIVE = { r: 138, g: 195, b: 74 };
 const AI_ANALYSIS_SNIPPET_LIMIT = 20;
 const AI_ANALYSIS_CACHE_TTL = 1000 * 60 * 60 * 24;
+const AI_MEANINGFUL_REVIEW_CACHE_TTL = 1000 * 60 * 60 * 24 * 14;
+const AI_MEANINGFUL_REVIEW_CANDIDATE_LIMIT = 48;
+const AI_MEANINGFUL_REVIEW_MIN_SCORE = 2.4;
 const AI_QUESTION_STOPWORDS = new Set([
   "the","and","for","with","that","this","from","what","when","where","which","about","have","has","had","were","was",
   "into","than","then","them","they","their","there","does","did","how","why","can","could","would","should","will",
@@ -1084,6 +1175,14 @@ const AI_PILLAR_PATTERNS = [
   /\b(core|pillar|main draw|best part|standout|defining|what keeps me playing|the reason I play)\b/i,
   /(核|核心|醍醐味|魅力|一番|最大の魅力|決め手)/u,
 ];
+const AI_MEANINGFUL_SIGNAL_PATTERNS = [
+  /\b(because|however|although|except|issue|problem|feedback|suggest|request|wish|should|needs|missing|improve|improvement)\b/i,
+  /\b(balance|progression|difficulty|tutorial|controls|combat|build|multiplayer|matchmaking|performance|optimization|fps|lag|stutter|crash|bug|translation|ui|ux)\b/i,
+];
+const AI_MEANINGFUL_NOISE_PATTERNS = [
+  /^\s*(good|great|bad|nice|fun|ok|okay|cool|love it|hate it|recommended?)\s*[.!?~]*\s*$/i,
+  /^\s*(\+1|lol|lmao|meh|peak|masterpiece)\s*[.!?~]*\s*$/i,
+];
 
 function mixColor(left, right, amount) {
   const t = Math.max(0, Math.min(1, amount));
@@ -1109,6 +1208,232 @@ function renderPositiveRateValue(value, decimals = 1) {
   const text = `${numeric.toFixed(decimals)}%`;
   if (!state.showPositiveRateColors) return text;
   return `<span class="positive-rate-value" style="color:${getAbsolutePositiveRateColor(numeric)}">${text}</span>`;
+}
+
+function getNegativeMajorityWarning(label, positiveCount, negativeCount, minimumReviews = 12) {
+  const total = positiveCount + negativeCount;
+  if (!state.showWarnings || total < minimumReviews || negativeCount <= positiveCount) return null;
+  const negativeRate = total ? (negativeCount / total) * 100 : 0;
+  const level = negativeRate >= 65 ? "danger" : "warning";
+  const title = level === "danger" ? t("warningDangerTitle") : t("warningNegativeTitle");
+  const reason = interp(level === "danger" ? t("warningDangerReason") : t("warningNegativeReason"), {
+    label,
+    negative: fmt(negativeCount),
+    positive: fmt(positiveCount),
+    rate: negativeRate.toFixed(1),
+  });
+  return { level, title, reason };
+}
+
+function getFreshnessWarning(latestDailyCount) {
+  if (!state.showWarnings || latestDailyCount !== 0) return null;
+  return { level: "warning", title: t("warningFreshnessTitle"), reason: t("warningFreshnessReason") };
+}
+
+function getLowPositiveRateWarning(rate, positiveCount, negativeCount, minimumReviews = 20) {
+  const total = positiveCount + negativeCount;
+  if (!state.showWarnings || total < minimumReviews || rate >= 50) return null;
+  const level = rate < 40 ? "danger" : "warning";
+  const title = level === "danger" ? t("warningLowPositiveDangerTitle") : t("warningLowPositiveTitle");
+  const reason = interp(level === "danger" ? t("warningLowPositiveDangerReason") : t("warningLowPositiveReason"), {
+    rate: Number(rate).toFixed(1),
+    positive: fmt(positiveCount),
+    negative: fmt(negativeCount),
+  });
+  return { level, title, reason };
+}
+
+function getDailySpikeWarning(label, count, baselineAverage) {
+  if (!state.showWarnings || count < 10 || baselineAverage <= 0) return null;
+  const ratio = count / baselineAverage;
+  if (ratio < 1.8) return null;
+  const level = ratio >= 2.5 ? "danger" : "warning";
+  const title = level === "danger" ? t("warningSpikeDangerTitle") : t("warningSpikeTitle");
+  const reason = interp(level === "danger" ? t("warningSpikeDangerReason") : t("warningSpikeReason"), {
+    label,
+    count: fmt(count),
+    ratio: ratio.toFixed(1),
+  });
+  return { level, title, reason };
+}
+
+function getSentimentDriftWarning(drift, previousTotal, minimumReviews = 20) {
+  if (!state.showWarnings || previousTotal < minimumReviews || drift >= -12) return null;
+  const level = drift <= -20 ? "danger" : "warning";
+  const title = level === "danger" ? t("warningSentimentDriftDangerTitle") : t("warningSentimentDriftTitle");
+  const reason = interp(level === "danger" ? t("warningSentimentDriftDangerReason") : t("warningSentimentDriftReason"), {
+    value: Math.abs(Number(drift) || 0).toFixed(1),
+  });
+  return { level, title, reason };
+}
+
+function warningSurfaceLabel(surface) {
+  const map = {
+    momentum: "warningSurfaceMomentum",
+    distribution: "warningSurfaceDistribution",
+    playtime: "warningSurfacePlaytime",
+    wordcloud: "warningSurfaceWordCloud",
+    topics: "warningSurfaceTopics",
+    timeline: "warningSurfaceTimeline",
+  };
+  return t(map[surface] || "warningsPanelTitle");
+}
+
+function buildWarningTargetAttrs(target) {
+  if (!target) return "";
+  const attrs = [
+    ["data-warning-target", target.id],
+    ["data-warning-label", target.label],
+    ["data-warning-surface", target.surface],
+    ["data-warning-data-tab", target.dataTab],
+    ["data-warning-analysis-tab", target.analysisTab],
+    ["data-warning-timeline-mode", target.timelineMode],
+    ["data-warning-topic-chart-view", target.topicChartView],
+    ["data-warning-chart-type", target.chartType],
+  ];
+  return attrs
+    .filter(([, value]) => value !== undefined && value !== null && value !== "")
+    .map(([name, value]) => `${name}="${esc(String(value))}"`)
+    .join(" ");
+}
+
+async function focusWarningTarget(targetId) {
+  if (!targetId) return;
+  const escapedTargetId =
+    typeof CSS !== "undefined" && typeof CSS.escape === "function"
+      ? CSS.escape(targetId)
+      : String(targetId).replace(/["\\]/g, "\\$&");
+  const selector = `[data-warning-target="${escapedTargetId}"]`;
+  let target = document.querySelector(selector);
+  if (!target) return;
+
+  const dataTab = target.dataset.warningDataTab;
+  const analysisTab = target.dataset.warningAnalysisTab;
+  const timelineMode = target.dataset.warningTimelineMode;
+  const topicChartView = target.dataset.warningTopicChartView;
+  const chartType = target.dataset.warningChartType;
+
+  if (dataTab) state.dataTab = dataTab;
+  if (analysisTab) state.analysisTab = analysisTab;
+  if (timelineMode) state.timelineMode = timelineMode;
+  if (topicChartView) state.topicChartView = topicChartView;
+  if (chartType) state.chartType = chartType;
+
+  updateWorkspaceTabs();
+  updateTimelineUi();
+  updateTopicUi();
+  if (chartType && state.summaryRows.length) renderDistributionChart(state.summaryRows);
+  if (topicChartView && state.topicRows.length) renderTopicChart(state.topicRows);
+  if (analysisTab === "wordcloud") renderWordCloud();
+  if (dataTab === "momentum" && state.currentAppId) renderMomentumPanel(getFetchedReviewPool(state.currentAppId));
+  if (analysisTab === "timeline" && state.currentAppId) {
+    await rerenderTimelineFromCache();
+  }
+
+  target = document.querySelector(selector);
+  if (!target) return;
+  target.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+}
+
+function renderWarningsPanel() {
+  if (!els.warningsList || !els.warningsPanelStatus) return;
+  const panelHost = els.warningsList.closest(".warnings-panel");
+  if (panelHost) panelHost.classList.toggle("hidden", !state.showWarnings);
+  if (!state.showWarnings) {
+    els.warningsList.innerHTML = "";
+    return;
+  }
+  const targets = [...document.querySelectorAll("[data-warning-target]")]
+    .map((node) => {
+      const badge = node.querySelector(".warning-badge[data-warning-title][data-warning-reason]");
+      if (!badge) return null;
+      return {
+        id: node.dataset.warningTarget,
+        label: node.dataset.warningLabel || badge.dataset.warningTitle || "",
+        surface: node.dataset.warningSurface || "",
+        level: badge.classList.contains("warning-danger") ? "danger" : "warning",
+        title: badge.dataset.warningTitle || "",
+        reason: badge.dataset.warningReason || "",
+      };
+    })
+    .filter(Boolean);
+
+  const uniqueTargets = [...new Map(targets.map((entry) => [entry.id, entry])).values()].sort((left, right) => {
+    if (left.level !== right.level) return left.level === "danger" ? -1 : 1;
+    return left.label.localeCompare(right.label, state.currentUiLanguage === "ja" ? "ja" : "en");
+  });
+  const visibleTargets = uniqueTargets.filter((entry) => !state.dismissedWarningFeedIds.has(entry.id));
+
+  els.warningsPanelStatus.classList.toggle("hidden", true);
+  if (!visibleTargets.length) {
+    els.warningsList.innerHTML = `<div class="warnings-list-empty">${esc(t("warningsPanelEmpty"))}</div>`;
+    return;
+  }
+
+  const itemsMarkup = visibleTargets
+    .map(
+      (entry) => `<button class="warning-feed-item warning-${entry.level}" type="button" data-warning-jump="${esc(entry.id)}"><span class="warning-feed-item-icon" aria-hidden="true">${getWarningIconMarkup(
+        entry.level
+      )}</span><span class="warning-feed-item-band" aria-hidden="true"></span><span class="warning-feed-item-copy"><span class="warning-feed-item-title">${esc(
+        entry.title
+      )}</span><span class="warning-feed-item-body">${esc(entry.label)}</span></span><span class="warning-feed-item-dismiss" data-warning-dismiss="${esc(
+        entry.id
+      )}" aria-label="${esc(interp(t("warningDismissLabel"), { title: entry.title }))}">×</span></button>`
+    )
+    .join("");
+  els.warningsList.innerHTML = `<div class="warnings-list-inner">${itemsMarkup}</div>`;
+}
+
+function getWarningIconMarkup(level) {
+  return level === "danger"
+    ? `<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3.2 17.2 16H2.8L10 3.2Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M10 7.1v4.8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="10" cy="14.1" r="1" fill="currentColor"/></svg>`
+    : `<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.1" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M10 6.2v4.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="10" cy="13.8" r="1" fill="currentColor"/></svg>`;
+}
+
+function renderWarningBadge(warning) {
+  if (!warning) return "";
+  return `<span class="warning-badge warning-${warning.level}" data-warning-title="${esc(warning.title)}" data-warning-reason="${esc(
+    warning.reason
+  )}" aria-label="${esc(`${warning.title}: ${warning.reason}`)}">${getWarningIconMarkup(warning.level)}</span>`;
+}
+
+function applyWarningClasses(className, warning) {
+  if (!warning) return className;
+  return `${className} warning-surface warning-${warning.level}`;
+}
+
+function appendTimelineWarningMarker(svg, point, warning, onMove, onLeave, onClick) {
+  if (!warning) return;
+  const svgNs = "http://www.w3.org/2000/svg";
+  const group = document.createElementNS(svgNs, "g");
+  group.setAttribute("class", `timeline-warning-marker warning-${warning.level}`);
+  group.setAttribute("transform", `translate(${(point.x + 10).toFixed(2)} ${(point.y - 13).toFixed(2)})`);
+
+  const triangle = document.createElementNS(svgNs, "path");
+  triangle.setAttribute("d", "M 0 10 L 5 0 L 10 10 Z");
+  triangle.setAttribute("fill", "currentColor");
+  group.appendChild(triangle);
+
+  const stem = document.createElementNS(svgNs, "path");
+  stem.setAttribute("d", "M 5 3.2 V 6.6");
+  stem.setAttribute("stroke", "rgba(11, 18, 25, 0.94)");
+  stem.setAttribute("stroke-width", "1.2");
+  stem.setAttribute("stroke-linecap", "round");
+  group.appendChild(stem);
+
+  const dot = document.createElementNS(svgNs, "circle");
+  dot.setAttribute("cx", "5");
+  dot.setAttribute("cy", "8.2");
+  dot.setAttribute("r", "0.9");
+  dot.setAttribute("fill", "rgba(11, 18, 25, 0.94)");
+  group.appendChild(dot);
+
+  group.dataset.warningTitle = warning.title;
+  group.dataset.warningReason = warning.reason;
+  if (onMove) group.addEventListener("mousemove", onMove);
+  if (onLeave) group.addEventListener("mouseleave", onLeave);
+  if (onClick) group.addEventListener("click", onClick);
+  svg.appendChild(group);
 }
 
 function renderReviewStatusBarMarkup(positiveCount, negativeCount, widthBase = positiveCount + negativeCount || 1, className = "stack-bar") {
@@ -1288,6 +1613,7 @@ function renderMomentumPanel(reviews) {
   if (!reviews.length) {
     els.momentumStatus.textContent = t("momentumEmpty");
     els.momentumPanel.innerHTML = `<div class="status-text">${esc(t("momentumEmpty"))}</div>`;
+    renderWarningsPanel();
     return;
   }
 
@@ -1317,13 +1643,25 @@ function renderMomentumPanel(reviews) {
   );
   const latestDailyCount = insight.strip[insight.strip.length - 1]?.count || 0;
   const stripMarkup = insight.strip
-    .map((entry) => {
+    .map((entry, index) => {
       const height = Math.max(8, (entry.count / stripMax) * 100);
       const label = new Date(entry.dayMs).toLocaleDateString(state.currentUiLanguage === "ja" ? "ja-JP" : "en-US", {
         month: "short",
         day: "numeric",
       });
-      return `<div class="momentum-strip-col"><span class="momentum-strip-bar" style="height:${height.toFixed(
+      const baselineSlice = insight.strip.slice(Math.max(0, index - 14), index);
+      const baselineAverage = baselineSlice.length
+        ? baselineSlice.reduce((sum, item) => sum + item.count, 0) / baselineSlice.length
+        : 0;
+      const warning = getDailySpikeWarning(label, entry.count, baselineAverage);
+      return `<div class="${applyWarningClasses("momentum-strip-col", warning)}" ${buildWarningTargetAttrs({
+        id: `momentum-daily-${entry.dayMs}`,
+        label: `${t("momentumDailyTitle")} • ${label}`,
+        surface: "momentum",
+        dataTab: "momentum",
+      })}>${renderWarningBadge(
+        warning
+      )}<span class="momentum-strip-bar" style="height:${height.toFixed(
         2
       )}%" data-momentum-tooltip-label="${esc(label)}" data-momentum-tooltip-count="${entry.count}" aria-label="${esc(
         `${label}: ${fmt(entry.count)}`
@@ -1345,35 +1683,78 @@ function renderMomentumPanel(reviews) {
   const sentimentLabel = previousMetrics.recentTotal
     ? interp(t("momentumSentimentShift"), { value: formatSignedPoints(insight.sentimentDrift, 1) })
     : t("momentumNoPrior");
+  const freshnessWarning = getFreshnessWarning(latestDailyCount);
+  const recentPositiveWarning = getLowPositiveRateWarning(insight.recentPositiveRate, insight.recentPositive, insight.recentTotal, 20);
+  const sentimentDriftWarning = getSentimentDriftWarning(insight.sentimentDrift, previousMetrics.recentTotal, 20);
 
   els.momentumStatus.textContent = "";
-  els.momentumPanel.innerHTML = `<div class="momentum-dial-row"><div class="momentum-dial-card"><div class="momentum-dial-head"><span class="momentum-kicker">${esc(
+  els.momentumPanel.innerHTML = `<div class="momentum-dial-row"><div class="${applyWarningClasses(
+    "momentum-dial-card",
+    freshnessWarning
+  )}" ${buildWarningTargetAttrs({
+    id: "momentum-review-velocity",
+    label: t("momentumDialLabel"),
+    surface: "momentum",
+    dataTab: "momentum",
+  })}>${renderWarningBadge(freshnessWarning)}<div class="momentum-dial-head"><span class="momentum-kicker">${esc(
     t("momentumDialLabel")
   )}</span><span class="momentum-chip">${esc(getMomentumTrendLabel(metrics.averagePerDay, previousMetrics.averagePerDay))}</span></div><svg class="momentum-dial" viewBox="0 0 180 140" aria-hidden="true"><defs><linearGradient id="momentum-dial-gradient" x1="24" y1="92" x2="156" y2="92" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#6de3bf" /><stop offset="55%" stop-color="#66c0f4" /><stop offset="100%" stop-color="#f0d277" /></linearGradient></defs><path class="momentum-dial-track" d="${arcPath}" />${fillPath ? `<path class="momentum-dial-fill" d="${fillPath}" />` : ""}<line class="momentum-dial-needle" x1="90" y1="92" x2="${needleX.toFixed(
     2
   )}" y2="${needleY.toFixed(2)}" /><circle class="momentum-dial-hub" cx="90" cy="92" r="5" /></svg><div class="momentum-dial-value"><strong>${esc(
     formatVelocityRate(metrics.averagePerDay)
-  )}</strong><span>${esc(t("momentumVelocityUnit"))}</span></div></div></div><div class="momentum-stat-grid"><div class="momentum-stat-card"><span class="momentum-stat-label">${esc(
+  )}</strong><span>${esc(t("momentumVelocityUnit"))}</span></div></div></div><div class="momentum-stat-grid"><div class="momentum-stat-card" ${buildWarningTargetAttrs({
+    id: "momentum-last-7d",
+    label: t("momentumLast7d"),
+    surface: "momentum",
+    dataTab: "momentum",
+  })}><span class="momentum-stat-label">${esc(
     t("momentumLast7d")
   )}</span><strong>${fmt(metrics.recentTotal)}</strong><span class="momentum-stat-sub">${esc(
     interp(t("momentumVersusPeak"), { percent: Math.round(metrics.peakRatio) })
-  )}</span></div><div class="momentum-stat-card"><span class="momentum-stat-label">${esc(
+  )}</span></div><div class="${applyWarningClasses("momentum-stat-card", recentPositiveWarning)}" ${buildWarningTargetAttrs({
+    id: "momentum-positive-rate",
+    label: t("momentumPositiveRate7d"),
+    surface: "momentum",
+    dataTab: "momentum",
+  })}>${renderWarningBadge(
+    recentPositiveWarning
+  )}<span class="momentum-stat-label">${esc(
     t("momentumPositiveRate7d")
   )}</span><strong>${renderPositiveRateValue(insight.recentPositiveRate)}</strong><span class="momentum-stat-sub">${esc(
     `${fmt(insight.recentPositive)} / ${fmt(insight.recentTotal)}`
-  )}</span></div><div class="momentum-stat-card"><span class="momentum-stat-label">${esc(
+  )}</span></div><div class="${applyWarningClasses("momentum-stat-card", sentimentDriftWarning)}" ${buildWarningTargetAttrs({
+    id: "momentum-sentiment-drift",
+    label: t("momentumSentimentDrift"),
+    surface: "momentum",
+    dataTab: "momentum",
+  })}>${renderWarningBadge(sentimentDriftWarning)}<span class="momentum-stat-label">${esc(
     t("momentumSentimentDrift")
   )}</span><strong>${esc(previousMetrics.recentTotal ? formatSignedPoints(insight.sentimentDrift, 1) : "-")}</strong><span class="momentum-stat-sub">${esc(
     sentimentLabel
-  )}</span></div><div class="momentum-stat-card"><span class="momentum-stat-label">${esc(
+  )}</span></div><div class="momentum-stat-card" ${buildWarningTargetAttrs({
+    id: "momentum-30d-total",
+    label: t("momentum30dTotal"),
+    surface: "momentum",
+    dataTab: "momentum",
+  })}><span class="momentum-stat-label">${esc(
     t("momentum30dTotal")
   )}</span><strong>${fmt(stripTotal)}</strong><span class="momentum-stat-sub">${esc(
     `${esc(t("momentum30dAverage"))}: ${formatVelocityRate(stripAverage)}`
-  )}</span></div><div class="momentum-stat-card"><span class="momentum-stat-label">${esc(
+  )}</span></div><div class="momentum-stat-card" ${buildWarningTargetAttrs({
+    id: "momentum-top-language",
+    label: t("momentumLanguageLeader"),
+    surface: "momentum",
+    dataTab: "momentum",
+  })}><span class="momentum-stat-label">${esc(
     t("momentumLanguageLeader")
   )}</span><strong>${esc(leaderLabel)}</strong><span class="momentum-stat-sub">${esc(
     interp(t("momentumLast7d"), { count: "" }).replace(/\s*\{count\}\s*/g, "").trim() || t("momentumLast7d")
-  )}</span></div><div class="momentum-stat-card"><span class="momentum-stat-label">${esc(
+  )}</span></div><div class="momentum-stat-card" ${buildWarningTargetAttrs({
+    id: "momentum-burst-day",
+    label: t("momentumBurstDay"),
+    surface: "momentum",
+    dataTab: "momentum",
+  })}><span class="momentum-stat-label">${esc(
     t("momentumBurstDay")
   )}</span><strong>${esc(burstLabel)}</strong><span class="momentum-stat-sub">${esc(t("momentumRecentStrip"))}</span></div></div></div><div class="momentum-strip-shell"><div class="momentum-strip-head"><span class="momentum-kicker">${esc(
     t("momentumDailyTitle")
@@ -1386,6 +1767,7 @@ function renderMomentumPanel(reviews) {
   )}</span><span>${esc(stripMidLabel)}</span><span>${esc(stripEndLabel)}</span></div></div></div>${latestDailyCount === 0 ? `<div class="momentum-warning">${esc(
     t("momentumCacheWarning")
   )}</div>` : ""}</div>`;
+  renderWarningsPanel();
 }
 
 function topicText(key) {
@@ -2031,10 +2413,16 @@ function renderTimelineReviewCountChart(reviews, buckets) {
 
   buckets.forEach((bucket, index) => {
     const column = document.createElement("div");
-    column.className = "timeline-column";
+    const warning = getNegativeMajorityWarning(bucket.tooltipDate, bucket.positive, bucket.negative, 10);
+    column.className = applyWarningClasses("timeline-column", warning);
+    column.setAttribute("data-warning-target", `timeline-reviews-${bucket.key}`);
+    column.setAttribute("data-warning-label", `${t("timelineModeReviews")} • ${bucket.tooltipDate}`);
+    column.setAttribute("data-warning-surface", "timeline");
+    column.setAttribute("data-warning-analysis-tab", "timeline");
+    column.setAttribute("data-warning-timeline-mode", "reviews");
     const positiveHeight = (bucket.positive / maxValue) * 100;
     const negativeHeight = (bucket.negative / maxValue) * 100;
-    column.innerHTML = `<div class="timeline-bar-wrap positive-wrap"><div class="timeline-bar positive" style="height:${positiveHeight}%"></div></div><div class="timeline-axis"></div><div class="timeline-bar-wrap negative-wrap"><div class="timeline-bar negative" style="height:${negativeHeight}%"></div></div><div class="timeline-label">${
+    column.innerHTML = `${renderWarningBadge(warning)}<div class="timeline-bar-wrap positive-wrap"><div class="timeline-bar positive" style="height:${positiveHeight}%"></div></div><div class="timeline-axis"></div><div class="timeline-bar-wrap negative-wrap"><div class="timeline-bar negative" style="height:${negativeHeight}%"></div></div><div class="timeline-label">${
       index % labelStep === 0 || index === buckets.length - 1 ? esc(bucket.label) : "&nbsp;"
     }</div>`;
     column.addEventListener("mousemove", (event) => showTimelineTooltip(event, bucket));
@@ -2050,6 +2438,7 @@ function renderTimelineReviewCountChart(reviews, buckets) {
   shell.appendChild(plot);
   els.timelineChart.appendChild(shell);
   renderTimelineMarkersList();
+  renderWarningsPanel();
 }
 
 function renderTimelineKeywordChart(reviews, buckets) {
@@ -2143,6 +2532,12 @@ function renderTimelineKeywordChart(reviews, buckets) {
     svg.appendChild(path);
 
     visiblePoints.forEach((point) => {
+      const warning = getNegativeMajorityWarning(
+        `${entry.keyword} ${point.tooltipDate}`,
+        point.positive,
+        point.negative,
+        6
+      );
       const circle = document.createElementNS(svgNs, "circle");
       circle.setAttribute("cx", point.x.toFixed(2));
       circle.setAttribute("cy", point.y.toFixed(2));
@@ -2164,6 +2559,23 @@ function renderTimelineKeywordChart(reviews, buckets) {
         void activateTimelineBucket(point, entry.keyword);
       });
       svg.appendChild(circle);
+      appendTimelineWarningMarker(
+        svg,
+        point,
+        warning,
+        (event) => {
+          showTimelineTooltip(event, {
+            keyword: entry.keyword,
+            tooltipDate: point.tooltipDate,
+            positive: point.positive,
+            negative: point.negative,
+          });
+        },
+        hideWordCloudTooltip,
+        () => {
+          void activateTimelineBucket(point, entry.keyword);
+        }
+      );
 
       const hitArea = document.createElementNS(svgNs, "circle");
       hitArea.setAttribute("cx", point.x.toFixed(2));
@@ -2186,9 +2598,15 @@ function renderTimelineKeywordChart(reviews, buckets) {
       svg.appendChild(hitArea);
     });
 
+    const rowWarning = getNegativeMajorityWarning(entry.keyword, totalPositive, totalNegative, 10);
     const row = document.createElement("div");
-    row.className = "chart-row timeline-keyword-row";
-    row.innerHTML = `<div class="chart-labels"><span class="timeline-keyword-row-label"><span class="timeline-keyword-swatch" style="background:${lineColor}"></span>${esc(
+    row.className = applyWarningClasses("chart-row timeline-keyword-row", rowWarning);
+    row.setAttribute("data-warning-target", `timeline-keyword-${entry.keyword}`);
+    row.setAttribute("data-warning-label", `${t("timelineModeKeywords")} • ${entry.keyword}`);
+    row.setAttribute("data-warning-surface", "timeline");
+    row.setAttribute("data-warning-analysis-tab", "timeline");
+    row.setAttribute("data-warning-timeline-mode", "keywords");
+    row.innerHTML = `${renderWarningBadge(rowWarning)}<div class="chart-labels"><span class="timeline-keyword-row-label"><span class="timeline-keyword-swatch" style="background:${lineColor}"></span>${esc(
       entry.keyword
     )}</span><span>${fmt(totalReviews)} ${esc(t("reviewCount"))}</span></div>${renderReviewStatusBarMarkup(totalPositive, totalNegative, totalReviews, "stacked-track")}<div class="chart-labels review-status-breakdown"><span>${esc(
       `${t("positive")} ${fmt(totalPositive)} (${positivePortion}%)`
@@ -2215,6 +2633,7 @@ function renderTimelineKeywordChart(reviews, buckets) {
   els.timelineChart.appendChild(shell);
   if (summaryList.childElementCount) els.timelineChart.appendChild(summaryList);
   renderTimelineMarkersList();
+  renderWarningsPanel();
 }
 
 function renderTimelineChart(reviews) {
@@ -2225,6 +2644,7 @@ function renderTimelineChart(reviews) {
     els.timelineStatus.textContent = t("noReviews");
     els.timelineChart.innerHTML = `<div class="status-text">${esc(t("noReviews"))}</div>`;
     renderTimelineMarkersList();
+    renderWarningsPanel();
     return;
   }
 
@@ -2474,6 +2894,10 @@ function updateWorkspaceTabs() {
   els.analysisPanelReviews.classList.toggle("hidden", state.analysisTab !== "reviews");
   els.analysisPanelTimeline.classList.toggle("hidden", state.analysisTab !== "timeline");
   els.analysisPanelTopics.classList.toggle("hidden", state.analysisTab !== "topics");
+  if (state.analysisTab !== "reviews" && state.reviewBrowserExpanded) {
+    state.reviewBrowserExpanded = false;
+  }
+  syncReviewBrowserExpandedState();
   els.dataPanelMomentum.classList.toggle("hidden", state.dataTab !== "momentum");
   els.dataPanelDistribution.classList.toggle("hidden", state.dataTab !== "distribution");
   els.dataPanelPlaytime.classList.toggle("hidden", state.dataTab !== "playtime");
@@ -2630,10 +3054,27 @@ function toggleAiChatExpanded(forceExpanded) {
   syncAiChatPopupState();
 }
 
+function syncReviewBrowserExpandedState() {
+  if (!els.reviewResultsShell || !els.reviewBrowserExpandButton) return;
+  const expanded = Boolean(state.reviewBrowserExpanded && state.analysisTab === "reviews");
+  els.reviewResultsShell.classList.toggle("review-browser-expanded", expanded);
+  els.reviewBrowserExpandButton.textContent = expanded ? "⤡" : "⤢";
+  els.reviewBrowserExpandButton.setAttribute("aria-label", expanded ? t("reviewBrowserShrink") : t("reviewBrowserExpand"));
+  els.reviewBrowserExpandButton.setAttribute("aria-pressed", expanded ? "true" : "false");
+}
+
+function toggleReviewBrowserExpanded(forceExpanded) {
+  state.reviewBrowserExpanded =
+    typeof forceExpanded === "boolean" ? forceExpanded : !state.reviewBrowserExpanded;
+  syncReviewBrowserExpandedState();
+}
+
 function updateAiUi(status = "") {
   if (!els.aiSettingsButton) return;
   document.body.classList.toggle("ai-connected", state.ai.connected);
   els.wordAiSuggestButton?.classList.toggle("hidden", !state.ai.connected);
+  els.reviewMeaningfulButton?.classList.toggle("hidden", !state.ai.connected);
+  els.reviewMeaningfulButton?.classList.toggle("active", state.reviewFilters.meaningful === "meaningful");
   if (!state.ai.connected) toggleAiChatPopup(false);
   if (els.aiAssistantStatus) {
     els.aiAssistantStatus.textContent = getAiAssistantStatusText();
@@ -2772,6 +3213,128 @@ function trimReviewSnippet(text, maxLength = 280) {
   const normalized = String(text || "").replace(/\s+/g, " ").trim();
   if (normalized.length <= maxLength) return normalized;
   return `${normalized.slice(0, maxLength - 1).trimEnd()}窶ｦ`;
+}
+
+function normalizeMeaningfulReviewText(text) {
+  return String(text || "").replace(/\s+/g, " ").trim();
+}
+
+function getMeaningfulReviewRuntimeKey(review) {
+  return [
+    "meaningful",
+    state.ai.model || "unknown-model",
+    getSavedReviewKey(review),
+    hashText(normalizeMeaningfulReviewText(review.review || "")),
+  ].join("::");
+}
+
+function scoreMeaningfulReviewCandidate(review) {
+  const text = normalizeMeaningfulReviewText(review.review || "");
+  if (!text || AI_MEANINGFUL_NOISE_PATTERNS.some((pattern) => pattern.test(text))) return 0;
+
+  let score = 0;
+  const length = getReviewLength(review);
+  const playtime = review.author?.playtime_forever || 0;
+  const sentenceCount = text.split(/[.!?。！？]/).filter(Boolean).length;
+
+  score += Math.min(2.3, length / 220);
+  score += Math.min(0.9, sentenceCount * 0.22);
+  score += Math.min(1.1, ((review._topics || []).length || 0) * 0.45);
+  score += Math.min(0.9, playtime / 900);
+  if (!review.voted_up) score += 0.35;
+  if (AI_REQUEST_PATTERNS.some((pattern) => pattern.test(text))) score += 1.1;
+  if (AI_RETENTION_PATTERNS.some((pattern) => pattern.test(text))) score += 0.8;
+  if (AI_PILLAR_PATTERNS.some((pattern) => pattern.test(text))) score += 0.7;
+  if (AI_MEANINGFUL_SIGNAL_PATTERNS.some((pattern) => pattern.test(text))) score += 0.9;
+  if (length < 90 && !(review._topics || []).length) score -= 1.4;
+  if (sentenceCount <= 1 && length < 140) score -= 0.7;
+
+  return Number(score.toFixed(2));
+}
+
+function buildMeaningfulReviewCandidates(reviews, limit = AI_MEANINGFUL_REVIEW_CANDIDATE_LIMIT) {
+  return reviews
+    .map((review) => ({ review, heuristicScore: scoreMeaningfulReviewCandidate(review) }))
+    .filter((entry) => entry.heuristicScore >= AI_MEANINGFUL_REVIEW_MIN_SCORE)
+    .sort(
+      (left, right) =>
+        right.heuristicScore - left.heuristicScore ||
+        getReviewLength(right.review) - getReviewLength(left.review) ||
+        (right.review.timestamp_created || 0) - (left.review.timestamp_created || 0)
+    )
+    .slice(0, limit);
+}
+
+function isReviewMarkedMeaningful(review) {
+  return Boolean(state.reviewMeaningfulCache.get(getMeaningfulReviewRuntimeKey(review))?.meaningful);
+}
+
+async function ensureMeaningfulReviewLabels(reviews) {
+  if (!API_BASE) throw new Error(t("noProxyConfigured"));
+  if (!state.ai.connected || !state.ai.apiKey || !state.ai.model) throw new Error(t("aiAnalysisNeedConnection"));
+  if (!reviews.length) return { meaningfulCount: 0 };
+
+  await ensureTopicTagsForReviews(reviews);
+  const candidates = buildMeaningfulReviewCandidates(reviews);
+  if (!candidates.length) return { meaningfulCount: 0 };
+
+  const pending = [];
+  let meaningfulCount = 0;
+
+  for (const entry of candidates) {
+    const runtimeKey = getMeaningfulReviewRuntimeKey(entry.review);
+    const cachedRuntime = state.reviewMeaningfulCache.get(runtimeKey);
+    if (cachedRuntime) {
+      if (cachedRuntime.meaningful) meaningfulCount += 1;
+      continue;
+    }
+
+    const cachedStored = await getRecord(runtimeKey);
+    if (cachedStored && Date.now() - cachedStored.storedAt <= AI_MEANINGFUL_REVIEW_CACHE_TTL) {
+      state.reviewMeaningfulCache.set(runtimeKey, cachedStored.value);
+      if (cachedStored.value?.meaningful) meaningfulCount += 1;
+      continue;
+    }
+
+    pending.push({
+      id: entry.review.recommendationid,
+      key: runtimeKey,
+      language: getLanguageName(entry.review.language),
+      sentiment: entry.review.voted_up ? t("positive") : t("negative"),
+      playtimeMinutes: entry.review.author?.playtime_forever || 0,
+      topics: (entry.review._topics || []).map((topicId) => getTopicLabel(topicId)),
+      heuristicScore: entry.heuristicScore,
+      length: getReviewLength(entry.review),
+      snippet: trimReviewSnippet(entry.review.review, 280),
+    });
+  }
+
+  if (!pending.length) return { meaningfulCount };
+
+  const payload = await postJson(`${API_BASE}/reviews/meaningful`, {
+    apiKey: state.ai.apiKey,
+    baseUrl: state.ai.baseUrl,
+    model: state.ai.model,
+    answerLanguage: getAiAnalysisTargetLanguage(),
+    reviews: pending.map(({ key, ...review }) => review),
+  });
+
+  const decisionsById = new Map((payload.reviews || []).map((entry) => [String(entry.id || ""), entry]));
+
+  for (const candidate of pending) {
+    const decision = decisionsById.get(String(candidate.id));
+    const value = {
+      meaningful: Boolean(decision?.meaningful),
+      confidence: String(decision?.confidence || ""),
+      reason: String(decision?.reason || ""),
+      scoredAt: Date.now(),
+    };
+    state.reviewMeaningfulCache.set(candidate.key, value);
+    await putRecord(candidate.key, value);
+    if (value.meaningful) meaningfulCount += 1;
+  }
+
+  return { meaningfulCount };
 }
 
 function reviewMatchesAiTerm(review, term) {
@@ -2925,6 +3488,37 @@ function buildMarkerComparisons(reviews) {
     .filter((entry) => entry.beforeReviewCount || entry.afterReviewCount);
 }
 
+function buildAiWarningSignals() {
+  const targets = [...document.querySelectorAll("[data-warning-target]")]
+    .map((node) => {
+      const badge = node.querySelector(".warning-badge[data-warning-title][data-warning-reason]");
+      if (!badge) return null;
+      return {
+        id: node.dataset.warningTarget,
+        label: node.dataset.warningLabel || badge.dataset.warningTitle || "",
+        surface: node.dataset.warningSurface || "",
+        level: badge.classList.contains("warning-danger") ? "danger" : "warning",
+        title: badge.dataset.warningTitle || "",
+        reason: badge.dataset.warningReason || "",
+      };
+    })
+    .filter(Boolean);
+
+  return [...new Map(targets.map((entry) => [entry.id, entry])).values()]
+    .sort((left, right) => {
+      if (left.level !== right.level) return left.level === "danger" ? -1 : 1;
+      return left.label.localeCompare(right.label, state.currentUiLanguage === "ja" ? "ja" : "en");
+    })
+    .slice(0, 16)
+    .map((entry) => ({
+      label: entry.label,
+      surface: entry.surface,
+      level: entry.level,
+      title: entry.title,
+      reason: entry.reason,
+    }));
+}
+
 async function buildAiEvidence(question) {
   const reviews = filterReviewsByActiveTimeRange(await collectReviews("all"));
   if (!reviews.length) return null;
@@ -2945,6 +3539,9 @@ async function buildAiEvidence(question) {
   const featureRequestReviews = selectPatternReviews(reviews, AI_REQUEST_PATTERNS, 8);
   const retentionReviews = selectPatternReviews(reviews.filter((review) => review.voted_up), AI_RETENTION_PATTERNS, 8);
   const pillarReviews = selectPatternReviews(reviews, AI_PILLAR_PATTERNS, 8);
+  const fetchedReviewPool = state.currentAppId ? getFetchedReviewPool(state.currentAppId) : [];
+  const momentumInsights = fetchedReviewPool.length ? buildMomentumInsights(fetchedReviewPool) : null;
+  const warningSignals = buildAiWarningSignals();
   const minorityIssues = topicRows
     .filter((row) => row.reviewCount >= Math.max(3, Math.ceil(reviews.length * 0.01)) && row.negativeRate >= 60)
     .sort((left, right) => right.negativeRate - left.negativeRate || right.reviewCount - left.reviewCount)
@@ -3011,6 +3608,34 @@ async function buildAiEvidence(question) {
       retentionCount: entry.retentionCount,
       pillarCount: entry.pillarCount,
     })),
+    reviewMomentum: momentumInsights
+      ? {
+          source: "fetched recent-review cache",
+          note: "Momentum measures recent review flow from fetched recent-review data, not the current global time-range filter.",
+          averagePerDay7d: Number(momentumInsights.metrics.averagePerDay.toFixed(1)),
+          totalLast7d: momentumInsights.metrics.recentTotal,
+          positiveRate7d: Number(momentumInsights.recentPositiveRate.toFixed(1)),
+          sentimentDriftVsPrev7d: Number(momentumInsights.sentimentDrift.toFixed(1)),
+          topRecentLanguage: momentumInsights.languageLeaderEntry
+            ? {
+                language: getLanguageName(momentumInsights.languageLeaderEntry[0]),
+                reviewCount: momentumInsights.languageLeaderEntry[1],
+              }
+            : null,
+          burstDay: momentumInsights.burstEntry
+            ? {
+                date: new Date(momentumInsights.burstEntry[0]).toISOString().slice(0, 10),
+                reviewCount: momentumInsights.burstEntry[1],
+              }
+            : null,
+          total30d: momentumInsights.strip.reduce((sum, entry) => sum + entry.count, 0),
+          dailyReviews30d: momentumInsights.strip.map((entry) => ({
+            date: new Date(entry.dayMs).toISOString().slice(0, 10),
+            reviewCount: entry.count,
+          })),
+        }
+      : null,
+    warningSignals,
     featureRequestReviews,
     retentionReviews,
     pillarReviews,
@@ -3033,32 +3658,79 @@ function getAiAnalysisCacheKey(question) {
   ].join("::");
 }
 
-function getAiAnalysisPreview(content) {
-  const source = String(content || "").replace(/\r/g, "").trim();
-  if (!source) return "";
-  const lines = source.split("\n").map((line) => line.trim()).filter(Boolean);
-  const answerIndex = lines.findIndex((line) => /^#{0,3}\s*answer\b[:：]?/i.test(line));
-  const caveatIndex = lines.findIndex((line) => /^#{0,3}\s*caveats?\b[:：]?/i.test(line));
-  const summaryLines = [];
+function getAiAnalysisSectionKind(line) {
+  const normalized = String(line || "").trim();
+  if (!normalized) return "";
+  if (/^#{0,3}\s*answer\b[:：]?/i.test(normalized) || /^#{0,3}\s*回答\s*[:：]?/u.test(normalized)) return "answer";
+  if (/^#{0,3}\s*why\b[:：]?/i.test(normalized) || /^#{0,3}\s*なぜ\s*[:：]?/u.test(normalized)) return "why";
+  if (/^#{0,3}\s*evidence\b[:：]?/i.test(normalized) || /^#{0,3}\s*証拠\s*[:：]?/u.test(normalized)) return "evidence";
+  if (/^#{0,3}\s*caveats?\b[:：]?/i.test(normalized) || /^#{0,3}\s*注意点\s*[:：]?/u.test(normalized)) return "caveats";
+  return "";
+}
 
-  if (answerIndex >= 0) {
-    for (let index = answerIndex; index < lines.length; index += 1) {
-      const line = lines[index];
-      if (index > answerIndex && /^#{0,3}\s*(why|evidence|caveats?)\b[:：]?/i.test(line)) break;
-      summaryLines.push(line.replace(/^#{0,3}\s*answer\b[:：]?\s*/i, "").trim());
+function stripAiAnalysisSectionHeading(line, kind) {
+  const normalized = String(line || "");
+  if (kind === "answer") return normalized.replace(/^#{0,3}\s*(answer|回答)\s*[:：]?\s*/iu, "").trim();
+  if (kind === "why") return normalized.replace(/^#{0,3}\s*(why|なぜ)\s*[:：]?\s*/iu, "").trim();
+  if (kind === "evidence") return normalized.replace(/^#{0,3}\s*(evidence|証拠)\s*[:：]?\s*/iu, "").trim();
+  if (kind === "caveats") return normalized.replace(/^#{0,3}\s*(caveats?|注意点)\s*[:：]?\s*/iu, "").trim();
+  return normalized.trim();
+}
+
+function compactAiAnalysisSummary(content, maxLength = 380) {
+  const source = String(content || "").trim();
+  if (!source) return "";
+  if (source.length <= maxLength) return source;
+  return `${source.slice(0, maxLength - 3).trimEnd()}...`;
+}
+
+function splitAiAnalysisContent(content) {
+  const source = String(content || "").replace(/\r/g, "").trim();
+  if (!source) return { summary: "", details: "" };
+
+  const lines = source.split("\n");
+  const firstSectionIndex = lines.findIndex((line) => getAiAnalysisSectionKind(line));
+
+  if (firstSectionIndex >= 0) {
+    const firstKind = getAiAnalysisSectionKind(lines[firstSectionIndex]);
+
+    if (firstKind === "answer") {
+      const summaryLines = [];
+      const detailLines = [];
+      let inDetails = false;
+
+      for (let index = firstSectionIndex; index < lines.length; index += 1) {
+        const line = lines[index];
+        const kind = getAiAnalysisSectionKind(line);
+        if (index > firstSectionIndex && kind && kind !== "answer") {
+          inDetails = true;
+        }
+        if (inDetails) detailLines.push(line);
+        else summaryLines.push(index === firstSectionIndex ? stripAiAnalysisSectionHeading(line, kind) : line);
+      }
+
+      return {
+        summary: compactAiAnalysisSummary(summaryLines.join("\n").trim() || source),
+        details: detailLines.join("\n").trim(),
+      };
     }
-  } else {
-    for (let index = 0; index < lines.length; index += 1) {
-      const line = lines[index];
-      if (caveatIndex >= 0 && index >= caveatIndex) break;
-      summaryLines.push(line);
-      if (summaryLines.length >= 3) break;
+
+    const summary = lines.slice(0, firstSectionIndex).join("\n").trim();
+    const details = lines.slice(firstSectionIndex).join("\n").trim();
+    if (summary) {
+      return {
+        summary: compactAiAnalysisSummary(summary),
+        details,
+      };
     }
   }
 
-  const normalized = summaryLines.join("\n").trim() || source;
-  const compact = normalized.length <= 380 ? normalized : `${normalized.slice(0, 377).trimEnd()}...`;
-  return compact;
+  const blocks = source.split(/\n\s*\n/).map((block) => block.trim()).filter(Boolean);
+  if (blocks.length <= 1) return { summary: compactAiAnalysisSummary(source), details: "" };
+  return {
+    summary: compactAiAnalysisSummary(blocks[0]),
+    details: blocks.slice(1).join("\n\n").trim(),
+  };
 }
 
 function stripMarkdownForPreview(content) {
@@ -3242,13 +3914,17 @@ function renderAiAnalysisMessages() {
     .map((message, index) => {
       const label = message.role === "user" ? (state.currentUiLanguage === "ja" ? "あなた" : "You") : "AnaChan";
       const meta = message.meta ? `<div class="ai-analysis-message-meta">${esc(message.meta)}</div>` : "";
-      const preview = message.role === "assistant" ? getAiAnalysisPreview(message.content) : "";
-      const hasDetails = message.role === "assistant" && preview && preview !== String(message.content || "").trim();
+      const previewParts = message.role === "assistant" ? splitAiAnalysisContent(message.content) : { summary: "", details: "" };
+      const preview = previewParts.summary;
+      const detailContent = previewParts.details;
+      const hasDetails = message.role === "assistant" && preview && detailContent;
       const expanded = Boolean(message.expanded);
       const expandLabel =
         state.currentUiLanguage === "ja" ? (expanded ? "詳細を隠す" : "詳細を表示") : expanded ? "Hide details" : "Show details";
       const renderedContent =
-        message.role === "assistant" ? renderMarkdownToHtml(message.content) : esc(message.content).replace(/\n/g, "<br>");
+        message.role === "assistant"
+          ? renderMarkdownToHtml(hasDetails ? detailContent : message.content)
+          : esc(message.content).replace(/\n/g, "<br>");
       const body = hasDetails
         ? `<div class="ai-analysis-message-summary markdown-body">${renderMarkdownToHtml(preview)}</div>
            <button class="ai-analysis-expand" type="button" data-ai-expand="${index}" data-expanded="${expanded ? "true" : "false"}">${expandLabel}</button>
@@ -3570,6 +4246,7 @@ function applyTranslations() {
       ? (node.dataset.expanded === "true" ? "詳細を隠す" : "詳細を表示")
       : (node.dataset.expanded === "true" ? "Hide details" : "Show details");
   });
+  syncReviewBrowserExpandedState();
 
   els.appidInput.placeholder = t("appInputPlaceholder");
   els.reviewSearchInput.placeholder = t("searchPlaceholder");
@@ -3592,6 +4269,10 @@ function applyTranslations() {
     const pill = els.positiveRateColorToggle.querySelector("[data-positive-rate-colors]");
     if (pill) pill.classList.toggle("active", state.showPositiveRateColors);
   }
+  if (els.warningsToggle) {
+    const pill = els.warningsToggle.querySelector("[data-warnings]");
+    if (pill) pill.classList.toggle("active", state.showWarnings);
+  }
   if (els.reviewStatusLayoutToggle) {
     const pill = els.reviewStatusLayoutToggle.querySelector("[data-review-status-layout]");
     if (pill) pill.classList.toggle("active", state.splitReviewStatusBars);
@@ -3600,6 +4281,7 @@ function applyTranslations() {
   updateToggleButtons(els.reviewSortToggle, state.reviewSort, "sort");
   updateToggleButtons(els.reviewSentimentToggle, state.reviewFilters.sentiment, "sentiment");
   updateToggleButtons(els.reviewSavedToggle, state.reviewFilters.saved, "savedFilter");
+  els.reviewMeaningfulButton?.classList.toggle("active", state.reviewFilters.meaningful === "meaningful");
   updateToggleButtons(els.wordSentimentToggle, state.wordCloudSentiment, "wordSentiment");
   if (els.wordViewToggle) updateToggleButtons(els.wordViewToggle, state.wordCloudView, "wordView");
   updateReviewTabUi();
@@ -3636,7 +4318,9 @@ function applyTranslations() {
   }
   if (state.reviewTab === "saved") els.reviewTitle.textContent = t("savedReviewsTitle");
   renderWordCloud();
-  if (state.currentAppId && state.analysisTab === "timeline") void rerenderTimelineFromCache();
+  if (els.playtimeChart.childElementCount) void loadPlaytime();
+  if (state.currentAppId && els.timelineChart.childElementCount) void rerenderTimelineFromCache();
+  renderWarningsPanel();
 }
 
 function openDb() {
@@ -3794,6 +4478,9 @@ async function loadUiSettingsFromCache() {
   if (typeof record?.value?.showPositiveRateColors === "boolean") {
     state.showPositiveRateColors = record.value.showPositiveRateColors;
   }
+  if (typeof record?.value?.showWarnings === "boolean") {
+    state.showWarnings = record.value.showWarnings;
+  }
   if (typeof record?.value?.splitReviewStatusBars === "boolean") {
     state.splitReviewStatusBars = record.value.splitReviewStatusBars;
   }
@@ -3836,6 +4523,7 @@ async function persistAiSettings() {
 async function persistUiSettings() {
   await putRecord("uisettings", {
     showPositiveRateColors: state.showPositiveRateColors,
+    showWarnings: state.showWarnings,
     splitReviewStatusBars: state.splitReviewStatusBars,
   });
 }
@@ -4287,9 +4975,15 @@ function renderPieChart(rows) {
   els.chartContainer.appendChild(wrap);
 
   top.forEach((row, index) => {
+    const warning = getNegativeMajorityWarning(getLanguageDisplayName(row.languageCode), row.total_positive, row.total_negative, 12);
     const item = document.createElement("div");
-    item.className = "pie-legend-item";
-    item.innerHTML = `<span class="pie-dot" style="background:${palette[index % palette.length]}"></span><span class="language-inline">${getLanguageDisplayMarkup(
+    item.className = applyWarningClasses("pie-legend-item", warning);
+    item.setAttribute("data-warning-target", `distribution-language-${row.languageCode}`);
+    item.setAttribute("data-warning-label", getLanguageDisplayName(row.languageCode));
+    item.setAttribute("data-warning-surface", "distribution");
+    item.setAttribute("data-warning-data-tab", "distribution");
+    item.setAttribute("data-warning-chart-type", "pie");
+    item.innerHTML = `${renderWarningBadge(warning)}<span class="pie-dot" style="background:${palette[index % palette.length]}"></span><span class="language-inline">${getLanguageDisplayMarkup(
       row.languageCode
     )}</span><span>${t("portion")}: ${((row.total_reviews / total) * 100).toFixed(2)}%</span>`;
     els.chartContainer.appendChild(item);
@@ -4304,9 +4998,17 @@ function renderBarChart(rows) {
   top.forEach((row) => {
     const share = ((row.total_reviews / total) * 100).toFixed(2);
     const score = row.total_reviews ? Math.round((row.total_positive / row.total_reviews) * 100) : 0;
+    const warning = getNegativeMajorityWarning(getLanguageDisplayName(row.languageCode), row.total_positive, row.total_negative, 12);
     const element = document.createElement("div");
-    element.className = "chart-row";
-    element.innerHTML = `<div class="chart-labels"><span class="language-inline">${getLanguageDisplayMarkup(row.languageCode)}</span><span>${fmt(
+    element.className = applyWarningClasses("chart-row", warning);
+    element.setAttribute("data-warning-target", `distribution-language-${row.languageCode}`);
+    element.setAttribute("data-warning-label", getLanguageDisplayName(row.languageCode));
+    element.setAttribute("data-warning-surface", "distribution");
+    element.setAttribute("data-warning-data-tab", "distribution");
+    element.setAttribute("data-warning-chart-type", "bar");
+    element.innerHTML = `${renderWarningBadge(warning)}<div class="chart-labels"><span class="language-inline">${getLanguageDisplayMarkup(
+      row.languageCode
+    )}</span><span>${fmt(
       row.total_reviews
     )}</span></div><div class="chart-meta"><span>${t("portion")}: ${share}%</span><span>${t("score")}: ${renderPositiveRateValue(score, 0)} (${esc(
       row.review_score_desc
@@ -4322,6 +5024,7 @@ function renderDistributionChart(rows) {
   els.chartContainer.innerHTML = "";
   if (state.chartType === "pie") renderPieChart(rows);
   else renderBarChart(rows);
+  renderWarningsPanel();
 }
 
 function normalizeWordCloudText(text) {
@@ -4871,6 +5574,7 @@ function renderWordCloud() {
     els.wordCloudContainer.innerHTML = `<div class="word-cloud-empty">${esc(
       els.wordCloudStatus.textContent || t("wordCloudEmpty")
     )}</div>`;
+    renderWarningsPanel();
     return;
   }
 
@@ -4885,6 +5589,8 @@ function renderWordCloud() {
   state.wordCloudTerms.forEach((entry, index) => {
     const span = document.createElement("span");
     span.className = "word-cloud-term";
+    const warning = getNegativeMajorityWarning(entry.term, entry.positiveReviews, entry.negativeReviews, 20);
+    if (warning) span.className = applyWarningClasses(span.className, warning);
     if (state.wordCloudPrefs.allowed.includes(entry.term)) {
       span.classList.add("is-allowed");
     }
@@ -4893,7 +5599,7 @@ function renderWordCloud() {
     span.style.fontSize = `${0.95 + scale * 3.6}rem`;
     span.style.fontWeight = `${420 + Math.round(scale * 320)}`;
     span.style.color = color;
-    span.textContent = entry.term;
+    span.innerHTML = `${esc(entry.term)}${renderWarningBadge(warning)}`;
     span.addEventListener("click", async () => {
       state.analysisTab = "reviews";
       updateWorkspaceTabs();
@@ -4910,11 +5616,16 @@ function renderWordCloud() {
   const topTerms = state.wordCloudTerms.slice(0, 10);
   const maxReviews = topTerms[0]?.reviewCount || 1;
   topTerms.forEach((entry) => {
+    const warning = getNegativeMajorityWarning(entry.term, entry.positiveReviews, entry.negativeReviews, 20);
     const row = document.createElement("div");
-    row.className = "chart-row";
+    row.className = applyWarningClasses("chart-row", warning);
     row.role = "button";
     row.tabIndex = 0;
-    row.innerHTML = `<div class="chart-labels"><span>${esc(entry.term)}</span><span>${fmt(
+    row.setAttribute("data-warning-target", `wordcloud-term-${entry.term}`);
+    row.setAttribute("data-warning-label", entry.term);
+    row.setAttribute("data-warning-surface", "wordcloud");
+    row.setAttribute("data-warning-analysis-tab", "wordcloud");
+    row.innerHTML = `${renderWarningBadge(warning)}<div class="chart-labels"><span>${esc(entry.term)}</span><span>${fmt(
       entry.reviewCount
     )}</span></div><div class="chart-meta"><span>${t("summaryPositiveRate")}: ${renderPositiveRateValue(
       entry.positiveRate
@@ -4942,6 +5653,7 @@ function renderWordCloud() {
     });
     els.wordCloudTopList.appendChild(row);
   });
+  renderWarningsPanel();
 }
 
 function renderTopicChart(rows) {
@@ -4959,10 +5671,11 @@ function renderTopicChart(rows) {
   const wrap = document.createElement("div");
   wrap.className = "topic-bar-chart";
   rows.forEach((row) => {
+    const warning = getNegativeMajorityWarning(getTopicRowLabel(row), row.positiveCount, row.negativeCount, 15);
     const column = document.createElement("button");
     column.type = "button";
-    column.className = "topic-bar-column";
-    column.innerHTML = `<span class="topic-bar" style="height:${((row.reviewCount / maxValue) * 100).toFixed(
+    column.className = applyWarningClasses("topic-bar-column", warning);
+    column.innerHTML = `${renderWarningBadge(warning)}<span class="topic-bar" style="height:${((row.reviewCount / maxValue) * 100).toFixed(
       2
     )}%; background:${row.color}"></span><span class="topic-bar-label">${esc(getTopicRowLabel(row))}</span><span class="topic-bar-value">${fmt(
       row.reviewCount
@@ -5162,9 +5875,10 @@ function renderTopicLineChart(rows, reviews) {
       svg.appendChild(hitArea);
     });
 
+    const warning = getNegativeMajorityWarning(entry.label, totalPositive, totalNegative, 15);
     const row = document.createElement("div");
-    row.className = "chart-row timeline-keyword-row";
-    row.innerHTML = `<div class="chart-labels"><span class="timeline-keyword-row-label"><span class="timeline-keyword-swatch" style="background:${entry.color}"></span>${esc(
+    row.className = applyWarningClasses("chart-row timeline-keyword-row", warning);
+    row.innerHTML = `${renderWarningBadge(warning)}<div class="chart-labels"><span class="timeline-keyword-row-label"><span class="timeline-keyword-swatch" style="background:${entry.color}"></span>${esc(
       entry.label
     )}</span><span>${fmt(totalReviews)} ${esc(t("reviewCount"))}</span></div>${renderReviewStatusBarMarkup(totalPositive, totalNegative, totalReviews, "stacked-track")}<div class="chart-labels review-status-breakdown"><span>${esc(
       `${t("positive")} ${fmt(totalPositive)} (${positivePortion}%)`
@@ -5192,12 +5906,17 @@ function renderTopicDetails(rows) {
   els.topicDetails.innerHTML = "";
   const maxReviews = Math.max(...rows.map((row) => row.reviewCount), 1);
   rows.forEach((row) => {
+    const warning = getNegativeMajorityWarning(getTopicRowLabel(row), row.positiveCount, row.negativeCount, 15);
     const card = document.createElement("button");
     card.type = "button";
-    card.className = "topic-card";
+    card.className = applyWarningClasses("topic-card", warning);
+    card.setAttribute("data-warning-target", `topic-${row.id}`);
+    card.setAttribute("data-warning-label", getTopicRowLabel(row));
+    card.setAttribute("data-warning-surface", "topics");
+    card.setAttribute("data-warning-analysis-tab", "topics");
     card.style.borderColor = `${row.color}66`;
     card.style.boxShadow = `inset 0 0 0 1px ${row.color}22`;
-    card.innerHTML = `<div class="topic-card-head"><div class="topic-card-title">${esc(
+    card.innerHTML = `${renderWarningBadge(warning)}<div class="topic-card-head"><div class="topic-card-title">${esc(
       getTopicRowLabel(row)
     )}</div><div class="topic-card-badges"><span class="topic-priority ${row.priority}">${esc(
       topicText(`topicPriority${row.priority[0].toUpperCase()}${row.priority.slice(1)}`)
@@ -5232,6 +5951,7 @@ function renderTopicDetails(rows) {
     });
     els.topicDetails.appendChild(card);
   });
+  renderWarningsPanel();
 }
 
 async function renderTopicClusters() {
@@ -5305,6 +6025,7 @@ function getFilteredReviews(reviews) {
     if (state.reviewFilters.sentiment === "negative" && review.voted_up) return false;
     if (state.reviewFilters.saved === "saved" && !isReviewSaved(review)) return false;
     if (state.reviewFilters.saved === "unsaved" && isReviewSaved(review)) return false;
+    if (state.reviewFilters.meaningful === "meaningful" && !isReviewMarkedMeaningful(review)) return false;
     if (state.reviewFilters.topic !== "all" && !review._topics?.includes(state.reviewFilters.topic)) return false;
 
     const playtimeFilter = REVIEW_PLAYTIME_FILTERS.find((entry) => entry.value === state.reviewFilters.playtime);
@@ -5399,7 +6120,6 @@ function buildReviewCard(review) {
   const created = new Date(review.timestamp_created * 1000).toLocaleString(
     state.currentUiLanguage === "ja" ? "ja-JP" : "en-US"
   );
-  const sentiment = review.voted_up ? t("positive") : t("negative");
   const saved = isReviewSaved(review);
   const safeText = esc(review.review || "");
   const highlighted = state.activeSearchRegex
@@ -5426,9 +6146,7 @@ function buildReviewCard(review) {
     : `<div class="review-translation hidden" data-translation-for="${esc(review.recommendationid)}"></div>`;
   const card = document.createElement("article");
   card.className = `review-card ${review.voted_up ? "positive" : "negative"}`;
-  card.innerHTML = `<div class="review-banner">${esc(interp(t("reviewBy"), {
-    sentiment,
-  }))} <span>${esc(review.author.personaname || review.author.steamid)}</span><span class="review-topic-tags">${topicTags}</span>${translateButton}<button class="review-bookmark ${saved ? "is-saved" : ""}" type="button" data-bookmark-appid="${esc(
+  card.innerHTML = `<div class="review-banner"><span class="review-author-name">${esc(review.author.personaname || review.author.steamid)}</span><span class="review-topic-tags">${topicTags}</span>${translateButton}<button class="review-bookmark ${saved ? "is-saved" : ""}" type="button" data-bookmark-appid="${esc(
     getReviewAppId(review)
   )}" data-bookmark-review="${esc(review.recommendationid)}">${saved ? t("savedReview") : t(
     "saveReview"
@@ -5559,6 +6277,7 @@ async function collectReviews(lang, force = false, options = {}) {
 
 function resetReviewViewState() {
   const preservedTopic = state.reviewFilters.topic || "all";
+  const preservedMeaningful = state.reviewFilters.meaningful || "all";
   state.activeSearchRegex = null;
   state.reviewBaseReviews = [];
   state.reviewSourceReviews = [];
@@ -5568,13 +6287,14 @@ function resetReviewViewState() {
   state.reviewRenderToken += 1;
   state.reviewSearchStats = null;
   state.reviewSort = "date";
-  state.reviewFilters = { sentiment: "all", saved: "all", playtime: "all", length: "all", topic: preservedTopic };
+  state.reviewFilters = { sentiment: "all", saved: "all", playtime: "all", length: "all", topic: preservedTopic, meaningful: preservedMeaningful };
   if (els.reviewPlaytimeFilter) els.reviewPlaytimeFilter.value = "all";
   if (els.reviewLengthFilter) els.reviewLengthFilter.value = "all";
   if (els.reviewTopicFilter) els.reviewTopicFilter.value = preservedTopic;
   updateToggleButtons(els.reviewSortToggle, state.reviewSort, "sort");
   updateToggleButtons(els.reviewSentimentToggle, state.reviewFilters.sentiment, "sentiment");
   updateToggleButtons(els.reviewSavedToggle, state.reviewFilters.saved, "savedFilter");
+  els.reviewMeaningfulButton?.classList.toggle("active", state.reviewFilters.meaningful === "meaningful");
 }
 
 async function loadReviewTabData() {
@@ -5613,6 +6333,9 @@ async function loadReviewTabData() {
   await ensureTopicTagsForReviews(reviews);
   state.reviewBaseReviews = reviews;
   state.reviewSourceReviews = reviews;
+  if (state.reviewFilters.meaningful === "meaningful" && state.ai.connected) {
+    await ensureMeaningfulReviewLabels(state.reviewSourceReviews);
+  }
   els.reviewTitle.textContent =
     state.reviewTab === "saved" ? t("savedReviewsTitle") : `${getLanguageName(lang)} ${t("selectedReviews")}`;
   applyReviewView();
@@ -5660,7 +6383,16 @@ async function loadPlaytime() {
         : `<button class="playtime-label-button" type="button" data-playtime-edit-start="${cutoffIndex}">${playtimeBuckets[index].label}</button>`;
     const total = bucket.positive + bucket.negative;
     const positiveRate = total ? ((bucket.positive / total) * 100).toFixed(1) : "0.0";
-    row.innerHTML = `<div class="playtime-label">${labelMarkup}</div><div class="chart-row playtime-summary"><div class="chart-meta"><span>${t(
+    const warning = getNegativeMajorityWarning(playtimeBuckets[index].label, bucket.positive, bucket.negative, 12);
+    row.innerHTML = `<div class="playtime-label">${labelMarkup}</div><div class="${applyWarningClasses(
+      "chart-row playtime-summary",
+      warning
+    )}" ${buildWarningTargetAttrs({
+      id: `playtime-${index}`,
+      label: playtimeBuckets[index].label,
+      surface: "playtime",
+      dataTab: "playtime",
+    })}>${renderWarningBadge(warning)}<div class="chart-meta"><span>${t(
       "summaryPositiveRate"
     )}: ${renderPositiveRateValue(positiveRate)}</span><span>${fmt(total)} ${t("reviewCount")}</span></div>${renderReviewStatusBarMarkup(
       bucket.positive,
@@ -5684,6 +6416,7 @@ async function loadPlaytime() {
   }
 
   els.playtimeStatus.textContent = interp(t("loadedTotalReviews"), { count: fmt(reviews.length) });
+  renderWarningsPanel();
 }
 
 async function runReviewSearch() {
@@ -5769,6 +6502,9 @@ async function runReviewSearch() {
     ? { hitCount, matchedReviews: matched.length, keyword }
     : null;
   state.reviewSourceReviews = matched;
+  if (state.reviewFilters.meaningful === "meaningful" && state.ai.connected) {
+    await ensureMeaningfulReviewLabels(state.reviewSourceReviews);
+  }
 
   if (!matched.length) {
     renderReviews([]);
@@ -6016,6 +6752,10 @@ async function connectAiModel() {
     await persistAiSettings();
     setAiAssistantTemporaryMode("hello");
     updateAiUi(t("aiConnected"));
+    if (state.reviewFilters.meaningful === "meaningful" && state.reviewSourceReviews.length) {
+      await ensureMeaningfulReviewLabels(state.reviewSourceReviews);
+      applyReviewView();
+    }
     if (state.analysisTab === "reviews") renderReviews(state.reviewDisplayedReviews);
   } catch (error) {
     state.ai.connected = false;
@@ -6427,6 +7167,47 @@ if (els.positiveRateColorToggle) {
     if (els.playtimeChart.childElementCount) void runDataTask(t("searchLoading"), () => loadPlaytime());
   });
 }
+if (els.warningsToggle) {
+  els.warningsToggle.addEventListener("click", async () => {
+    state.showWarnings = !state.showWarnings;
+    await persistUiSettings();
+    applyTranslations();
+    if (state.reviewBaseReviews.length) renderReviewStatusBar(state.reviewBaseReviews);
+    if (state.summaryRows.length) renderDistributionChart(state.summaryRows);
+    if (els.wordCloudTopList.childElementCount || els.wordCloudContainer.childElementCount) renderWordCloud();
+    if (state.topicRows.length) {
+      renderTopicChart(state.topicRows);
+      renderTopicDetails(state.topicRows);
+    }
+    if (els.playtimeChart.childElementCount) void runDataTask(t("searchLoading"), () => loadPlaytime());
+  });
+}
+if (els.warningsList) {
+  els.warningsList.addEventListener("click", (event) => {
+    const dismiss = event.target.closest("[data-warning-dismiss]");
+    if (dismiss) {
+      event.preventDefault();
+      event.stopPropagation();
+      state.dismissedWarningFeedIds.add(dismiss.dataset.warningDismiss);
+      renderWarningsPanel();
+      return;
+    }
+    const button = event.target.closest("[data-warning-jump]");
+    if (!button) return;
+    void focusWarningTarget(button.dataset.warningJump);
+  });
+  els.warningsList.addEventListener(
+    "wheel",
+    (event) => {
+      const list = els.warningsList;
+      if (!list || list.scrollHeight <= list.clientHeight) return;
+      event.preventDefault();
+      event.stopPropagation();
+      list.scrollTop += event.deltaY;
+    },
+    { passive: false }
+  );
+}
 if (els.reviewStatusLayoutToggle) {
   els.reviewStatusLayoutToggle.addEventListener("click", async () => {
     state.splitReviewStatusBars = !state.splitReviewStatusBars;
@@ -6617,6 +7398,18 @@ els.momentumPanel?.addEventListener("mousemove", (event) => {
 els.momentumPanel?.addEventListener("mouseleave", () => {
   hideSharedTooltip();
 });
+document.addEventListener("mousemove", (event) => {
+  const badge = event.target.closest("[data-warning-title]");
+  if (!badge || !state.showWarnings) return;
+  const tooltip = ensureSharedTooltip();
+  tooltip.innerHTML = `<strong>${esc(badge.dataset.warningTitle || "")}</strong><div>${esc(badge.dataset.warningReason || "")}</div>`;
+  tooltip.style.display = "block";
+  tooltip.style.left = `${event.clientX + 14}px`;
+  tooltip.style.top = `${event.clientY + 14}px`;
+});
+document.addEventListener("mouseout", (event) => {
+  if (event.target.closest("[data-warning-title]")) hideSharedTooltip();
+});
 els.reviewsPager?.addEventListener("click", (event) => {
   const button = event.target.closest("[data-review-page]");
   if (!button || button.disabled) return;
@@ -6673,6 +7466,16 @@ if (els.topicChartViewToggle) {
 els.reviewSearchButton.addEventListener("click", () => {
   void runDataTask(t("searchLoading"), () => runReviewSearch());
 });
+els.reviewBrowserExpandButton?.addEventListener("click", () => {
+  toggleReviewBrowserExpanded();
+});
+document.addEventListener("click", (event) => {
+  if (!state.reviewBrowserExpanded || state.analysisTab !== "reviews") return;
+  const path = typeof event.composedPath === "function" ? event.composedPath() : [];
+  if (els.reviewResultsShell && path.includes(els.reviewResultsShell)) return;
+  if (els.reviewBrowserExpandButton && path.includes(els.reviewBrowserExpandButton)) return;
+  toggleReviewBrowserExpanded(false);
+});
 els.playtimeLoadButton.addEventListener("click", () => {
   void runDataTask(t("searchLoading"), () => loadPlaytime());
 });
@@ -6718,6 +7521,29 @@ els.reviewSavedToggle.addEventListener("click", (event) => {
   updateToggleButtons(els.reviewSavedToggle, state.reviewFilters.saved, "savedFilter");
   applyReviewView();
 });
+
+if (els.reviewMeaningfulButton) {
+  els.reviewMeaningfulButton.addEventListener("click", async () => {
+    state.reviewFilters.meaningful = state.reviewFilters.meaningful === "meaningful" ? "all" : "meaningful";
+    state.reviewPage = 1;
+    els.reviewMeaningfulButton.classList.toggle("active", state.reviewFilters.meaningful === "meaningful");
+    if (state.reviewFilters.meaningful === "meaningful") {
+      try {
+        const result = await runDataTask(t("meaningfulReviewsLoading"), () => ensureMeaningfulReviewLabels(state.reviewSourceReviews));
+        if (result) {
+          els.statusText.textContent = result.meaningfulCount
+            ? interp(t("meaningfulReviewsReady"), { count: fmt(result.meaningfulCount) })
+            : t("meaningfulReviewsNone");
+        }
+      } catch (error) {
+        if (!isAbortError(error)) {
+          els.statusText.textContent = `${t("meaningfulReviewsFailed")} ${error.message || error}`;
+        }
+      }
+    }
+    applyReviewView();
+  });
+}
 
 els.reviewPlaytimeFilter.addEventListener("change", () => {
   state.reviewFilters.playtime = els.reviewPlaytimeFilter.value;

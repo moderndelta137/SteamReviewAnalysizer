@@ -20,6 +20,9 @@
               <button id="positive-rate-color-toggle" class="lang-toggle" type="button" aria-label="Toggle positive-rate colors">
                 <span class="lang-pill" data-positive-rate-colors="on" data-i18n="positiveRateColors">Rate Color</span>
               </button>
+              <button id="warnings-toggle" class="lang-toggle" type="button" aria-label="Toggle warnings">
+                <span class="lang-pill" data-warnings="on" data-i18n="warningsToggle">Warnings</span>
+              </button>
               <button id="review-status-layout-toggle" class="lang-toggle" type="button" aria-label="Toggle review status layout">
                 <span class="lang-pill" data-review-status-layout="split" data-i18n="reviewStatusLayout">Split Bars</span>
               </button>
@@ -161,11 +164,13 @@
                   <p class="eyebrow" data-i18n="reviewBrowserEyebrow">Review Analysis</p>
                   <h3 id="review-title" data-i18n="selectedReviews">Selected Reviews</h3>
                 </div>
-                <div class="control-field panel-heading-toggle">
-                  <span data-i18n="reviewMode">View</span>
-                  <div id="review-tab-toggle" class="lang-toggle review-toggle-group" aria-label="Review tab">
-                    <button class="lang-pill" type="button" data-tab="browse" data-i18n="reviewTabBrowse">Review Browser</button>
-                    <button class="lang-pill" type="button" data-tab="saved" data-i18n="reviewTabSaved">Saved Reviews</button>
+                <div class="review-panel-actions">
+                  <div class="control-field panel-heading-toggle">
+                    <span data-i18n="reviewMode">View</span>
+                    <div id="review-tab-toggle" class="lang-toggle review-toggle-group" aria-label="Review tab">
+                      <button class="lang-pill" type="button" data-tab="browse" data-i18n="reviewTabBrowse">Review Browser</button>
+                      <button class="lang-pill" type="button" data-tab="saved" data-i18n="reviewTabSaved">Saved Reviews</button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -203,6 +208,7 @@
                     <button class="lang-pill" type="button" data-sentiment="all" data-i18n="sentimentAll">All</button>
                     <button class="lang-pill" type="button" data-sentiment="positive" data-i18n="filterPositive">Positive</button>
                     <button class="lang-pill" type="button" data-sentiment="negative" data-i18n="filterNegative">Negative</button>
+                    <button id="review-meaningful-button" class="hidden ai-feature-button" type="button" data-i18n="aiRecommendReviews">AI Recommend</button>
                   </div>
                 </div>
                 <div class="control-field">
@@ -229,9 +235,14 @@
                 </label>
               </div>
               <div id="search-summary" class="status-text"></div>
-              <div id="paging-label" class="paging-label"></div>
-              <div id="reviews-list" class="reviews-list"></div>
-              <div id="reviews-pager" class="pager"></div>
+              <div id="review-results-shell" class="review-results-shell">
+                <div class="review-results-head">
+                  <div id="paging-label" class="paging-label"></div>
+                  <button id="review-browser-expand-button" class="ai-chat-expand-button" type="button" aria-label="Expand review browser">⤢</button>
+                </div>
+                <div id="reviews-list" class="reviews-list"></div>
+                <div id="reviews-pager" class="pager"></div>
+              </div>
             </section>
 
             <section id="analysis-panel-timeline" class="workspace-body hidden">
@@ -294,60 +305,73 @@
             </section>
           </article>
 
-          <article class="panel workspace-panel data-panel">
-            <div class="workspace-tabs" id="data-tab-toggle" aria-label="Data panel tabs">
-              <button class="workspace-tab" type="button" data-data-tab="momentum" data-i18n="momentumTab">Momentum</button>
-              <button class="workspace-tab" type="button" data-data-tab="distribution" data-i18n="reviewShare">By Language</button>
-              <button class="workspace-tab" type="button" data-data-tab="playtime" data-i18n="reviewDistributionByPlaytime">By Playtime</button>
-            </div>
+          <div class="workspace-side-column">
+            <article class="panel workspace-panel data-panel">
+              <div class="workspace-tabs" id="data-tab-toggle" aria-label="Data panel tabs">
+                <button class="workspace-tab" type="button" data-data-tab="momentum" data-i18n="momentumTab">Momentum</button>
+                <button class="workspace-tab" type="button" data-data-tab="distribution" data-i18n="reviewShare">By Language</button>
+                <button class="workspace-tab" type="button" data-data-tab="playtime" data-i18n="reviewDistributionByPlaytime">By Playtime</button>
+              </div>
 
-            <section id="data-panel-momentum" class="workspace-body">
+              <section id="data-panel-momentum" class="workspace-body">
+                <div class="panel-heading">
+                  <div>
+                    <p class="eyebrow" data-i18n="momentumEyebrow">Momentum</p>
+                    <h3 data-i18n="momentumTitle">Review Momentum</h3>
+                  </div>
+                  <div id="momentum-status" class="status-text"></div>
+                </div>
+                <div id="momentum-panel" class="momentum-panel"></div>
+              </section>
+
+              <section id="data-panel-distribution" class="workspace-body hidden">
+                <div class="panel-heading">
+                  <div>
+                    <p class="eyebrow" data-i18n="distribution">Distribution</p>
+                    <h3 data-i18n="reviewShare">By Language</h3>
+                  </div>
+                  <div class="toolbar-label">
+                    <span data-i18n="chartType">Chart Type</span>
+                    <button id="chart-type-toggle" class="lang-toggle" type="button" aria-label="Toggle chart type">
+                      <span class="lang-pill" data-chart="bar" data-i18n="barChart">Bar chart</span>
+                      <span class="lang-pill" data-chart="pie" data-i18n="pieChart">Pie chart</span>
+                    </button>
+                  </div>
+                </div>
+                <div id="chart-container" class="chart-container"></div>
+              </section>
+
+              <section id="data-panel-playtime" class="workspace-body hidden">
+                <div class="panel-heading">
+                  <div>
+                    <p class="eyebrow" data-i18n="distribution">Distribution</p>
+                    <h3 data-i18n="reviewDistributionByPlaytime">By Playtime</h3>
+                  </div>
+                </div>
+                <div class="playtime-actions">
+                  <label class="control-field">
+                    <span data-i18n="language">Language</span>
+                    <select id="playtime-language-selection"></select>
+                  </label>
+                  <button id="playtime-load-button" type="button" data-i18n="load">Load</button>
+                </div>
+                <div id="playtime-cutoff-controls" class="playtime-cutoff-controls"></div>
+                <div id="playtime-status" class="playtime-status"></div>
+                <div id="playtime-chart" class="playtime-chart"></div>
+              </section>
+            </article>
+
+            <article class="panel warnings-panel">
               <div class="panel-heading">
                 <div>
-                  <p class="eyebrow" data-i18n="momentumEyebrow">Momentum</p>
-                  <h3 data-i18n="momentumTitle">Review Momentum</h3>
-                </div>
-                <div id="momentum-status" class="status-text"></div>
-              </div>
-              <div id="momentum-panel" class="momentum-panel"></div>
-            </section>
-
-            <section id="data-panel-distribution" class="workspace-body hidden">
-              <div class="panel-heading">
-                <div>
-                  <p class="eyebrow" data-i18n="distribution">Distribution</p>
-                  <h3 data-i18n="reviewShare">By Language</h3>
-                </div>
-                <div class="toolbar-label">
-                  <span data-i18n="chartType">Chart Type</span>
-                  <button id="chart-type-toggle" class="lang-toggle" type="button" aria-label="Toggle chart type">
-                    <span class="lang-pill" data-chart="bar" data-i18n="barChart">Bar chart</span>
-                    <span class="lang-pill" data-chart="pie" data-i18n="pieChart">Pie chart</span>
-                  </button>
+                  <p class="eyebrow" data-i18n="warningsPanelEyebrow">Noteworthy Signals</p>
+                  <h3 data-i18n="warningsPanelTitle">Warnings</h3>
                 </div>
               </div>
-              <div id="chart-container" class="chart-container"></div>
-            </section>
-
-            <section id="data-panel-playtime" class="workspace-body hidden">
-              <div class="panel-heading">
-                <div>
-                  <p class="eyebrow" data-i18n="distribution">Distribution</p>
-                  <h3 data-i18n="reviewDistributionByPlaytime">By Playtime</h3>
-                </div>
-              </div>
-              <div class="playtime-actions">
-                <label class="control-field">
-                  <span data-i18n="language">Language</span>
-                  <select id="playtime-language-selection"></select>
-                </label>
-                <button id="playtime-load-button" type="button" data-i18n="load">Load</button>
-              </div>
-              <div id="playtime-cutoff-controls" class="playtime-cutoff-controls"></div>
-              <div id="playtime-status" class="playtime-status"></div>
-              <div id="playtime-chart" class="playtime-chart"></div>
-            </section>
-          </article>
+              <div id="warnings-panel-status" class="status-text hidden"></div>
+              <div id="warnings-list" class="warnings-list"></div>
+            </article>
+          </div>
         </section>
 
       </main>

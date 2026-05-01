@@ -285,6 +285,71 @@ async function suggestWordCloudPreferences(request) {
   });
 }
 __name(suggestWordCloudPreferences, "suggestWordCloudPreferences");
+async function classifyMeaningfulReviews(request) {
+  const body = await request.json();
+  const apiKey = String(body.apiKey || "").trim();
+  const model = String(body.model || "").trim();
+  const answerLanguage = String(body.answerLanguage || "English").trim();
+  const baseUrl = String(body.baseUrl || "https://generativelanguage.googleapis.com/v1beta").trim().replace(/\/+$/, "");
+  const reviews = Array.isArray(body.reviews) ? body.reviews : [];
+  if (!apiKey) return jsonResponse({ error: "Missing API key" }, 400);
+  if (!model) return jsonResponse({ error: "Missing model" }, 400);
+  if (!reviews.length) return jsonResponse({ error: "Missing reviews" }, 400);
+  if (!baseUrl.startsWith("https://")) return jsonResponse({ error: "AI base URL must use HTTPS" }, 400);
+  const modelName = model.startsWith("models/") ? model : `models/${model}`;
+  const prompt = [
+    `Answer language for reasons: ${answerLanguage}`,
+    "",
+    "Candidate review JSON:",
+    JSON.stringify(reviews)
+  ].join("\n");
+  const response = await fetch(`${baseUrl}/${modelName}:generateContent`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-goog-api-key": apiKey
+    },
+    body: JSON.stringify({
+      systemInstruction: {
+        parts: [
+          {
+            text: `You classify candidate Steam reviews for a "meaningful feedback" filter. Meaningful reviews contain concrete player feedback, actionable criticism, useful praise, specific bug or performance reports, balance observations, progression friction, UI or UX issues, feature requests, or detailed comparisons grounded in actual play. Do not mark generic hype, one-line sentiment, memes, low-detail reactions, duplicate filler, or storefront-style recommendations as meaningful unless they still contain specific evidence. Use the provided heuristic score as a hint, not as authority. Return JSON only in this exact shape: {"reviews":[{"id":"...","meaningful":true,"confidence":"high","reason":"short reason"}]}. Include every input review exactly once. Keep reasons short, under 12 words.`
+          }
+        ]
+      },
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: prompt }]
+        }
+      ],
+      generationConfig: {
+        temperature: 0.1
+      }
+    })
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    return jsonResponse({ error: payload.error?.message || `AI request failed: ${response.status}` }, response.status);
+  }
+  const rawText = payload.candidates?.[0]?.content?.parts?.map((part) => part.text || "").join("").trim() || "";
+  const parsed = parseModelJsonPayload(rawText);
+  if (!parsed || !Array.isArray(parsed.reviews)) {
+    return jsonResponse({ error: "AI returned invalid JSON for meaningful-review classification" }, 502);
+  }
+  return jsonResponse({
+    reviews: reviews.map((review) => {
+      const matched = parsed.reviews.find((entry) => String(entry.id || "") === String(review.id || ""));
+      return {
+        id: String(review.id || ""),
+        meaningful: Boolean(matched?.meaningful),
+        confidence: String(matched?.confidence || ""),
+        reason: String(matched?.reason || "")
+      };
+    })
+  });
+}
+__name(classifyMeaningfulReviews, "classifyMeaningfulReviews");
 async function listGeminiModels(request) {
   const url = new URL(request.url);
   const apiKey = String(url.searchParams.get("apiKey") || "").trim();
@@ -355,6 +420,9 @@ async function handleApi(request) {
   }
   if (url.pathname === "/api/wordcloud/suggest" && request.method === "POST") {
     return suggestWordCloudPreferences(request);
+  }
+  if (url.pathname === "/api/reviews/meaningful" && request.method === "POST") {
+    return classifyMeaningfulReviews(request);
   }
   if (url.pathname === "/api/ai/models") {
     return listGeminiModels(request);
