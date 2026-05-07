@@ -11,6 +11,7 @@
   --danger: #ff6f7d;
   --shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
   --ai-glow-angle: 0deg;
+  --desktop-layout-zoom: 0.9;
 }
 
 @property --ai-glow-angle {
@@ -33,6 +34,12 @@ body {
     radial-gradient(circle at top right, rgba(102, 192, 244, 0.14), transparent 24%),
     linear-gradient(180deg, #0e141b 0%, #081018 100%);
   color: var(--text);
+}
+
+@supports (zoom: 1) {
+  html {
+    zoom: var(--desktop-layout-zoom);
+  }
 }
 
 button,
@@ -3085,6 +3092,12 @@ body.ai-connected .review-translate-button::before {
 }
 
 @media (max-width: 1100px) {
+  @supports (zoom: 1) {
+    html {
+      zoom: 1;
+    }
+  }
+
   .workspace-grid,
   .summary-grid,
   .review-grid,
