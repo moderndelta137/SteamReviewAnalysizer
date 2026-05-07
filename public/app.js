@@ -346,6 +346,10 @@ const I18N = {
     aiAnalysisScope: "Answers from the current global time span using structured review evidence.",
     aiAnalysisQuestion: "Ask about the reviews",
     aiAnalysisPlaceholder: "What are the most common complaints in negative reviews this year?",
+    aiFeatureWordCloud: "AI Word Cloud",
+    aiFeatureWordCloudTip: "Generate useful phrases that better match this title, so the word cloud highlights game-specific feedback instead of generic review noise.",
+    aiFeatureReviewFilter: "AI Review Filter",
+    aiFeatureReviewFilterTip: "Filter for useful reviews with meaningful requests, suggestions, bugs, and concrete player feedback.",
     aiTemplatePillar: "What's the pillar of the game?",
     aiTemplateFeature: "What's the most requested feature?",
     aiTemplateTrend: "What's the noteworthy trend in the recent reviews?",
@@ -629,6 +633,10 @@ const I18N = {
     aiAnalysisScope: "現在の全体期間を対象に、構造化したレビュー根拠から回答します。",
     aiAnalysisQuestion: "レビューについて質問する",
     aiAnalysisPlaceholder: "今年の不評レビューで最も多い不満は何ですか？",
+    aiFeatureWordCloud: "AIワードクラウド",
+    aiFeatureWordCloudTip: "このタイトルに合う有用なフレーズを生成し、汎用的なレビュー語ではなくゲーム固有のフィードバックを目立たせます。",
+    aiFeatureReviewFilter: "AIレビュー絞り込み",
+    aiFeatureReviewFilterTip: "要望、提案、バグ報告、具体的なプレイヤーフィードバックを含む有用なレビューを絞り込みます。",
     aiTemplatePillar: "このゲームの柱は何？",
     aiTemplateFeature: "最も要望が多い機能は？",
     aiTemplateTrend: "最近のレビューで注目すべき傾向は？",
@@ -1036,6 +1044,9 @@ const els = {
   aiAnalysisScope: document.getElementById("ai-analysis-scope"),
   aiAnalysisMessages: document.getElementById("ai-analysis-messages"),
   aiAnalysisTemplates: document.getElementById("ai-analysis-templates"),
+  aiFeatureRail: document.getElementById("ai-feature-rail"),
+  aiFeatureWordCloudButton: document.getElementById("ai-feature-wordcloud-button"),
+  aiFeatureReviewFilterButton: document.getElementById("ai-feature-review-filter-button"),
   aiAnalysisForm: document.getElementById("ai-analysis-form"),
   aiAnalysisInput: document.getElementById("ai-analysis-input"),
   aiAnalysisSendButton: document.getElementById("ai-analysis-send-button"),
@@ -3022,6 +3033,10 @@ function syncAiAssistantButtonState() {
     (els.aiSettingsPanel && !els.aiSettingsPanel.classList.contains("hidden"))
   );
   els.aiSettingsButton.setAttribute("aria-expanded", expanded ? "true" : "false");
+  els.aiFeatureRail?.classList.toggle(
+    "is-visible",
+    Boolean(state.ai.connected && els.aiChatPopup && !els.aiChatPopup.classList.contains("hidden"))
+  );
 }
 
 function syncAiChatPopupState() {
@@ -3067,6 +3082,47 @@ function toggleReviewBrowserExpanded(forceExpanded) {
   state.reviewBrowserExpanded =
     typeof forceExpanded === "boolean" ? forceExpanded : !state.reviewBrowserExpanded;
   syncReviewBrowserExpandedState();
+}
+
+function syncAiFeatureRailText() {
+  const items = [
+    [els.aiFeatureWordCloudButton, t("aiFeatureWordCloud"), t("aiFeatureWordCloudTip")],
+    [els.aiFeatureReviewFilterButton, t("aiFeatureReviewFilter"), t("aiFeatureReviewFilterTip")],
+  ];
+  items.forEach(([button, label, tip]) => {
+    if (!button) return;
+    button.textContent = label;
+    button.title = tip;
+    button.setAttribute("aria-label", `${label}: ${tip}`);
+    button.parentElement?.setAttribute("data-tooltip", tip);
+  });
+}
+
+function pulseAiFeatureTarget(target) {
+  if (!target) return;
+  target.classList.remove("ai-feature-target-pulse");
+  void target.offsetWidth;
+  target.classList.add("ai-feature-target-pulse");
+  window.setTimeout(() => target.classList.remove("ai-feature-target-pulse"), 2600);
+}
+
+function jumpToAiFeature(target) {
+  toggleAiChatPopup(false);
+  if (target === "wordcloud") {
+    state.analysisTab = "wordcloud";
+    updateWorkspaceTabs();
+    els.wordAiSuggestButton?.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+    els.wordAiSuggestButton?.focus({ preventScroll: true });
+    pulseAiFeatureTarget(els.wordAiSuggestButton);
+    return;
+  }
+  if (target === "reviews") {
+    state.analysisTab = "reviews";
+    updateWorkspaceTabs();
+    els.reviewMeaningfulButton?.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+    els.reviewMeaningfulButton?.focus({ preventScroll: true });
+    pulseAiFeatureTarget(els.reviewMeaningfulButton);
+  }
 }
 
 function updateAiUi(status = "") {
@@ -4253,6 +4309,9 @@ function applyTranslations() {
   els.wordPreferenceInput.placeholder = t("wordPreferencePlaceholder");
   els.timelineKeywordInput.placeholder = t("timelineKeywordPlaceholder");
   if (els.aiAnalysisInput) els.aiAnalysisInput.placeholder = t("aiAnalysisPlaceholder");
+  if (els.timeRangeStart) els.timeRangeStart.lang = state.currentUiLanguage === "ja" ? "ja-JP" : "en-CA";
+  if (els.timeRangeEnd) els.timeRangeEnd.lang = state.currentUiLanguage === "ja" ? "ja-JP" : "en-CA";
+  syncAiFeatureRailText();
   renderAiAnalysisTemplates();
   if (els.aiBaseUrlInput) els.aiBaseUrlInput.value = state.ai.baseUrl;
   if (els.aiApiKeyInput) els.aiApiKeyInput.value = state.ai.apiKey;
@@ -4306,11 +4365,21 @@ function applyTranslations() {
   if (state.summaryRows.length) {
     renderDistributionChart(state.summaryRows);
   }
+  if (state.reviewBaseReviews.length) {
+    els.statusText.textContent = interp(t("loadedTotalReviews"), { count: fmt(state.reviewBaseReviews.length) });
+    renderReviewStatusBar(state.reviewBaseReviews);
+  }
   if (state.currentAppId) {
     renderMomentumPanel(getFetchedReviewPool(state.currentAppId));
   }
 
   updateReviewSummary();
+  renderPaging(
+    state.reviewDisplayedReviews.length,
+    state.reviewSourceReviews.length,
+    state.reviewPage,
+    Math.max(1, Math.ceil(state.reviewDisplayedReviews.length / state.reviewPageSize))
+  );
   if (state.analysisTab === "reviews") {
     renderReviews(state.reviewDisplayedReviews);
   } else {
@@ -7112,6 +7181,14 @@ if (els.aiAnalysisTemplates) {
     els.aiAnalysisInput.focus();
   });
 }
+
+els.aiFeatureWordCloudButton?.addEventListener("click", () => {
+  jumpToAiFeature("wordcloud");
+});
+
+els.aiFeatureReviewFilterButton?.addEventListener("click", () => {
+  jumpToAiFeature("reviews");
+});
 
 document.addEventListener("click", (event) => {
   if (!els.aiAssistantAnchor) return;

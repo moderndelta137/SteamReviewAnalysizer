@@ -179,10 +179,8 @@
                   <span data-i18n="language">Language</span>
                   <select id="review-language-selection"></select>
                 </label>
-                <div class="saved-review-actions">
-                  <button id="saved-reviews-clear-button" class="hidden" type="button" data-i18n="unsaveShown">Unsave Shown</button>
-                  <button id="saved-reviews-download-button" class="hidden" type="button" data-i18n="downloadSavedCsv">Download Saved CSV</button>
-                </div>
+                <button id="saved-reviews-clear-button" class="hidden saved-review-action-button" type="button" data-i18n="unsaveShown">Unsave Shown</button>
+                <button id="saved-reviews-download-button" class="hidden saved-review-action-button" type="button" data-i18n="downloadSavedCsv">Download Saved CSV</button>
               </div>
               <div class="review-toolbar review-toolbar-search">
                 <label class="control-field review-search">
@@ -377,6 +375,14 @@
       </main>
     </div>
     <div id="ai-assistant-anchor" class="ai-assistant-anchor">
+      <div id="ai-feature-rail" class="ai-feature-rail" aria-label="AI enhancement shortcuts">
+        <div class="ai-feature-shortcut">
+          <button id="ai-feature-review-filter-button" class="ai-feature-button" type="button"></button>
+        </div>
+        <div class="ai-feature-shortcut">
+          <button id="ai-feature-wordcloud-button" class="ai-feature-button" type="button"></button>
+        </div>
+      </div>
       <button
         id="ai-settings-button"
         class="ai-assistant-button"
