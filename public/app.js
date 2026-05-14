@@ -114,8 +114,9 @@ const WORD_KEEP_VERBS = new Set([
   "crash","crashes","crashed","stutter","stutters","stuttering","freeze","freezes","frozen","lag","lags",
   "stuck","drop","drops","dropped","optimize","optimized","optimize","grind","grinding",
 ]);
-const TOPIC_TAGS_VERSION = 2;
-const TOPIC_CLUSTER_CACHE_VERSION = 2;
+const TOPIC_TAGS_VERSION = 3;
+const TOPIC_CLUSTER_CACHE_VERSION = 3;
+const APP_TAGS_CACHE_VERSION = 2;
 const TOPIC_DEFINITIONS = [];
 const REVIEW_VELOCITY_WINDOW_DAYS = 7;
 const REVIEW_VELOCITY_PEAK_DAYS = 30;
@@ -125,7 +126,11 @@ const I18N = {
   en: {
     brandEyebrow: "Steam review intelligence",
     brandTitle: "Steam Review Analyzer",
+    pageMode: "Page",
+    pageModeReview: "Review",
+    pageModeComparison: "Comparison",
     uiLanguage: "UI Language",
+    displayOptions: "Display",
     positiveRateColors: "Rate Color",
     warningsToggle: "Warnings",
     reviewStatusLayout: "Split Bars",
@@ -233,6 +238,44 @@ const I18N = {
     timelineKeywordEmpty: "Enter one or more keywords to plot.",
     timelineKeywordNoMatch: "No reviews in this range matched those keywords.",
     timelineKeywordStatus: "{terms} keywords plotted across {buckets} periods.",
+    comparisonEyebrow: "Competitor Benchmark",
+    comparisonTitle: "Release-Aligned Comparison",
+    comparisonEmpty: "Load games to compare review volume from release day.",
+    comparisonAddGame: "Add Game",
+    comparisonTimelineEyebrow: "Normalized Timeline",
+    comparisonTimelineTitle: "Daily Reviews by Release Day",
+    comparisonTabTimeline: "Timeline",
+    comparisonTabKeywords: "Compare Keywords",
+    comparisonTabTopics: "Compare Topics",
+    comparisonKeywordEyebrow: "Text Benchmark",
+    comparisonKeywordTitle: "Keyword Comparison",
+    comparisonKeywordEmpty: "Add at least one visible game with reviews to compare keywords.",
+    comparisonKeywordReady: "{games} games compared with {terms} displayed keywords.",
+    comparisonKeywordPrimary: "Primary title",
+    comparisonKeywordCompetitors: "Competitors",
+    comparisonKeywordNoTerms: "No useful keywords found for this title.",
+    comparisonTopicEyebrow: "Topic Benchmark",
+    comparisonTopicTitle: "Topic Share Comparison",
+    comparisonTopicEmpty: "Add at least one visible game with reviews to compare topic clusters.",
+    comparisonTopicReady: "{games} games compared across {topics} topics.",
+    comparisonTopicNoMatches: "No topic matches found for this selection.",
+    comparisonTopicShare: "Topic Share",
+    comparisonTopicCount: "Topic Count",
+    comparisonTopicChartShare: "Share",
+    comparisonTopicChartCount: "Count",
+    comparisonNoMentions: "No mentions",
+    comparisonGamesEyebrow: "Loaded Titles",
+    comparisonGamesTitle: "Games",
+    comparisonSteamTags: "Steam Tags",
+    comparisonNoSteamTags: "No Steam tags found.",
+    comparisonLoading: "Loading comparison data for {name}...",
+    comparisonLoaded: "Loaded {count} games.",
+    comparisonDuplicate: "{name} is already loaded.",
+    comparisonNoGames: "Add at least one game to plot release-day review volume.",
+    comparisonReleaseFallback: "Release date unavailable; using first review date.",
+    comparisonRemoveGame: "Remove {name}",
+    releaseDay: "Release Day",
+    dayNumber: "Day {day}",
     selectedReviews: "Selected Reviews",
     prev: "Prev",
     next: "Next",
@@ -296,6 +339,7 @@ const I18N = {
     timeSpanLifetime: "Lifetime",
     timeSpanWeek: "1 Week",
     timeSpanMonth: "1 Month",
+    timeSpanFortnight: "2 Weeks",
     timeSpanYear: "1 Year",
     timeSpanCustom: "Custom",
     startDate: "Start",
@@ -350,6 +394,14 @@ const I18N = {
     aiFeatureWordCloudTip: "Generate useful phrases that better match this title, so the word cloud highlights game-specific feedback instead of generic review noise.",
     aiFeatureReviewFilter: "AI Review Filter",
     aiFeatureReviewFilterTip: "Filter for useful reviews with meaningful requests, suggestions, bugs, and concrete player feedback.",
+    aiFeatureTopics: "AI Enhanced Topics",
+    aiFeatureTopicsTip: "Generate a title-specific topic dictionary from fetched reviews, retag cached reviews, and upgrade topic clustering plus AnaChan evidence.",
+    topicAiEnhanceLoading: "AI enhancing topic dictionary from fetched reviews...",
+    topicAiEnhanceNeedConnection: "Connect AI first to enhance title-specific topic tags.",
+    topicAiEnhanceNeedApp: "Load a game first to enhance topic clusters.",
+    topicAiEnhanceReady: "AI enhanced topics applied from {reviews} reviews and {topics} custom topic entries.",
+    topicAiEnhanceNoChanges: "AI topic enhancement found no useful title-specific additions.",
+    topicAiEnhanceFailed: "AI topic enhancement failed.",
     aiTemplatePillar: "What's the pillar of the game?",
     aiTemplateFeature: "What's the most requested feature?",
     aiTemplateTrend: "What's the noteworthy trend in the recent reviews?",
@@ -415,7 +467,11 @@ const I18N = {
   ja: {
     brandEyebrow: "Steamレビュー分析",
     brandTitle: "Steam Review Analyzer",
+    pageMode: "ページ",
+    pageModeReview: "レビュー",
+    pageModeComparison: "比較",
     uiLanguage: "表示言語",
+    displayOptions: "表示",
     positiveRateColors: "評価率カラー",
     warningsToggle: "警告",
     reviewStatusLayout: "分割バー",
@@ -523,6 +579,44 @@ const I18N = {
     timelineKeywordEmpty: "描画するキーワードを1つ以上入力してください。",
     timelineKeywordNoMatch: "この期間では該当キーワードを含むレビューが見つかりませんでした。",
     timelineKeywordStatus: "{terms}個のキーワードを{buckets}期間で表示しています。",
+    comparisonEyebrow: "競合ベンチマーク",
+    comparisonTitle: "発売日基準の比較",
+    comparisonEmpty: "ゲームを読み込むと、発売日からのレビュー数推移を比較できます。",
+    comparisonAddGame: "ゲーム追加",
+    comparisonTimelineEyebrow: "正規化タイムライン",
+    comparisonTimelineTitle: "発売日からの日別レビュー数",
+    comparisonTabTimeline: "タイムライン",
+    comparisonTabKeywords: "キーワード比較",
+    comparisonTabTopics: "トピック比較",
+    comparisonKeywordEyebrow: "テキスト比較",
+    comparisonKeywordTitle: "キーワード比較",
+    comparisonKeywordEmpty: "キーワードを比較するには、レビューのある表示中ゲームを追加してください。",
+    comparisonKeywordReady: "{games}件のゲームで{terms}件のキーワードを表示しています。",
+    comparisonKeywordPrimary: "基準タイトル",
+    comparisonKeywordCompetitors: "競合タイトル",
+    comparisonKeywordNoTerms: "このタイトルでは有用なキーワードが見つかりません。",
+    comparisonTopicEyebrow: "トピック比較",
+    comparisonTopicTitle: "トピック比率の比較",
+    comparisonTopicEmpty: "トピッククラスターを比較するには、レビューのある表示中ゲームを追加してください。",
+    comparisonTopicReady: "{games}件のゲームで{topics}件のトピックを比較しています。",
+    comparisonTopicNoMatches: "この条件ではトピック一致が見つかりませんでした。",
+    comparisonTopicShare: "トピック比率",
+    comparisonTopicCount: "トピック件数",
+    comparisonTopicChartShare: "比率",
+    comparisonTopicChartCount: "件数",
+    comparisonNoMentions: "言及なし",
+    comparisonGamesEyebrow: "読み込み済みタイトル",
+    comparisonGamesTitle: "ゲーム",
+    comparisonSteamTags: "Steamタグ",
+    comparisonNoSteamTags: "Steamタグが見つかりませんでした。",
+    comparisonLoading: "{name} の比較データを読み込み中...",
+    comparisonLoaded: "{count}件のゲームを読み込み済み。",
+    comparisonDuplicate: "{name} はすでに読み込み済みです。",
+    comparisonNoGames: "発売日基準のレビュー推移を描画するにはゲームを追加してください。",
+    comparisonReleaseFallback: "発売日が不明なため、最初のレビュー日を使用しています。",
+    comparisonRemoveGame: "{name} を削除",
+    releaseDay: "発売日",
+    dayNumber: "{day}日目",
     selectedReviews: "選択中のレビュー",
     prev: "前へ",
     next: "次へ",
@@ -583,6 +677,7 @@ const I18N = {
     timeSpanLifetime: "全期間",
     timeSpanWeek: "1週間",
     timeSpanMonth: "1か月",
+    timeSpanFortnight: "2週間",
     timeSpanYear: "1年",
     timeSpanCustom: "カスタム",
     startDate: "開始",
@@ -637,6 +732,14 @@ const I18N = {
     aiFeatureWordCloudTip: "このタイトルに合う有用なフレーズを生成し、汎用的なレビュー語ではなくゲーム固有のフィードバックを目立たせます。",
     aiFeatureReviewFilter: "AIレビュー絞り込み",
     aiFeatureReviewFilterTip: "要望、提案、バグ報告、具体的なプレイヤーフィードバックを含む有用なレビューを絞り込みます。",
+    aiFeatureTopics: "AI強化トピック",
+    aiFeatureTopicsTip: "取得済みレビューからタイトル専用のトピック辞書を生成し、キャッシュ済みレビューを再タグ付けしてトピック分布とAnaChanの根拠を強化します。",
+    topicAiEnhanceLoading: "取得済みレビューからAIがトピック辞書を強化中...",
+    topicAiEnhanceNeedConnection: "トピック強化には先にAIを接続してください。",
+    topicAiEnhanceNeedApp: "先にゲームを読み込んでからトピック強化を使ってください。",
+    topicAiEnhanceReady: "{reviews}件のレビューから{topics}件のカスタムトピック辞書を適用しました。",
+    topicAiEnhanceNoChanges: "AIトピック強化で有用な追加辞書は見つかりませんでした。",
+    topicAiEnhanceFailed: "AIトピック強化に失敗しました。",
     aiTemplatePillar: "このゲームの柱は何？",
     aiTemplateFeature: "最も要望が多い機能は？",
     aiTemplateTrend: "最近のレビューで注目すべき傾向は？",
@@ -846,10 +949,24 @@ const TOPIC_UI_TEXT = {
 const state = {
   currentAppId: null,
   currentUiLanguage: "ja",
+  pageMode: "review",
   showPositiveRateColors: true,
   showWarnings: true,
   splitReviewStatusBars: false,
   recentApps: [],
+  comparisonGames: [],
+  comparisonHiddenGameIds: new Set(),
+  comparisonHoveredGameId: null,
+  comparisonHighlightedTag: "",
+  comparisonTimeRange: "all",
+  comparisonAnalysisTab: "timeline",
+  comparisonKeywordView: "cloud",
+  comparisonKeywordLanguage: "all",
+  comparisonTopicLanguage: "all",
+  comparisonTopicChartMode: "share",
+  comparisonKeywordSentiment: "all",
+  comparisonKeywordClouds: [],
+  appTagCache: new Map(),
   analysisTab: "wordcloud",
   dataTab: "momentum",
   topicLanguage: "all",
@@ -863,6 +980,10 @@ const state = {
   topicTagCacheAppId: null,
   topicClusterCache: new Map(),
   topicClusterCacheAppId: null,
+  titleTopicDictionary: [],
+  titleTopicDictionaryAppId: null,
+  titleTopicDictionaryMeta: null,
+  currentTopicDictionaryHash: "base",
   ai: {
     connected: false,
     baseUrl: "https://generativelanguage.googleapis.com/v1beta",
@@ -928,6 +1049,9 @@ let dbPromise = null;
 
 const els = {
   deploymentNote: document.getElementById("deployment-note"),
+  reviewPage: document.getElementById("review-page"),
+  comparisonPage: document.getElementById("comparison-page"),
+  pageModeToggle: document.getElementById("page-mode-toggle"),
   fetchStatePanel: document.getElementById("fetch-state-panel"),
   fetchStateTitle: document.getElementById("fetch-state-title"),
   fetchStateText: document.getElementById("fetch-state-text"),
@@ -966,6 +1090,31 @@ const els = {
   appidInput: document.getElementById("appid-input"),
   recentAppsPanel: document.getElementById("recent-apps-panel"),
   recentAppsList: document.getElementById("recent-apps-list"),
+  comparisonStatus: document.getElementById("comparison-status"),
+  comparisonLegend: document.getElementById("comparison-legend"),
+  comparisonAnalysisTabToggle: document.getElementById("comparison-analysis-tab-toggle"),
+  comparisonTimeRangeToggle: document.getElementById("comparison-time-range-toggle"),
+  comparisonTopicChartModeToggle: document.getElementById("comparison-topic-chart-mode-toggle"),
+  comparisonTimelineStatus: document.getElementById("comparison-timeline-status"),
+  comparisonTimelineChart: document.getElementById("comparison-timeline-chart"),
+  comparisonMomentumPanel: document.getElementById("comparison-momentum-panel"),
+  comparisonPanelTimeline: document.getElementById("comparison-panel-timeline"),
+  comparisonPanelKeywords: document.getElementById("comparison-panel-keywords"),
+  comparisonPanelTopics: document.getElementById("comparison-panel-topics"),
+  comparisonKeywordLanguageSelection: document.getElementById("comparison-keyword-language-selection"),
+  comparisonTopicLanguageSelection: document.getElementById("comparison-topic-language-selection"),
+  comparisonKeywordSentimentToggle: document.getElementById("comparison-keyword-sentiment-toggle"),
+  comparisonKeywordViewToggle: document.getElementById("comparison-keyword-view-toggle"),
+  comparisonKeywordStatus: document.getElementById("comparison-keyword-status"),
+  comparisonKeywordClouds: document.getElementById("comparison-keyword-clouds"),
+  comparisonKeywordScatter: document.getElementById("comparison-keyword-scatter"),
+  comparisonTopicChart: document.getElementById("comparison-topic-chart"),
+  comparisonTopicClouds: document.getElementById("comparison-topic-clouds"),
+  comparisonWordPreferenceInput: document.getElementById("comparison-word-preference-input"),
+  comparisonWordAllowButton: document.getElementById("comparison-word-allow-button"),
+  comparisonWordBanButton: document.getElementById("comparison-word-ban-button"),
+  comparisonWordPreferenceList: document.getElementById("comparison-word-preference-list"),
+  comparisonGamesList: document.getElementById("comparison-games-list"),
   fetchButton: document.getElementById("fetch-button"),
   uiLanguageToggle: document.getElementById("ui-language-toggle"),
   positiveRateColorToggle: document.getElementById("positive-rate-color-toggle"),
@@ -1002,6 +1151,7 @@ const els = {
   topicLanguageSelection: document.getElementById("topic-language-selection"),
   topicSourceToggle: document.getElementById("topic-source-toggle"),
   topicChartViewToggle: document.getElementById("topic-chart-view-toggle"),
+  topicAiEnhanceButton: document.getElementById("topic-ai-enhance-button"),
   topicStatus: document.getElementById("topic-status"),
   topicChart: document.getElementById("topic-chart"),
   topicDetails: document.getElementById("topic-details"),
@@ -1047,6 +1197,7 @@ const els = {
   aiFeatureRail: document.getElementById("ai-feature-rail"),
   aiFeatureWordCloudButton: document.getElementById("ai-feature-wordcloud-button"),
   aiFeatureReviewFilterButton: document.getElementById("ai-feature-review-filter-button"),
+  aiFeatureTopicsButton: document.getElementById("ai-feature-topics-button"),
   aiAnalysisForm: document.getElementById("ai-analysis-form"),
   aiAnalysisInput: document.getElementById("ai-analysis-input"),
   aiAnalysisSendButton: document.getElementById("ai-analysis-send-button"),
@@ -1150,12 +1301,14 @@ const interp = (template, values = {}) =>
 const cacheKey = (appid, lang, cursor) => `${appid}::${lang}::${cursor}`;
 const cursorKey = (appid, lang) => `${appid}::${lang}`;
 const DAY_MS = 1000 * 60 * 60 * 24;
+const COMPARISON_LINE_PALETTE = ["#66c0f4", "#f39c6b", "#7ad9a7", "#f26d8f", "#ffd166", "#a98bff", "#4dd7c8", "#ff9fba"];
 const IS_WINDOWS = typeof navigator !== "undefined" && /Windows/i.test(navigator.userAgent || "");
 const STEAM_NEGATIVE = { r: 196, g: 69, b: 76 };
 const STEAM_NEUTRAL = { r: 146, g: 118, b: 89 };
 const STEAM_POSITIVE = { r: 138, g: 195, b: 74 };
 const AI_ANALYSIS_SNIPPET_LIMIT = 20;
 const AI_ANALYSIS_CACHE_TTL = 1000 * 60 * 60 * 24;
+const AI_ANALYSIS_RETRIEVAL_VERSION = "focus-v2";
 const AI_MEANINGFUL_REVIEW_CACHE_TTL = 1000 * 60 * 60 * 24 * 14;
 const AI_MEANINGFUL_REVIEW_CANDIDATE_LIMIT = 48;
 const AI_MEANINGFUL_REVIEW_MIN_SCORE = 2.4;
@@ -1194,6 +1347,34 @@ const AI_MEANINGFUL_NOISE_PATTERNS = [
   /^\s*(good|great|bad|nice|fun|ok|okay|cool|love it|hate it|recommended?)\s*[.!?~]*\s*$/i,
   /^\s*(\+1|lol|lmao|meh|peak|masterpiece)\s*[.!?~]*\s*$/i,
 ];
+const AI_QUESTION_ASPECTS = [
+  { id: "movement", aliases: ["movement", "move", "mobility", "jump", "dash", "dodge", "roll", "sprint", "walk", "run", "platforming", "traversal", "responsive", "responsiveness", "stiff", "floaty", "sluggish", "滑る", "移動", "動き", "挙動", "ダッシュ", "回避", "ローリング", "ジャンプ", "もっさり", "硬直", "移动", "移动手感", "冲刺", "闪避", "翻滚", "跳跃", "僵硬"] },
+  { id: "controls", aliases: ["control", "controls", "input", "inputs", "keybind", "keybinding", "remap", "controller", "keyboard", "mouse", "aim", "targeting", "lock-on", "input lag", "操作", "操作性", "入力", "キー配置", "キーバインド", "コントローラー", "照準", "ロックオン", "操控", "按键", "键位", "手柄", "鼠标", "锁定"] },
+  { id: "combat_feel", aliases: ["combat", "gameplay", "battle", "fighting", "attack", "hit", "weapon", "weapons", "melee", "ranged", "skill", "skills", "combo", "parry", "combat feel", "戦闘", "バトル", "攻撃", "武器", "スキル", "コンボ", "パリィ", "手感", "战斗", "攻击", "武器手感", "技能", "连招", "格挡"] },
+  { id: "boss", aliases: ["boss", "bosses", "boss fight", "boss fights", "phase", "phases", "pattern", "patterns", "boss action", "ボス", "ボス戦", "フェーズ", "パターン", "首领", "boss战", "阶段", "机制"] },
+  { id: "enemy_variety", aliases: ["enemy variety", "variety", "same enemies", "enemy types", "monster variety", "mob variety", "repetitive enemies", "enemy design", "敵の種類", "敵バリエーション", "敵のバラエティ", "雑魚敵", "敌人种类", "敌人重复", "怪物种类"] },
+  { id: "difficulty", aliases: ["difficulty", "hard", "easy", "spike", "spikes", "punishing", "unfair", "challenge", "challenging", "難易度", "難しい", "簡単", "理不尽", "高難度", "太难", "太简单", "不公平", "惩罚"] },
+  { id: "balance", aliases: ["balance", "balanced", "overpowered", "underpowered", "op", "meta", "nerf", "buff", "balance issue", "バランス", "壊れ", "強すぎ", "弱すぎ", "ナーフ", "バフ", "平衡", "过强", "过弱", "削弱", "加强"] },
+  { id: "camera", aliases: ["camera", "fov", "zoom", "perspective", "visibility", "camera angle", "カメラ", "視点", "視野", "見づらい", "镜头", "视角", "视野"] },
+  { id: "story", aliases: ["story", "plot", "writing", "narrative", "lore", "ending", "endings", "dialogue", "character writing", "ストーリー", "物語", "シナリオ", "脚本", "会話", " lore ", "剧情", "叙事", "文本", "对话", "结局"] },
+  { id: "characters", aliases: ["character", "characters", "protagonist", "party", "companion", "npc", "cast", "hero", "ヒロイン", "キャラ", "キャラクター", "仲間", "主人公", "npc", "角色", "人物", "同伴", "主角"] },
+  { id: "tutorial", aliases: ["tutorial", "onboarding", "learn", "teaches", "explains", "instruction", "tooltips", "new player", "チュートリアル", "導線", "説明不足", "わかりにくい", "新規", "教程", "引导", "说明不足", "新手"] },
+  { id: "progression", aliases: ["progression", "progress", "leveling", "levelling", "upgrade", "upgrades", "unlock", "unlocks", "quest", "quests", "mission", "missions", "campaign", "進行", "成長", "育成", "強化", "アンロック", "クエスト", "ミッション", "剧情推进", "成长", "升级", "解锁", "任务"] },
+  { id: "grind", aliases: ["grind", "grindy", "repetitive", "tedious", "farm", "farming", "padding", "too long", "作業", "周回", "だるい", "水増し", "重复", "刷", "肝", "拖时间"] },
+  { id: "performance", aliases: ["performance", "fps", "frame rate", "framerate", "stutter", "lag", "freeze", "optimization", "loading", "load times", "crash", "bug", "memory leak", "パフォーマンス", "fps低下", "ラグ", "カクつき", "フリーズ", "重い", "最適化", "ロード", "クラッシュ", "バグ", "性能", "掉帧", "卡顿", "优化", "加载", "闪退", "bug"] },
+  { id: "ui", aliases: ["ui", "hud", "menu", "menus", "inventory", "map", "readability", "font", "tooltip", "layout", "ux", "interface", "UI", "メニュー", "インベントリ", "マップ", "視認性", "フォント", "レイアウト", "操作導線", "界面", "菜单", "背包", "地图", "可读性", "布局"] },
+  { id: "multiplayer", aliases: ["multiplayer", "coop", "co-op", "pvp", "matchmaking", "online", "server", "lobby", "latency", "同期", "マルチ", "協力", "対戦", "マッチング", "オンライン", "サーバー", "联机", "合作", "匹配", "服务器", "延迟"] },
+  { id: "content_variety", aliases: ["content", "variety", "replayability", "endgame", "late game", "late-game", "maps", "modes", "mode", "content drought", "ボリューム", "やり込み", "エンドコンテンツ", "マップ数", "モード", "内容量", "内容不足", "内容", "重复内容", "耐玩", "后期内容", "模式"] },
+  { id: "monetization", aliases: ["price", "priced", "pricing", "value", "dlc", "microtransaction", "microtransactions", "mtx", "cash shop", "pay to win", "p2w", "battle pass", "値段", "価格", "dlc", "課金", "課金要素", "pay to win", "価格設定", "价格", "收费", "氪金", "付费", "通行证"] },
+  { id: "audio", aliases: ["music", "sound", "audio", "voice", "voice acting", "sfx", "soundtrack", "ost", "BGM", "音楽", "サウンド", "音", "効果音", "ボイス", "bgm", "配乐", "音效", "配音", "语音"] },
+  { id: "art", aliases: ["art", "visual", "visuals", "graphics", "animation", "animations", "style", "art style", "美術", "グラフィック", "ビジュアル", "アニメーション", "演出", "画面", "画风", "美术", "视觉", "动画"] },
+  { id: "localization", aliases: ["translation", "translations", "localization", "localisation", "english", "japanese", "chinese", "text errors", "grammar", "翻訳", "ローカライズ", "誤訳", "日本語", "英語", "中国語", "翻译", "本地化", "错字", "语法"] },
+];
+const AI_SENTIMENT_SCOPE_PATTERNS = {
+  negative: /\b(negative|negatives|complaint|complaints|bad|issues?|problems?|weakness(?:es)?|dislike|frustrat|annoy|hate|worst|cons)\b|((不満|欠点|問題|悪い|微妙|嫌|不便|不快|不評|マイナス))|((负面|问题|缺点|不满|讨厌|糟糕|不好))/iu,
+  positive: /\b(positive|positives|good|great|best|strength|strengths|like|love|enjoy|favorite|favourite|pros)\b|((良い|強み|魅力|好き|良かった|長所|プラス))|((优点|喜欢|亮点|优势|不错|好评))/iu,
+};
+const AI_SPECIFIC_QUESTION_PATTERNS = /\b(specifically|specific|regarding|about|focus(?:ed)? on|only|just|detail|details|mention|mentions|tell me about)\b|((具体的|特に|について|だけ|のみ|詳しく|焦点))|((具体|专门|关于|只|仅|详细|聚焦))/iu;
 
 function mixColor(left, right, amount) {
   const t = Math.max(0, Math.min(1, amount));
@@ -1619,15 +1800,29 @@ function describeDialArc(cx, cy, radius, startAngle, endAngle) {
   return `M ${start.x.toFixed(2)} ${start.y.toFixed(2)} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${end.x.toFixed(2)} ${end.y.toFixed(2)}`;
 }
 
-function renderMomentumPanel(reviews) {
-  if (!els.momentumPanel || !els.momentumStatus) return;
+function buildMomentumPanelMarkup(reviews, options = {}) {
   if (!reviews.length) {
-    els.momentumStatus.textContent = t("momentumEmpty");
-    els.momentumPanel.innerHTML = `<div class="status-text">${esc(t("momentumEmpty"))}</div>`;
-    renderWarningsPanel();
-    return;
+    return { empty: true, markup: `<div class="status-text">${esc(t("momentumEmpty"))}</div>` };
   }
-
+  const {
+    warningSurface = "momentum",
+    warningDataTab = "momentum",
+    warningPrefix = "momentum",
+    includeWarningTargets = true,
+    headerMarkup = "",
+    shellClassName = "",
+  } = options;
+  const panelKey = String(warningPrefix || "momentum").replace(/[^a-z0-9_-]/gi, "-");
+  const gradientId = `${panelKey}-dial-gradient`;
+  const buildTargetAttrs = (id, label) =>
+    includeWarningTargets
+      ? buildWarningTargetAttrs({
+          id: `${warningPrefix}-${id}`,
+          label,
+          surface: warningSurface,
+          dataTab: warningDataTab,
+        })
+      : "";
   const insight = buildMomentumInsights(reviews);
   const { metrics, previousMetrics } = insight;
   const startAngle = 150;
@@ -1665,12 +1860,10 @@ function renderMomentumPanel(reviews) {
         ? baselineSlice.reduce((sum, item) => sum + item.count, 0) / baselineSlice.length
         : 0;
       const warning = getDailySpikeWarning(label, entry.count, baselineAverage);
-      return `<div class="${applyWarningClasses("momentum-strip-col", warning)}" ${buildWarningTargetAttrs({
-        id: `momentum-daily-${entry.dayMs}`,
-        label: `${t("momentumDailyTitle")} • ${label}`,
-        surface: "momentum",
-        dataTab: "momentum",
-      })}>${renderWarningBadge(
+      return `<div class="${applyWarningClasses("momentum-strip-col", warning)}" ${buildTargetAttrs(
+        `daily-${entry.dayMs}`,
+        `${t("momentumDailyTitle")} • ${label}`
+      )}>${renderWarningBadge(
         warning
       )}<span class="momentum-strip-bar" style="height:${height.toFixed(
         2
@@ -1697,75 +1890,48 @@ function renderMomentumPanel(reviews) {
   const freshnessWarning = getFreshnessWarning(latestDailyCount);
   const recentPositiveWarning = getLowPositiveRateWarning(insight.recentPositiveRate, insight.recentPositive, insight.recentTotal, 20);
   const sentimentDriftWarning = getSentimentDriftWarning(insight.sentimentDrift, previousMetrics.recentTotal, 20);
-
-  els.momentumStatus.textContent = "";
-  els.momentumPanel.innerHTML = `<div class="momentum-dial-row"><div class="${applyWarningClasses(
+  const cardShellClass = shellClassName ? ` ${shellClassName}` : "";
+  const markup = `<div class="momentum-panel${cardShellClass}">${headerMarkup}<div class="momentum-dial-row"><div class="${applyWarningClasses(
     "momentum-dial-card",
     freshnessWarning
-  )}" ${buildWarningTargetAttrs({
-    id: "momentum-review-velocity",
-    label: t("momentumDialLabel"),
-    surface: "momentum",
-    dataTab: "momentum",
-  })}>${renderWarningBadge(freshnessWarning)}<div class="momentum-dial-head"><span class="momentum-kicker">${esc(
+  )}" ${buildTargetAttrs("review-velocity", t("momentumDialLabel"))}>${renderWarningBadge(freshnessWarning)}<div class="momentum-dial-head"><span class="momentum-kicker">${esc(
     t("momentumDialLabel")
-  )}</span><span class="momentum-chip">${esc(getMomentumTrendLabel(metrics.averagePerDay, previousMetrics.averagePerDay))}</span></div><svg class="momentum-dial" viewBox="0 0 180 140" aria-hidden="true"><defs><linearGradient id="momentum-dial-gradient" x1="24" y1="92" x2="156" y2="92" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#6de3bf" /><stop offset="55%" stop-color="#66c0f4" /><stop offset="100%" stop-color="#f0d277" /></linearGradient></defs><path class="momentum-dial-track" d="${arcPath}" />${fillPath ? `<path class="momentum-dial-fill" d="${fillPath}" />` : ""}<line class="momentum-dial-needle" x1="90" y1="92" x2="${needleX.toFixed(
+  )}</span><span class="momentum-chip">${esc(getMomentumTrendLabel(metrics.averagePerDay, previousMetrics.averagePerDay))}</span></div><svg class="momentum-dial" viewBox="0 0 180 140" aria-hidden="true"><defs><linearGradient id="${gradientId}" x1="24" y1="92" x2="156" y2="92" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#6de3bf" /><stop offset="55%" stop-color="#66c0f4" /><stop offset="100%" stop-color="#f0d277" /></linearGradient></defs><path class="momentum-dial-track" d="${arcPath}" />${fillPath ? `<path class="momentum-dial-fill" style="stroke:url(#${gradientId})" d="${fillPath}" />` : ""}<line class="momentum-dial-needle" x1="90" y1="92" x2="${needleX.toFixed(
     2
   )}" y2="${needleY.toFixed(2)}" /><circle class="momentum-dial-hub" cx="90" cy="92" r="5" /></svg><div class="momentum-dial-value"><strong>${esc(
     formatVelocityRate(metrics.averagePerDay)
-  )}</strong><span>${esc(t("momentumVelocityUnit"))}</span></div></div></div><div class="momentum-stat-grid"><div class="momentum-stat-card" ${buildWarningTargetAttrs({
-    id: "momentum-last-7d",
-    label: t("momentumLast7d"),
-    surface: "momentum",
-    dataTab: "momentum",
-  })}><span class="momentum-stat-label">${esc(
+  )}</strong><span>${esc(t("momentumVelocityUnit"))}</span></div></div></div><div class="momentum-stat-grid"><div class="momentum-stat-card" ${buildTargetAttrs(
+    "last-7d",
     t("momentumLast7d")
-  )}</span><strong>${fmt(metrics.recentTotal)}</strong><span class="momentum-stat-sub">${esc(
-    interp(t("momentumVersusPeak"), { percent: Math.round(metrics.peakRatio) })
-  )}</span></div><div class="${applyWarningClasses("momentum-stat-card", recentPositiveWarning)}" ${buildWarningTargetAttrs({
-    id: "momentum-positive-rate",
-    label: t("momentumPositiveRate7d"),
-    surface: "momentum",
-    dataTab: "momentum",
-  })}>${renderWarningBadge(
+  )}><span class="momentum-stat-label">${esc(
+    t("momentumLast7d")
+  )}</span><strong>${fmt(metrics.recentTotal)}</strong><span class="momentum-stat-sub">${esc(interp(t("momentumVersusPeak"), {
+    percent: Math.round(metrics.peakRatio),
+  }))}</span></div><div class="${applyWarningClasses("momentum-stat-card", recentPositiveWarning)}" ${buildTargetAttrs(
+    "positive-rate",
+    t("momentumPositiveRate7d")
+  )}>${renderWarningBadge(
     recentPositiveWarning
   )}<span class="momentum-stat-label">${esc(
     t("momentumPositiveRate7d")
   )}</span><strong>${renderPositiveRateValue(insight.recentPositiveRate)}</strong><span class="momentum-stat-sub">${esc(
     `${fmt(insight.recentPositive)} / ${fmt(insight.recentTotal)}`
-  )}</span></div><div class="${applyWarningClasses("momentum-stat-card", sentimentDriftWarning)}" ${buildWarningTargetAttrs({
-    id: "momentum-sentiment-drift",
-    label: t("momentumSentimentDrift"),
-    surface: "momentum",
-    dataTab: "momentum",
-  })}>${renderWarningBadge(sentimentDriftWarning)}<span class="momentum-stat-label">${esc(
+  )}</span></div><div class="${applyWarningClasses("momentum-stat-card", sentimentDriftWarning)}" ${buildTargetAttrs(
+    "sentiment-drift",
+    t("momentumSentimentDrift")
+  )}>${renderWarningBadge(sentimentDriftWarning)}<span class="momentum-stat-label">${esc(
     t("momentumSentimentDrift")
   )}</span><strong>${esc(previousMetrics.recentTotal ? formatSignedPoints(insight.sentimentDrift, 1) : "-")}</strong><span class="momentum-stat-sub">${esc(
     sentimentLabel
-  )}</span></div><div class="momentum-stat-card" ${buildWarningTargetAttrs({
-    id: "momentum-30d-total",
-    label: t("momentum30dTotal"),
-    surface: "momentum",
-    dataTab: "momentum",
-  })}><span class="momentum-stat-label">${esc(
+  )}</span></div><div class="momentum-stat-card" ${buildTargetAttrs("30d-total", t("momentum30dTotal"))}><span class="momentum-stat-label">${esc(
     t("momentum30dTotal")
   )}</span><strong>${fmt(stripTotal)}</strong><span class="momentum-stat-sub">${esc(
     `${esc(t("momentum30dAverage"))}: ${formatVelocityRate(stripAverage)}`
-  )}</span></div><div class="momentum-stat-card" ${buildWarningTargetAttrs({
-    id: "momentum-top-language",
-    label: t("momentumLanguageLeader"),
-    surface: "momentum",
-    dataTab: "momentum",
-  })}><span class="momentum-stat-label">${esc(
+  )}</span></div><div class="momentum-stat-card" ${buildTargetAttrs("top-language", t("momentumLanguageLeader"))}><span class="momentum-stat-label">${esc(
     t("momentumLanguageLeader")
   )}</span><strong>${esc(leaderLabel)}</strong><span class="momentum-stat-sub">${esc(
     interp(t("momentumLast7d"), { count: "" }).replace(/\s*\{count\}\s*/g, "").trim() || t("momentumLast7d")
-  )}</span></div><div class="momentum-stat-card" ${buildWarningTargetAttrs({
-    id: "momentum-burst-day",
-    label: t("momentumBurstDay"),
-    surface: "momentum",
-    dataTab: "momentum",
-  })}><span class="momentum-stat-label">${esc(
+  )}</span></div><div class="momentum-stat-card" ${buildTargetAttrs("burst-day", t("momentumBurstDay"))}><span class="momentum-stat-label">${esc(
     t("momentumBurstDay")
   )}</span><strong>${esc(burstLabel)}</strong><span class="momentum-stat-sub">${esc(t("momentumRecentStrip"))}</span></div></div></div><div class="momentum-strip-shell"><div class="momentum-strip-head"><span class="momentum-kicker">${esc(
     t("momentumDailyTitle")
@@ -1777,15 +1943,80 @@ function renderMomentumPanel(reviews) {
     stripStartLabel
   )}</span><span>${esc(stripMidLabel)}</span><span>${esc(stripEndLabel)}</span></div></div></div>${latestDailyCount === 0 ? `<div class="momentum-warning">${esc(
     t("momentumCacheWarning")
-  )}</div>` : ""}</div>`;
+  )}</div>` : ""}</div></div>`;
+  return { empty: false, markup };
+}
+
+function buildMomentumDialCardMarkup(reviews, options = {}) {
+  if (!reviews.length) {
+    return { empty: true, markup: `<div class="status-text">${esc(t("momentumEmpty"))}</div>` };
+  }
+  const { warningPrefix = "momentum", headerMarkup = "" } = options;
+  const panelKey = String(warningPrefix || "momentum").replace(/[^a-z0-9_-]/gi, "-");
+  const gradientId = `${panelKey}-dial-gradient`;
+  const insight = buildMomentumInsights(reviews);
+  const { metrics, previousMetrics } = insight;
+  const startAngle = 150;
+  const endAngle = 390;
+  const fillEndAngle = startAngle + (endAngle - startAngle) * metrics.fillRatio;
+  const arcPath = describeDialArc(90, 92, 62, startAngle, endAngle);
+  const fillPath = metrics.fillRatio > 0 ? describeDialArc(90, 92, 62, startAngle, fillEndAngle) : "";
+  const needleX = 90 + 49 * Math.cos((fillEndAngle * Math.PI) / 180);
+  const needleY = 92 + 49 * Math.sin((fillEndAngle * Math.PI) / 180);
+  const latestDailyCount = insight.strip[insight.strip.length - 1]?.count || 0;
+  const freshnessWarning = getFreshnessWarning(latestDailyCount);
+  return {
+    empty: false,
+    markup: `<div class="momentum-panel comparison-momentum-dial-only">${headerMarkup}<div class="momentum-dial-row"><div class="${applyWarningClasses(
+      "momentum-dial-card",
+      freshnessWarning
+    )}">${renderWarningBadge(freshnessWarning)}<div class="momentum-dial-head"><span class="momentum-kicker">${esc(
+      t("momentumDialLabel")
+    )}</span><span class="momentum-chip">${esc(getMomentumTrendLabel(metrics.averagePerDay, previousMetrics.averagePerDay))}</span></div><svg class="momentum-dial" viewBox="0 0 180 140" aria-hidden="true"><defs><linearGradient id="${gradientId}" x1="24" y1="92" x2="156" y2="92" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#6de3bf" /><stop offset="55%" stop-color="#66c0f4" /><stop offset="100%" stop-color="#f0d277" /></linearGradient></defs><path class="momentum-dial-track" d="${arcPath}" />${fillPath ? `<path class="momentum-dial-fill" style="stroke:url(#${gradientId})" d="${fillPath}" />` : ""}<line class="momentum-dial-needle" x1="90" y1="92" x2="${needleX.toFixed(
+      2
+    )}" y2="${needleY.toFixed(2)}" /><circle class="momentum-dial-hub" cx="90" cy="92" r="5" /></svg><div class="momentum-dial-value"><strong>${esc(
+      formatVelocityRate(metrics.averagePerDay)
+    )}</strong><span>${esc(t("momentumVelocityUnit"))}</span></div></div></div></div>`,
+  };
+}
+
+function renderMomentumPanel(reviews) {
+  if (!els.momentumPanel || !els.momentumStatus) return;
+  const rendered = buildMomentumPanelMarkup(reviews);
+  els.momentumStatus.textContent = rendered.empty ? t("momentumEmpty") : "";
+  els.momentumPanel.innerHTML = rendered.markup;
   renderWarningsPanel();
+}
+
+function renderComparisonMomentumPanels(games) {
+  if (!els.comparisonMomentumPanel) return;
+  if (!games.length) {
+    els.comparisonMomentumPanel.innerHTML = "";
+    return;
+  }
+  const tagHighlightMap = getComparisonTagHighlightMap();
+  const primaryGame = getComparisonPrimaryGame();
+  const renderCard = (game, isPrimary) => {
+    const rendered = buildMomentumDialCardMarkup(game.reviews || [], {
+      warningPrefix: `comparison-${game.appid}`,
+      headerMarkup: `<div class="comparison-momentum-head" style="--game-color:${esc(game.color)}"><div><p class="eyebrow">${esc(
+        isPrimary ? t("comparisonKeywordPrimary") : t("comparisonKeywordCompetitors")
+      )}</p><h4>${esc(game.name)}</h4></div><span>${fmt((game.reviews || []).length)} ${esc(
+        t("reviewCount")
+      )}</span></div>${renderComparisonSteamTags(game, tagHighlightMap, "momentum")}`,
+    });
+    return `<article class="comparison-momentum-col${isPrimary ? " is-primary" : ""}" style="--game-color:${esc(game.color)}">${rendered.markup}</article>`;
+  };
+  els.comparisonMomentumPanel.innerHTML = `<div class="comparison-momentum-track">${games
+    .map((game) => renderCard(game, game.appid === primaryGame?.appid))
+    .join("")}</div>`;
 }
 
 function topicText(key) {
   return TOPIC_UI_TEXT[state.currentUiLanguage]?.[key] ?? TOPIC_UI_TEXT.en[key] ?? key;
 }
 
-function getTopicCatalog() {
+function getBaseTopicCatalog() {
   return [
     {
       id: "performancebug",
@@ -1873,6 +2104,88 @@ function getTopicCatalog() {
       color: "#8fd4ff",
     },
   ];
+}
+
+function getCustomTopicColor(id) {
+  const palette = ["#66c0f4", "#79e39f", "#f4c76b", "#f26d8f", "#9e8cff", "#4dd7c8", "#ff9f5a", "#8bd17c"];
+  return palette[Number(hashText(id)) % palette.length];
+}
+
+function normalizeTopicKeywordList(values) {
+  return [...new Set(
+    (Array.isArray(values) ? values : [])
+      .map((value) => String(value || "").trim())
+      .filter((value) => value && value.length <= 40)
+  )].slice(0, 18);
+}
+
+function normalizeTopicLabels(labels, fallbackId) {
+  const source = labels && typeof labels === "object" ? labels : {};
+  const en = String(source.en || fallbackId || "").trim();
+  const ja = String(source.ja || en || fallbackId || "").trim();
+  return { en, ja };
+}
+
+function normalizeCustomTopicDefinition(definition) {
+  if (!definition || typeof definition !== "object") return null;
+  const id = String(definition.id || "").trim().toLowerCase().replace(/[^a-z0-9_]+/g, "_").replace(/^_+|_+$/g, "");
+  if (!id) return null;
+  const keywords = definition.keywords && typeof definition.keywords === "object" ? definition.keywords : {};
+  const normalized = {
+    id,
+    labels: normalizeTopicLabels(definition.labels, id),
+    keywords: {
+      en: normalizeTopicKeywordList(keywords.en),
+      ja: normalizeTopicKeywordList(keywords.ja),
+      zh: normalizeTopicKeywordList(keywords.zh),
+    },
+    severity: normalizeTopicKeywordList(definition.severity).slice(0, 12),
+    color: /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(String(definition.color || "").trim())
+      ? String(definition.color).trim()
+      : getCustomTopicColor(id),
+  };
+  const totalKeywords = normalized.keywords.en.length + normalized.keywords.ja.length + normalized.keywords.zh.length;
+  return totalKeywords ? normalized : null;
+}
+
+function getTopicCatalog() {
+  const base = getBaseTopicCatalog();
+  const custom = Array.isArray(state.titleTopicDictionary) ? state.titleTopicDictionary : [];
+  if (!custom.length) return base;
+
+  const merged = new Map(base.map((topic) => [topic.id, {
+    ...topic,
+    labels: { ...(topic.labels || {}) },
+    keywords: {
+      en: [...(topic.keywords?.en || [])],
+      ja: [...(topic.keywords?.ja || [])],
+      zh: [...(topic.keywords?.zh || [])],
+    },
+    severity: [...(topic.severity || [])],
+  }]));
+
+  custom.forEach((topic) => {
+    const normalized = normalizeCustomTopicDefinition(topic);
+    if (!normalized) return;
+    const existing = merged.get(normalized.id);
+    if (existing) {
+      existing.labels = {
+        en: normalized.labels.en || existing.labels?.en || existing.id,
+        ja: normalized.labels.ja || existing.labels?.ja || normalized.labels.en || existing.id,
+      };
+      existing.keywords = {
+        en: normalizeTopicKeywordList([...(existing.keywords?.en || []), ...normalized.keywords.en]),
+        ja: normalizeTopicKeywordList([...(existing.keywords?.ja || []), ...normalized.keywords.ja]),
+        zh: normalizeTopicKeywordList([...(existing.keywords?.zh || []), ...normalized.keywords.zh]),
+      };
+      existing.severity = normalizeTopicKeywordList([...(existing.severity || []), ...normalized.severity]).slice(0, 12);
+      existing.color = normalized.color || existing.color;
+      return;
+    }
+    merged.set(normalized.id, normalized);
+  });
+
+  return [...merged.values()];
 }
 
 function getTopicDefinition(id) {
@@ -2223,6 +2536,14 @@ function ensureSharedTooltip() {
   return tooltip;
 }
 
+function positionTooltipAwayFromCursor(event, tooltip) {
+  const offset = 18;
+  const rawZoom = Number.parseFloat(getComputedStyle(document.documentElement).zoom || "1");
+  const zoom = Number.isFinite(rawZoom) && rawZoom > 0 ? rawZoom : 1;
+  tooltip.style.left = `${(event.clientX + offset) / zoom}px`;
+  tooltip.style.top = `${(event.clientY + offset) / zoom}px`;
+}
+
 function showTimelineTooltip(event, bucket) {
   const tooltip = ensureSharedTooltip();
   const total = bucket.positive + bucket.negative;
@@ -2233,8 +2554,7 @@ function showTimelineTooltip(event, bucket) {
     "negative"
   )}: ${fmt(bucket.negative)}</div><div>${t("summaryPositiveRate")}: ${renderPositiveRateValue(positiveRate)}</div>`;
   tooltip.style.display = "block";
-  tooltip.style.left = `${event.clientX + 14}px`;
-  tooltip.style.top = `${event.clientY + 14}px`;
+  positionTooltipAwayFromCursor(event, tooltip);
 }
 
 function formatTimelineMarkerDate(dateMs) {
@@ -2251,16 +2571,14 @@ function showTimelineMarkerTooltip(event, marker) {
     formatTimelineMarkerDate(marker.dateMs)
   )}</div>`;
   tooltip.style.display = "block";
-  tooltip.style.left = `${event.clientX + 14}px`;
-  tooltip.style.top = `${event.clientY + 14}px`;
+  positionTooltipAwayFromCursor(event, tooltip);
 }
 
 function showMomentumBarTooltip(event, label, count) {
   const tooltip = ensureSharedTooltip();
   tooltip.innerHTML = `<strong>${esc(label)}</strong><div>${fmt(count)} ${esc(t("reviewCount"))}</div>`;
   tooltip.style.display = "block";
-  tooltip.style.left = `${event.clientX + 14}px`;
-  tooltip.style.top = `${event.clientY + 14}px`;
+  positionTooltipAwayFromCursor(event, tooltip);
 }
 
 function hideSharedTooltip() {
@@ -2825,6 +3143,48 @@ function populateLanguageSelect(select) {
   select.value = [...select.options].some((option) => option.value === current) ? current : "all";
 }
 
+function getComparisonLanguageRows() {
+  const maxDay = getComparisonRangeMaxDay();
+  const byLanguage = new Map();
+  getVisibleComparisonGames().forEach((game) => {
+    (game.reviews || []).forEach((review) => {
+      const day = Math.max(0, Math.floor((Number(review.timestamp_created || 0) * 1000 - game.releaseMs) / DAY_MS));
+      if (!Number.isFinite(day) || (Number.isFinite(maxDay) && day > maxDay)) return;
+      const code = review.language || "";
+      if (!code) return;
+      const entry =
+        byLanguage.get(code) ||
+        {
+          languageCode: code,
+          languageName: getLanguageName(code),
+          total_reviews: 0,
+        };
+      entry.total_reviews += 1;
+      byLanguage.set(code, entry);
+    });
+  });
+  return [...byLanguage.values()].sort((left, right) => right.total_reviews - left.total_reviews);
+}
+
+function populateComparisonLanguageSelect(select, currentValue = "all") {
+  if (!select) return;
+  const current = select.value || currentValue || "all";
+  const options = [`<option value="all">${esc(t("allLanguage"))}</option>`];
+  getComparisonLanguageRows().forEach((row) => {
+    options.push(
+      `<option value="${row.languageCode}">${esc(getLanguageDisplayName(row.languageCode, { forSelect: true }))} (${fmt(
+        row.total_reviews
+      )})</option>`
+    );
+  });
+  select.innerHTML = options.join("");
+  select.value = [...select.options].some((option) => option.value === current) ? current : "all";
+}
+
+function populateComparisonKeywordLanguageSelect(select) {
+  populateComparisonLanguageSelect(select, state.comparisonKeywordLanguage || "all");
+}
+
 function getLengthFilterLabel(value) {
   const range =
     value === "short"
@@ -2885,10 +3245,20 @@ function populateReviewFilterSelects() {
 }
 
 function updateToggleButtons(container, activeValue, attribute) {
+  if (!container) return;
   const attrName = attribute.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`);
   container.querySelectorAll(`[data-${attrName}]`).forEach((button) => {
     button.classList.toggle("active", button.dataset[attribute] === activeValue);
   });
+}
+
+function updatePageModeUi() {
+  updateToggleButtons(els.pageModeToggle, state.pageMode, "pageMode");
+  els.reviewPage?.classList.toggle("hidden", state.pageMode !== "review");
+  els.comparisonPage?.classList.toggle("hidden", state.pageMode !== "comparison");
+  els.recentAppsPanel?.classList.toggle("hidden", !state.recentApps.length);
+  document.body.classList.toggle("page-comparison", state.pageMode === "comparison");
+  renderComparison();
 }
 
 function updateReviewTabUi() {
@@ -2990,6 +3360,9 @@ function setAiAssistantTemporaryMode(mode, duration = 3200) {
 }
 
 function getAiAssistantMode() {
+  if (state.aiAssistant.generating) return "laptop";
+  if (state.activeBlockingTask) return "laptop";
+  if (state.aiAssistant.connecting) return "rest";
   if (state.aiAssistant.temporaryMode && state.aiAssistant.temporaryUntil > Date.now()) {
     return state.aiAssistant.temporaryMode;
   }
@@ -2997,9 +3370,6 @@ function getAiAssistantMode() {
     state.aiAssistant.temporaryMode = "";
     state.aiAssistant.temporaryUntil = 0;
   }
-  if (state.aiAssistant.generating) return "laptop";
-  if (state.activeBlockingTask) return "laptop";
-  if (state.aiAssistant.connecting) return "rest";
   if (state.ai.connected) return "stand";
   return "sleep";
 }
@@ -3023,6 +3393,11 @@ function refreshAiAssistantSprite() {
   const mode = getAiAssistantMode();
   els.aiAssistantSprite.src = AI_ASSISTANT_SPRITES[mode] || AI_ASSISTANT_SPRITES.sleep;
   els.aiAssistantSprite.classList.toggle("working", Boolean(state.aiAssistant.generating || state.activeBlockingTask || state.aiAssistant.connecting));
+}
+
+function setAiAssistantGenerating(isGenerating) {
+  state.aiAssistant.generating = Boolean(isGenerating);
+  updateAiUi();
 }
 
 function syncAiAssistantButtonState() {
@@ -3088,6 +3463,7 @@ function syncAiFeatureRailText() {
   const items = [
     [els.aiFeatureWordCloudButton, t("aiFeatureWordCloud"), t("aiFeatureWordCloudTip")],
     [els.aiFeatureReviewFilterButton, t("aiFeatureReviewFilter"), t("aiFeatureReviewFilterTip")],
+    [els.aiFeatureTopicsButton, t("aiFeatureTopics"), t("aiFeatureTopicsTip")],
   ];
   items.forEach(([button, label, tip]) => {
     if (!button) return;
@@ -3122,6 +3498,14 @@ function jumpToAiFeature(target) {
     els.reviewMeaningfulButton?.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
     els.reviewMeaningfulButton?.focus({ preventScroll: true });
     pulseAiFeatureTarget(els.reviewMeaningfulButton);
+    return;
+  }
+  if (target === "topics") {
+    state.analysisTab = "topics";
+    updateWorkspaceTabs();
+    els.topicAiEnhanceButton?.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+    els.topicAiEnhanceButton?.focus({ preventScroll: true });
+    pulseAiFeatureTarget(els.topicAiEnhanceButton);
   }
 }
 
@@ -3130,6 +3514,7 @@ function updateAiUi(status = "") {
   document.body.classList.toggle("ai-connected", state.ai.connected);
   els.wordAiSuggestButton?.classList.toggle("hidden", !state.ai.connected);
   els.reviewMeaningfulButton?.classList.toggle("hidden", !state.ai.connected);
+  els.topicAiEnhanceButton?.classList.toggle("hidden", !state.ai.connected);
   els.reviewMeaningfulButton?.classList.toggle("active", state.reviewFilters.meaningful === "meaningful");
   if (!state.ai.connected) toggleAiChatPopup(false);
   if (els.aiAssistantStatus) {
@@ -3240,6 +3625,72 @@ function normalizeAiQuestionTerms(question) {
     .filter((term) => term.length >= 3 && !AI_QUESTION_STOPWORDS.has(term));
   const cjkTerms = String(question || "").match(/[\u3040-\u30ff\u3400-\u9fff]{2,}/gu) || [];
   return [...new Set([...asciiTerms, ...cjkTerms])].slice(0, 12);
+}
+
+function collectAiAspectMatches(text, terms, aliases) {
+  const hits = new Set();
+  (aliases || []).forEach((alias) => {
+    const normalized = String(alias || "").trim();
+    if (!normalized) return;
+    const lower = normalized.toLowerCase();
+    if (reviewMatchesAiTerm({ review: text }, normalized) || terms.includes(lower)) hits.add(normalized);
+  });
+  return [...hits];
+}
+
+function inferQuestionTopicIds(questionTerms, topicRows) {
+  return topicRows
+    .filter((row) => {
+      const label = String(row.label || "").toLowerCase();
+      const keywords = row.keywords || [];
+      return questionTerms.some((term) => {
+        const lower = String(term).toLowerCase();
+        return (
+          label.includes(lower) ||
+          row.id.includes(lower) ||
+          keywords.some((keyword) => String(keyword).toLowerCase().includes(lower))
+        );
+      });
+    })
+    .map((row) => row.id);
+}
+
+function inferAiSentimentScope(question) {
+  const text = String(question || "");
+  const hasNegative = AI_SENTIMENT_SCOPE_PATTERNS.negative.test(text);
+  const hasPositive = AI_SENTIMENT_SCOPE_PATTERNS.positive.test(text);
+  if (hasNegative && !hasPositive) return "negative";
+  if (hasPositive && !hasNegative) return "positive";
+  return "mixed";
+}
+
+function inferAiQuestionFocus(question, topicRows) {
+  const questionText = String(question || "").trim();
+  const questionTerms = normalizeAiQuestionTerms(questionText);
+  const focusTopicIds = inferQuestionTopicIds(questionTerms, topicRows);
+  const aspects = AI_QUESTION_ASPECTS
+    .map((aspect) => {
+      const matchedAliases = collectAiAspectMatches(questionText, questionTerms, aspect.aliases);
+      return matchedAliases.length ? { id: aspect.id, matchedAliases } : null;
+    })
+    .filter(Boolean);
+  const sentimentScope = inferAiSentimentScope(questionText);
+  const specificity =
+    aspects.length || AI_SPECIFIC_QUESTION_PATTERNS.test(questionText)
+      ? "narrow"
+      : focusTopicIds.length || questionTerms.length
+        ? "broad"
+        : "open";
+
+  return {
+    questionText,
+    questionTerms,
+    focusTopicIds,
+    aspects,
+    aspectIds: aspects.map((aspect) => aspect.id),
+    specificity,
+    sentimentScope,
+  };
 }
 
 function classifyAiQuestion(question) {
@@ -3400,73 +3851,151 @@ function reviewMatchesAiTerm(review, term) {
   return buildKeywordRegex(term).test(text);
 }
 
-function inferQuestionTopicIds(questionTerms, topicRows) {
-  return topicRows
-    .filter((row) => {
-      const label = String(row.label || "").toLowerCase();
-      const keywords = row.keywords || [];
-      return questionTerms.some((term) => {
-        const lower = String(term).toLowerCase();
-        return (
-          label.includes(lower) ||
-          row.id.includes(lower) ||
-          keywords.some((keyword) => String(keyword).toLowerCase().includes(lower))
-        );
-      });
+function getReviewAspectMatches(review, focusAspectIds = null) {
+  const aspectIdSet = focusAspectIds ? new Set(focusAspectIds) : null;
+  return AI_QUESTION_ASPECTS
+    .map((aspect) => {
+      if (aspectIdSet && !aspectIdSet.has(aspect.id)) return null;
+      const matchedAliases = collectAiAspectMatches(review.review || "", [], aspect.aliases);
+      return matchedAliases.length ? { id: aspect.id, matchedAliases } : null;
     })
-    .map((row) => row.id);
+    .filter(Boolean);
 }
 
-function scoreReviewForAi(review, questionTerms, focusTopicIds) {
+function scoreReviewForAi(review, focus) {
+  const questionTerms = focus?.questionTerms || [];
+  const focusTopicIds = focus?.focusTopicIds || [];
+  const focusAspectIds = focus?.aspectIds || [];
+  const reviewAspectMatches = getReviewAspectMatches(review);
+  const reviewAspectIds = reviewAspectMatches.map((entry) => entry.id);
+  const directAspectMatches = reviewAspectMatches.filter((entry) => focusAspectIds.includes(entry.id));
+  const directAspectAliasHits = directAspectMatches.reduce((sum, entry) => sum + entry.matchedAliases.length, 0);
+  const adjacentAspectCount = reviewAspectIds.filter((aspectId) => !focusAspectIds.includes(aspectId)).length;
+  const directTopicHit = focusTopicIds.some((topicId) => review._topics?.includes(topicId));
+  let directTermHits = 0;
   let score = 0;
   questionTerms.forEach((term) => {
-    if (reviewMatchesAiTerm(review, term)) score += containsJapanese(term) || containsHan(term) ? 3.6 : 3;
+    if (reviewMatchesAiTerm(review, term)) {
+      directTermHits += 1;
+      score += containsJapanese(term) || containsHan(term) ? 3.6 : 3;
+    }
   });
-  if (focusTopicIds.some((topicId) => review._topics?.includes(topicId))) score += 3.5;
+  if (directAspectAliasHits) score += directAspectAliasHits * 4.4;
+  if (directTopicHit) score += focus?.specificity === "narrow" ? 1.4 : 3.5;
+  if (focus?.sentimentScope === "negative" && !review.voted_up) score += 1.25;
+  if (focus?.sentimentScope === "positive" && review.voted_up) score += 1.25;
   if (review._topics?.length) score += Math.min(1.2, review._topics.length * 0.35);
   score += Math.min(1, getReviewLength(review) / 900);
   score += Math.min(0.75, (review.author?.playtime_forever || 0) / 2400);
-  return score;
+  if (focus?.specificity === "narrow" && focusAspectIds.length) {
+    if (!directAspectAliasHits) score -= 5.5;
+    if (directTopicHit && !directAspectAliasHits) score -= 1.5;
+    if (adjacentAspectCount && !directAspectAliasHits) score -= Math.min(2.8, adjacentAspectCount * 0.9);
+  }
+  const bucket = directAspectAliasHits
+    ? "direct"
+    : directTopicHit || directTermHits
+      ? "fallback"
+      : "off_topic";
+  return {
+    score,
+    bucket,
+    directAspectIds: directAspectMatches.map((entry) => entry.id),
+    directAspectAliasHits,
+    directTermHits,
+    directTopicHit,
+    adjacentAspectCount,
+    reviewAspectIds,
+  };
 }
 
-function selectRepresentativeAiReviews(reviews, questionTerms, focusTopicIds, limit = AI_ANALYSIS_SNIPPET_LIMIT) {
-  const scored = reviews
-    .map((review) => ({ review, score: scoreReviewForAi(review, questionTerms, focusTopicIds) }))
-    .filter((entry) => entry.score > 0)
-    .sort((left, right) => right.score - left.score || (right.review.timestamp_created || 0) - (left.review.timestamp_created || 0));
-
-  const positives = scored.filter((entry) => entry.review.voted_up).slice(0, Math.ceil(limit / 2));
-  const negatives = scored.filter((entry) => !entry.review.voted_up).slice(0, Math.ceil(limit / 2));
-  const merged = [];
-  while ((positives.length || negatives.length) && merged.length < limit) {
-    if (negatives.length) merged.push(negatives.shift());
-    if (positives.length && merged.length < limit) merged.push(positives.shift());
-  }
-
-  if (merged.length < limit) {
-    scored.forEach((entry) => {
-      if (merged.length >= limit) return;
-      if (!merged.some((picked) => getSavedReviewKey(picked.review) === getSavedReviewKey(entry.review))) merged.push(entry);
-    });
-  }
-
-  return merged.slice(0, limit).map(({ review, score }) => ({
+function formatRepresentativeAiReview(review, score, detail = {}) {
+  return {
     id: review.recommendationid,
     language: getLanguageName(review.language),
     sentiment: review.voted_up ? t("positive") : t("negative"),
     createdAt: new Date((review.timestamp_created || 0) * 1000).toISOString(),
     playtimeMinutes: review.author?.playtime_forever || 0,
     topics: (review._topics || []).map((topicId) => getTopicLabel(topicId)),
+    matchedAspects: detail.directAspectIds || [],
     score: Number(score.toFixed(2)),
     snippet: trimReviewSnippet(review.review),
-  }));
+  };
+}
+
+function pickBalancedAiReviewEntries(entries, limit = AI_ANALYSIS_SNIPPET_LIMIT) {
+  const positives = entries.filter((entry) => entry.review.voted_up).slice(0, Math.ceil(limit / 2));
+  const negatives = entries.filter((entry) => !entry.review.voted_up).slice(0, Math.ceil(limit / 2));
+  const merged = [];
+  while ((positives.length || negatives.length) && merged.length < limit) {
+    if (negatives.length) merged.push(negatives.shift());
+    if (positives.length && merged.length < limit) merged.push(positives.shift());
+  }
+  if (merged.length < limit) {
+    entries.forEach((entry) => {
+      if (merged.length >= limit) return;
+      if (!merged.some((picked) => getSavedReviewKey(picked.review) === getSavedReviewKey(entry.review))) merged.push(entry);
+    });
+  }
+  return merged.slice(0, limit);
+}
+
+function selectRepresentativeAiReviews(reviews, focus, limit = AI_ANALYSIS_SNIPPET_LIMIT) {
+  const scored = reviews
+    .map((review) => {
+      const detail = scoreReviewForAi(review, focus);
+      return { review, score: detail.score, detail };
+    })
+    .filter((entry) => entry.score > 0)
+    .sort((left, right) => right.score - left.score || (right.review.timestamp_created || 0) - (left.review.timestamp_created || 0));
+
+  const directEntries = scored.filter((entry) => entry.detail.bucket === "direct");
+  const fallbackEntries = scored.filter((entry) => entry.detail.bucket === "fallback");
+  const selectedDirectEntries = pickBalancedAiReviewEntries(directEntries, limit);
+  const selectedFallbackEntries =
+    selectedDirectEntries.length >= Math.max(3, Math.ceil(limit * 0.35)) && focus?.specificity === "narrow"
+      ? []
+      : pickBalancedAiReviewEntries(
+          fallbackEntries.filter(
+            (entry) => !selectedDirectEntries.some((picked) => getSavedReviewKey(picked.review) === getSavedReviewKey(entry.review))
+          ),
+          Math.max(4, limit - selectedDirectEntries.length)
+        );
+  const combinedEntries = [...selectedDirectEntries];
+  selectedFallbackEntries.forEach((entry) => {
+    if (combinedEntries.length >= limit) return;
+    combinedEntries.push(entry);
+  });
+
+  return {
+    direct: selectedDirectEntries.map((entry) => formatRepresentativeAiReview(entry.review, entry.score, entry.detail)),
+    fallback: selectedFallbackEntries.map((entry) => formatRepresentativeAiReview(entry.review, entry.score, entry.detail)),
+    combined: combinedEntries.slice(0, limit).map((entry) => formatRepresentativeAiReview(entry.review, entry.score, entry.detail)),
+    matchStats: {
+      totalCandidates: scored.length,
+      directCandidates: directEntries.length,
+      fallbackCandidates: fallbackEntries.length,
+      directSelected: selectedDirectEntries.length,
+      fallbackSelected: selectedFallbackEntries.length,
+      evidenceStrength:
+        selectedDirectEntries.length >= Math.max(3, Math.ceil(limit * 0.35))
+          ? "direct"
+          : selectedDirectEntries.length
+            ? "mixed"
+            : selectedFallbackEntries.length
+              ? "fallback"
+              : "weak",
+    },
+  };
 }
 
 function matchesAnyPattern(text, patterns) {
   return patterns.some((pattern) => pattern.test(text));
 }
 
-function buildAiThemeCandidates(reviews, questionTerms, focusTopicIds) {
+function buildAiThemeCandidates(reviews, focus) {
+  const questionTerms = focus?.questionTerms || [];
+  const focusTopicIds = focus?.focusTopicIds || [];
   const topicSummaries = new Map();
   reviews.forEach((review) => {
     (review._topics || []).forEach((topicId) => {
@@ -3514,6 +4043,170 @@ function selectPatternReviews(reviews, patterns, limit = 8) {
       topics: (review._topics || []).map((topicId) => getTopicLabel(topicId)),
       snippet: trimReviewSnippet(review.review, 220),
     }));
+}
+
+function buildTopicEnhancementRepresentativeReviews(reviews, topicRows, limitPerTopic = 3, maxReviews = 42) {
+  const picked = [];
+  topicRows.slice(0, 8).forEach((row) => {
+    const entries = reviews
+      .filter((review) => review._topics?.includes(row.id))
+      .sort((left, right) => {
+        const rightMatches = (right._topicMatches?.[row.id] || []).length;
+        const leftMatches = (left._topicMatches?.[row.id] || []).length;
+        if (rightMatches !== leftMatches) return rightMatches - leftMatches;
+        return getReviewLength(right) - getReviewLength(left) || (right.timestamp_created || 0) - (left.timestamp_created || 0);
+      })
+      .slice(0, limitPerTopic)
+      .map((review) => ({
+        topicId: row.id,
+        topic: row.label,
+        language: getLanguageName(review.language),
+        sentiment: review.voted_up ? t("positive") : t("negative"),
+        createdAt: new Date((review.timestamp_created || 0) * 1000).toISOString(),
+        playtimeMinutes: review.author?.playtime_forever || 0,
+        matchedKeywords: (review._topicMatches?.[row.id] || []).slice(0, 6),
+        snippet: trimReviewSnippet(review.review, 220),
+      }));
+    entries.forEach((entry) => {
+      if (picked.length < maxReviews) picked.push(entry);
+    });
+  });
+  return picked;
+}
+
+async function buildTopicEnhancementEvidence() {
+  if (!state.currentAppId) throw new Error(t("topicAiEnhanceNeedApp"));
+  if (!state.ai.connected || !state.ai.apiKey || !state.ai.model) throw new Error(t("topicAiEnhanceNeedConnection"));
+  const reviews = await collectLifetimeReviewsForAi();
+  if (!reviews.length) throw new Error(t("aiAnalysisNoReviews"));
+  await ensureTopicTagsForReviews(reviews);
+  const appMeta = getCurrentAppMetadata();
+  const topicRows = computeTopicRows(reviews);
+  const summaryRows = buildSummaryRowsFromReviews(reviews);
+  const topTerms = extractWordCloudTerms(reviews, appMeta.name).slice(0, 72).map((entry) => ({
+    term: entry.term,
+    reviewCount: entry.reviewCount,
+    positiveRate: Number(entry.positiveRate.toFixed(1)),
+    positiveReviews: entry.positiveReviews,
+    negativeReviews: entry.negativeReviews,
+  }));
+  return {
+    app: appMeta,
+    reviewCount: reviews.length,
+    answerLanguage: getAiAnalysisTargetLanguage(),
+    currentDictionaryHash: getCurrentTopicDictionaryHash(),
+    baseTopics: getBaseTopicCatalog().map((topic) => ({
+      id: topic.id,
+      labels: topic.labels,
+      keywords: topic.keywords,
+      severity: topic.severity,
+      color: topic.color,
+    })),
+    existingCustomTopics: (state.titleTopicDictionary || []).map((topic) => ({
+      id: topic.id,
+      labels: topic.labels,
+      keywords: topic.keywords,
+      severity: topic.severity,
+      color: topic.color,
+    })),
+    byLanguage: summaryRows.slice(0, 12).map((row) => ({
+      language: getLanguageName(row.languageCode),
+      reviewCount: row.total_reviews,
+      positiveRate: Number(((row.total_positive / Math.max(1, row.total_reviews)) * 100).toFixed(1)),
+    })),
+    currentTopics: topicRows.slice(0, 16).map((row) => ({
+      id: row.id,
+      label: row.label,
+      reviewCount: row.reviewCount,
+      mentionShare: Number(row.mentionShare.toFixed(1)),
+      positiveRate: Number(row.positiveRate.toFixed(1)),
+      negativeRate: Number(row.negativeRate.toFixed(1)),
+      keywords: row.keywords,
+      trend: row.trend,
+      priority: row.priority,
+    })),
+    topTerms,
+    representativeReviews: buildTopicEnhancementRepresentativeReviews(reviews, topicRows),
+  };
+}
+
+function normalizeTopicEnhancementResponse(payload) {
+  const baseIds = new Set(getBaseTopicCatalog().map((topic) => topic.id));
+  const topics = Array.isArray(payload?.topics)
+    ? payload.topics
+        .map((topic) => normalizeCustomTopicDefinition(topic))
+        .filter((topic) => topic && baseIds.has(topic.id))
+    : [];
+  return topics;
+}
+
+async function resetTopicCachesForApp(appid) {
+  state.topicTagCacheAppId = appid;
+  state.topicTagCache = new Map();
+  await persistTopicTagCache(appid);
+  state.topicClusterCacheAppId = appid;
+  state.topicClusterCache = new Map();
+  await persistTopicClusterCache(appid);
+  state.topicLastRenderKey = "";
+}
+
+function retagReviewCollection(reviews, cache) {
+  if (!Array.isArray(reviews)) return;
+  reviews.forEach((review) => {
+    const tag = analyzeReviewTopics(review);
+    cache.set(getSavedReviewKey(review), tag);
+    attachTopicTag(review, tag);
+  });
+}
+
+async function reapplyTopicTagsForCurrentApp(appid) {
+  const cache = await loadTopicTagCache(appid);
+  cache.clear();
+  [...state.reviewCache.entries()].forEach(([key, payload]) => {
+    if (!key.startsWith(`${appid}::`) || !Array.isArray(payload?.reviews)) return;
+    retagReviewCollection(payload.reviews, cache);
+  });
+  [...state.collectedReviewsCache.entries()].forEach(([key, reviews]) => {
+    if (!String(key || "").startsWith(`${appid}::`) || !Array.isArray(reviews)) return;
+    retagReviewCollection(reviews, cache);
+  });
+  retagReviewCollection(state.reviewBaseReviews, cache);
+  retagReviewCollection(state.reviewSourceReviews, cache);
+  retagReviewCollection(state.reviewDisplayedReviews, cache);
+  retagReviewCollection(state.topicActiveReviews, cache);
+  retagReviewCollection(state.savedReviews.filter((review) => getReviewAppId(review) === appid), cache);
+  await persistTopicTagCache(appid);
+}
+
+async function applyEnhancedTopicDictionary(topics, reviewCount) {
+  const appid = state.currentAppId;
+  if (!appid) throw new Error(t("topicAiEnhanceNeedApp"));
+  await persistTitleTopicDictionary(appid, topics, { sourceReviewCount: reviewCount });
+  await resetTopicCachesForApp(appid);
+  await reapplyTopicTagsForCurrentApp(appid);
+  populateReviewFilterSelects();
+  if (state.reviewFilters.topic !== "all" && !getTopicDefinition(state.reviewFilters.topic)) {
+    state.reviewFilters.topic = "all";
+  }
+  if (els.reviewTopicFilter) els.reviewTopicFilter.value = state.reviewFilters.topic;
+  applyReviewView();
+  await renderTopicClusters();
+}
+
+async function requestAiEnhancedTopics() {
+  if (!API_BASE) throw new Error(t("noProxyConfigured"));
+  const evidence = await buildTopicEnhancementEvidence();
+  const payload = await postJson(`${API_BASE}/topics/enhance`, {
+    apiKey: state.ai.apiKey,
+    baseUrl: state.ai.baseUrl,
+    model: state.ai.model,
+    answerLanguage: evidence.answerLanguage,
+    evidence,
+  });
+  return {
+    topics: normalizeTopicEnhancementResponse(payload),
+    sourceReviewCount: evidence.reviewCount,
+  };
 }
 
 function buildMarkerComparisons(reviews) {
@@ -3584,14 +4277,17 @@ async function buildAiEvidence(question) {
   const negativeCount = reviews.length - positiveCount;
   const topicRows = computeTopicRows(reviews);
   const summaryRows = buildSummaryRowsFromReviews(reviews);
-  const questionTerms = normalizeAiQuestionTerms(question);
-  const focusTopicIds = inferQuestionTopicIds(questionTerms, topicRows);
+  const focus = inferAiQuestionFocus(question, topicRows);
   const topKeywords =
     els.wordLanguageSelection?.value === "all" && state.wordCloudSentiment === "all" && state.wordCloudTerms.length
       ? state.wordCloudTerms.slice(0, 12)
       : extractWordCloudTerms(reviews).slice(0, 12);
-  const snippets = selectRepresentativeAiReviews(reviews, questionTerms, focusTopicIds);
-  const themeCandidates = buildAiThemeCandidates(reviews, questionTerms, focusTopicIds).slice(0, 6);
+  const snippets = selectRepresentativeAiReviews(reviews, focus);
+  const themeSourceReviews =
+    focus.specificity === "narrow" && snippets.matchStats.directCandidates
+      ? reviews.filter((review) => getReviewAspectMatches(review, focus.aspectIds).length)
+      : reviews;
+  const themeCandidates = buildAiThemeCandidates(themeSourceReviews, focus).slice(0, 6);
   const featureRequestReviews = selectPatternReviews(reviews, AI_REQUEST_PATTERNS, 8);
   const retentionReviews = selectPatternReviews(reviews.filter((review) => review.voted_up), AI_RETENTION_PATTERNS, 8);
   const pillarReviews = selectPatternReviews(reviews, AI_PILLAR_PATTERNS, 8);
@@ -3653,8 +4349,16 @@ async function buildAiEvidence(question) {
       positiveRate: Number(entry.positiveRate.toFixed(1)),
     })),
     focus: {
-      questionTerms,
-      focusTopics: focusTopicIds.map((topicId) => getTopicLabel(topicId)),
+      questionTerms: focus.questionTerms,
+      focusTopics: focus.focusTopicIds.map((topicId) => getTopicLabel(topicId)),
+      focusTopicIds: focus.focusTopicIds,
+      aspects: focus.aspects.map((aspect) => ({
+        id: aspect.id,
+        matchedAliases: aspect.matchedAliases,
+      })),
+      specificity: focus.specificity,
+      sentimentScope: focus.sentimentScope,
+      matchStats: snippets.matchStats,
     },
     inferredThemes: themeCandidates.map((entry) => ({
       topic: entry.label,
@@ -3696,19 +4400,23 @@ async function buildAiEvidence(question) {
     retentionReviews,
     pillarReviews,
     markers: buildMarkerComparisons(reviews),
-    representativeReviews: snippets,
+    representativeReviews: snippets.combined,
+    representativeReviewsDirect: snippets.direct,
+    representativeReviewsFallback: snippets.fallback,
   };
 }
 
 function getAiAnalysisCacheKey(question) {
   return [
     "aianalysis",
+    AI_ANALYSIS_RETRIEVAL_VERSION,
     state.currentAppId,
     state.ai.model,
     state.currentUiLanguage,
     state.timeRange.mode,
     state.timeRange.start || "",
     state.timeRange.end || "",
+    getCurrentTopicDictionaryHash(),
     state.cacheTimestamp || 0,
     hashText(String(question || "").trim().toLowerCase()),
   ].join("::");
@@ -4051,8 +4759,7 @@ async function askAiAnalysis(question) {
   const cacheKey = getAiAnalysisCacheKey(trimmedQuestion);
   els.aiAnalysisSendButton.disabled = true;
   els.aiAnalysisSendButton.textContent = t("aiAnalysisLoading");
-  state.aiAssistant.generating = true;
-  refreshAiAssistantSprite();
+  setAiAssistantGenerating(true);
 
   try {
     const cached = await getRecord(cacheKey);
@@ -4083,10 +4790,9 @@ async function askAiAnalysis(question) {
     if (isAbortError(error)) throw error;
     pushAiAnalysisMessage("assistant", `${t("aiAnalysisFailed")} ${error.message || error}`, "");
   } finally {
-    state.aiAssistant.generating = false;
+    setAiAssistantGenerating(false);
     els.aiAnalysisSendButton.disabled = false;
     els.aiAnalysisSendButton.textContent = t("aiAnalysisAsk");
-    refreshAiAssistantSprite();
   }
 }
 
@@ -4105,7 +4811,9 @@ function renderWordPreferenceList() {
   if (state.wordCloudPrefs.allowed.length || state.wordCloudPrefs.banned.length) {
     chips.push(`<button class="word-preference-chip clear-all" type="button" data-clear-word-prefs="true">${esc(t("clearAllWordPrefs"))}</button>`);
   }
-  els.wordPreferenceList.innerHTML = chips.join("");
+  const markup = chips.join("");
+  els.wordPreferenceList.innerHTML = markup;
+  if (els.comparisonWordPreferenceList) els.comparisonWordPreferenceList.innerHTML = markup;
 }
 
 function getCurrentAppMetadata() {
@@ -4115,6 +4823,7 @@ function getCurrentAppMetadata() {
     name: app?.name || getCurrentAppName(),
     genres: Array.isArray(app?.genres) ? app.genres.map((entry) => entry.description).filter(Boolean) : [],
     categories: Array.isArray(app?.categories) ? app.categories.map((entry) => entry.description).filter(Boolean) : [],
+    steamTags: state.appTagCache.get(state.currentAppId) || [],
     shortDescription: app?.short_description || "",
   };
 }
@@ -4246,9 +4955,14 @@ function renderRecentApps() {
   }
   els.recentAppsList.innerHTML = items
     .map(
-      (app) => `<button class="recent-apps-card${app.appid === state.currentAppId ? " active" : ""}" type="button" data-recent-appid="${esc(
-        app.appid
-      )}" aria-label="${esc(app.name)}"><img src="${esc(app.headerImage || "")}" alt="${esc(app.name)}" loading="lazy" /></button>`
+      (app) => {
+        const isActive = state.pageMode === "comparison"
+          ? state.comparisonGames.some((entry) => entry.appid === app.appid)
+          : app.appid === state.currentAppId;
+        return `<button class="recent-apps-card${isActive ? " active" : ""}" type="button" data-recent-appid="${esc(
+          app.appid
+        )}" aria-label="${esc(app.name)}"><img src="${esc(app.headerImage || "")}" alt="${esc(app.name)}" loading="lazy" /></button>`;
+      }
     )
     .join("");
 }
@@ -4262,6 +4976,1211 @@ async function rememberRecentApp(appid, app) {
   state.recentApps = [entry, ...state.recentApps.filter((item) => item.appid !== appid)].slice(0, 8);
   renderRecentApps();
   await persistRecentApps();
+}
+
+function parseSteamReleaseDate(value) {
+  const text = String(value || "").trim();
+  if (!text || /coming soon/i.test(text)) return null;
+  const parsed = Date.parse(text);
+  if (!Number.isFinite(parsed)) return null;
+  const date = new Date(parsed);
+  date.setHours(0, 0, 0, 0);
+  return date.getTime();
+}
+
+function getComparisonReleaseInfo(app, reviews) {
+  const releaseMs = parseSteamReleaseDate(app?.release_date?.date);
+  if (Number.isFinite(releaseMs)) {
+    return { releaseMs, releaseLabel: app.release_date.date, fallback: false };
+  }
+  let firstReviewMs = Number.POSITIVE_INFINITY;
+  reviews.forEach((review) => {
+    const createdMs = Number(review.timestamp_created || 0) * 1000;
+    if (Number.isFinite(createdMs) && createdMs < firstReviewMs) firstReviewMs = createdMs;
+  });
+  if (Number.isFinite(firstReviewMs)) {
+    const date = new Date(firstReviewMs);
+    date.setHours(0, 0, 0, 0);
+    return {
+      releaseMs: date.getTime(),
+      releaseLabel: date.toLocaleDateString(state.currentUiLanguage === "ja" ? "ja-JP" : "en-US"),
+      fallback: true,
+    };
+  }
+  return { releaseMs: Date.now(), releaseLabel: "-", fallback: true };
+}
+
+function getComparisonCacheKey(appid, lang) {
+  return ["comparisonreviews", appid, lang].join("::");
+}
+
+function getNextComparisonColor() {
+  const used = new Set(state.comparisonGames.map((game) => game.color));
+  const openColor = COMPARISON_LINE_PALETTE.find((color) => !used.has(color));
+  if (openColor) return openColor;
+  return COMPARISON_LINE_PALETTE[state.comparisonGames.length % COMPARISON_LINE_PALETTE.length];
+}
+
+function getComparisonRangeMaxDay() {
+  if (state.comparisonTimeRange === "week") return 6;
+  if (state.comparisonTimeRange === "fortnight") return 13;
+  if (state.comparisonTimeRange === "month") return 29;
+  if (state.comparisonTimeRange === "year") return 364;
+  return null;
+}
+
+function getNiceTimelineStep(maxValue, targetSteps = 4) {
+  const rawStep = Math.max(1, maxValue / Math.max(1, targetSteps));
+  const exponent = Math.floor(Math.log10(rawStep));
+  const magnitude = 10 ** exponent;
+  const normalized = rawStep / magnitude;
+  const niceNormalized = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 2.5 ? 2.5 : normalized <= 5 ? 5 : 10;
+  return niceNormalized * magnitude;
+}
+
+async function collectReviewsForApp(appid, lang = "all", force = false, options = {}) {
+  const onProgress = typeof options.onProgress === "function" ? options.onProgress : null;
+  const memoryKey = getComparisonCacheKey(appid, lang);
+  if (!force && state.collectedReviewsCache.has(memoryKey)) return state.collectedReviewsCache.get(memoryKey);
+
+  const targets = lang === "all" ? LANGUAGES.map(([, code]) => code) : [lang];
+  const out = [];
+  for (const [languageIndex, code] of targets.entries()) {
+    throwIfTaskCancelled();
+    const seen = new Set();
+    let cursor = "*";
+    let pagesLoaded = 0;
+    let reviewsLoaded = 0;
+    while (!seen.has(cursor)) {
+      throwIfTaskCancelled();
+      seen.add(cursor);
+      const payload = await getReviews(appid, code, cursor, force);
+      const reviews = (payload.reviews || []).map((review) => ({ ...review, _appid: appid }));
+      out.push(...reviews);
+      pagesLoaded += 1;
+      reviewsLoaded += reviews.length;
+      if (onProgress) {
+        onProgress({
+          languageCode: code,
+          languageName: getLanguageName(code),
+          languageIndex,
+          totalLanguages: targets.length,
+          pagesLoaded,
+          reviewsLoaded,
+          totalCollected: out.length,
+        });
+        await yieldToUi();
+      }
+      if (!payload.reviews?.length || !payload.cursor) break;
+      cursor = payload.cursor;
+    }
+  }
+
+  if (!force) state.collectedReviewsCache.set(memoryKey, out);
+  return out;
+}
+
+async function addComparisonGame(inputValue) {
+  if (!API_BASE) throw new Error(t("noProxyConfigured"));
+  const resolved = await resolveAppInput(inputValue);
+  if (!resolved?.appid) return;
+  if (state.comparisonGames.some((entry) => entry.appid === resolved.appid)) {
+    const existing = state.comparisonGames.find((entry) => entry.appid === resolved.appid);
+    els.comparisonStatus.textContent = interp(t("comparisonDuplicate"), { name: existing?.name || resolved.name || resolved.appid });
+    return;
+  }
+
+  const label = resolved.name || resolved.appid;
+  els.comparisonStatus.textContent = "";
+  const [details, steamTags] = await Promise.all([getAppDetails(resolved.appid), getAppSteamTags(resolved.appid)]);
+  const app = details[resolved.appid]?.data;
+  if (!app) throw new Error(t("appNotFound"));
+  const reviews = await collectReviewsForApp(resolved.appid, "all", false, {
+    onProgress: (progress) => {
+      const message = interp(t("loadingLanguageReviews"), {
+        language: progress.languageName,
+        pages: fmt(progress.pagesLoaded),
+        reviews: fmt(progress.reviewsLoaded),
+      });
+      setFetchState("loading", `${interp(t("comparisonLoading"), { name: app.name || label })} ${message}`, 30);
+    },
+  });
+  const releaseInfo = getComparisonReleaseInfo(app, reviews);
+  state.comparisonGames.push({
+    appid: resolved.appid,
+    name: app.name || label,
+    headerImage: app.header_image || "",
+    releaseMs: releaseInfo.releaseMs,
+    releaseLabel: releaseInfo.releaseLabel,
+    releaseFallback: releaseInfo.fallback,
+    reviews,
+    steamTags,
+    color: getNextComparisonColor(),
+    topicRowsCache: new Map(),
+  });
+  await rememberRecentApp(resolved.appid, app);
+  els.comparisonStatus.textContent = "";
+  renderComparison();
+  const comparisonInput = getComparisonInputEl();
+  if (comparisonInput) comparisonInput.value = "";
+}
+
+function getComparisonTimelineModel() {
+  const games = state.comparisonGames.filter((game) => game.reviews?.length);
+  if (!games.length) return { games: [], buckets: [], maxValue: 0 };
+  let maxDay = 0;
+  games.forEach((game) => {
+    game.reviews.forEach((review) => {
+      const day = Math.max(0, Math.floor((Number(review.timestamp_created || 0) * 1000 - game.releaseMs) / DAY_MS));
+      if (Number.isFinite(day) && day > maxDay) maxDay = day;
+    });
+  });
+  const rangeCap = getComparisonRangeMaxDay();
+  if (Number.isFinite(rangeCap)) maxDay = Math.min(maxDay, rangeCap);
+  const maxBuckets = 30;
+  const rawBucketDays = Math.max(1, Math.ceil((maxDay + 1) / maxBuckets));
+  const bucketDays = rawBucketDays <= 7 ? rawBucketDays : rawBucketDays <= 14 ? 7 : rawBucketDays <= 31 ? 14 : rawBucketDays <= 62 ? 30 : rawBucketDays <= 124 ? 60 : 90;
+  const bucketCount = Math.max(1, Math.min(maxBuckets, Math.ceil((maxDay + 1) / bucketDays)));
+  const buckets = Array.from({ length: bucketCount }, (_, index) => {
+    const startDay = index * bucketDays;
+    const endDay = Math.min(maxDay, startDay + bucketDays - 1);
+    return {
+      key: `${startDay}-${endDay}`,
+      label: startDay === 0 ? "D0" : `D${startDay}`,
+      tooltipDate: startDay === endDay ? interp(t("dayNumber"), { day: startDay }) : `D${startDay} - D${endDay}`,
+      startDay,
+      endDay,
+    };
+  });
+  let maxValue = 0;
+  const series = games.map((game) => {
+    const dayCounts = new Map();
+    game.reviews.forEach((review) => {
+      const day = Math.max(0, Math.floor((Number(review.timestamp_created || 0) * 1000 - game.releaseMs) / DAY_MS));
+      dayCounts.set(day, (dayCounts.get(day) || 0) + 1);
+    });
+    const points = buckets.map((bucket) => {
+      let bucketTotal = 0;
+      for (let day = bucket.startDay; day <= bucket.endDay; day += 1) {
+        bucketTotal += dayCounts.get(day) || 0;
+      }
+      maxValue = Math.max(maxValue, bucketTotal);
+      return {
+        ...bucket,
+        total: bucketTotal,
+        positive: bucketTotal,
+        negative: 0,
+      };
+    });
+    return { ...game, points };
+  });
+  return { games: series, buckets, maxValue };
+}
+
+function getVisibleComparisonGames() {
+  return state.comparisonGames.filter((game) => game.reviews?.length && !state.comparisonHiddenGameIds.has(game.appid));
+}
+
+function getComparisonReviewsForKeywordAnalysis(game) {
+  const maxDay = getComparisonRangeMaxDay();
+  const language = state.comparisonKeywordLanguage || "all";
+  const ranged = (game.reviews || []).filter((review) => {
+    const day = Math.max(0, Math.floor((Number(review.timestamp_created || 0) * 1000 - game.releaseMs) / DAY_MS));
+    if (!Number.isFinite(day) || (Number.isFinite(maxDay) && day > maxDay)) return false;
+    if (language !== "all" && review.language !== language) return false;
+    return true;
+  });
+  if (state.comparisonKeywordSentiment === "positive") return ranged.filter((review) => review.voted_up);
+  if (state.comparisonKeywordSentiment === "negative") return ranged.filter((review) => !review.voted_up);
+  return ranged;
+}
+
+function getComparisonReviewsForTopicAnalysis(game) {
+  const maxDay = getComparisonRangeMaxDay();
+  const language = state.comparisonTopicLanguage || "all";
+  return (game.reviews || []).filter((review) => {
+    const day = Math.max(0, Math.floor((Number(review.timestamp_created || 0) * 1000 - game.releaseMs) / DAY_MS));
+    if (!Number.isFinite(day) || (Number.isFinite(maxDay) && day > maxDay)) return false;
+    if (language !== "all" && review.language !== language) return false;
+    return true;
+  });
+}
+
+function getComparisonTopicCacheKey() {
+  return `${state.comparisonTopicLanguage || "all"}::${state.comparisonTimeRange}`;
+}
+
+async function getComparisonTopicRows(game) {
+  if (!game) return [];
+  if (!(game.topicRowsCache instanceof Map)) game.topicRowsCache = new Map();
+  const cacheKey = getComparisonTopicCacheKey();
+  if (game.topicRowsCache.has(cacheKey)) return game.topicRowsCache.get(cacheKey);
+  const reviews = getComparisonReviewsForTopicAnalysis(game);
+  await ensureTopicTagsForAppReviews(game.appid, reviews);
+  const rows = computeTopicRows(reviews);
+  game.topicRowsCache.set(cacheKey, rows);
+  return rows;
+}
+
+function getComparisonCloudTerms(game) {
+  const reviews = getComparisonReviewsForKeywordAnalysis(game);
+  return {
+    appid: game.appid,
+    name: game.name,
+    color: game.color,
+    headerImage: game.headerImage,
+    reviews,
+    allTerms: extractWordCloudTerms(reviews, game.name),
+  };
+}
+
+function selectComparisonTermsForGame(cloud, primaryTerms, allClouds, isPrimary) {
+  if (isPrimary) return cloud.allTerms.slice(0, 15);
+  const primaryTermSet = new Set(primaryTerms.map((entry) => entry.term));
+  const cloudTermMap = new Map(cloud.allTerms.map((entry) => [entry.term, entry]));
+  const selected = [];
+  primaryTerms.forEach((entry) => {
+    const match = cloudTermMap.get(entry.term);
+    if (match) selected.push(match);
+  });
+  if (selected.length >= 15) return selected.slice(0, 15);
+
+  const otherTermSets = allClouds
+    .filter((entry) => entry.appid !== cloud.appid)
+    .map((entry) => new Set(entry.allTerms.map((termEntry) => termEntry.term)));
+  cloud.allTerms.forEach((entry) => {
+    if (selected.length >= 15) return;
+    if (primaryTermSet.has(entry.term)) return;
+    if (otherTermSets.some((termSet) => termSet.has(entry.term))) return;
+    selected.push(entry);
+  });
+  return selected.slice(0, 15);
+}
+
+function buildComparisonKeywordClouds() {
+  const games = getVisibleComparisonGames();
+  const clouds = games.map((game) => getComparisonCloudTerms(game));
+  const primaryCloud = clouds[0];
+  const primaryTerms = primaryCloud ? primaryCloud.allTerms.slice(0, 15) : [];
+  return clouds.map((cloud, index) => ({
+    ...cloud,
+    terms: selectComparisonTermsForGame(cloud, primaryTerms, clouds, index === 0),
+    isPrimary: index === 0,
+  }));
+}
+
+async function openComparisonKeywordReviews(term, appid) {
+  const targetAppId = appid || state.comparisonKeywordClouds[0]?.appid;
+  if (!term || !targetAppId) return;
+  await runDataTask(t("searchLoading"), async () => {
+    if (state.currentAppId !== targetAppId) {
+      await loadSummary(targetAppId);
+    }
+    state.pageMode = "review";
+    state.analysisTab = "reviews";
+    updatePageModeUi();
+    updateWorkspaceTabs();
+    els.reviewSearchInput.value = term;
+    await runReviewSearch();
+  });
+}
+
+function renderComparisonTermCloudMarkup(cloud) {
+  if (!cloud.terms.length) {
+    return `<div class="word-cloud-empty">${esc(t("comparisonKeywordNoTerms"))}</div>`;
+  }
+  const maxScore = cloud.terms[0]?.score || 1;
+  return cloud.terms
+    .map((entry) => {
+      const scale = entry.score / maxScore;
+      const warning = getNegativeMajorityWarning(entry.term, entry.positiveReviews, entry.negativeReviews, 20);
+      const classes = applyWarningClasses(
+        `word-cloud-term${state.wordCloudPrefs.allowed.includes(entry.term) ? " is-allowed" : ""}`,
+        warning
+      );
+      return `<button type="button" class="${classes}" data-comparison-keyword-term="${esc(
+        entry.term
+      )}" data-comparison-keyword-appid="${esc(cloud.appid)}" style="--term-size:${0.72 + scale * 1.1}rem;--term-weight:${
+        420 + Math.round(scale * 320)
+      };color:${esc(getAbsolutePositiveRateColor(entry.positiveRate))}">${esc(entry.term)}${renderWarningBadge(warning)}</button>`;
+    })
+    .join("");
+}
+
+function renderComparisonTopListMarkup(cloud) {
+  const topTerms = cloud.terms.slice(0, 10);
+  if (!topTerms.length) return "";
+  const maxReviews = topTerms[0]?.reviewCount || 1;
+  return topTerms
+    .map((entry) => {
+      const warning = getNegativeMajorityWarning(entry.term, entry.positiveReviews, entry.negativeReviews, 20);
+      return `<button type="button" class="${applyWarningClasses(
+        "chart-row",
+        warning
+      )}" data-warning-target="comparison-wordcloud-term-${esc(cloud.appid)}-${esc(entry.term)}" data-warning-label="${esc(
+        entry.term
+      )}" data-warning-surface="wordcloud" data-comparison-keyword-term="${esc(entry.term)}" data-comparison-keyword-appid="${esc(
+        cloud.appid
+      )}">${renderWarningBadge(warning)}<div class="chart-labels"><span>${esc(entry.term)}</span><span>${fmt(
+        entry.reviewCount
+      )}</span></div><div class="chart-meta"><span>${t("summaryPositiveRate")}: ${renderPositiveRateValue(
+        entry.positiveRate
+      )}</span><span>${fmt(entry.occurrences)} uses</span></div>${renderReviewStatusBarMarkup(
+        entry.positiveReviews,
+        entry.negativeReviews,
+        maxReviews,
+        "stacked-track"
+      )}</button>`;
+    })
+    .join("");
+}
+
+function setComparisonKeywordHighlight(term) {
+  if (!els.comparisonPanelKeywords) return;
+  els.comparisonPanelKeywords.querySelectorAll("[data-comparison-keyword-term]").forEach((node) => {
+    const active = Boolean(term) && node.dataset.comparisonKeywordTerm === term;
+    node.classList.toggle("is-term-highlight", active);
+    if (node.matches("circle")) {
+      const baseRadius = Number(node.dataset.baseRadius || node.getAttribute("r") || 0);
+      if (baseRadius) {
+        node.dataset.baseRadius = String(baseRadius);
+        node.setAttribute("r", String(active ? baseRadius + 2 : baseRadius));
+      }
+    }
+  });
+}
+
+function bindComparisonKeywordHighlights(clouds) {
+  if (!els.comparisonPanelKeywords) return;
+  els.comparisonPanelKeywords.querySelectorAll("[data-comparison-keyword-term]").forEach((node) => {
+    const term = node.dataset.comparisonKeywordTerm;
+    node.addEventListener("mouseenter", () => setComparisonKeywordHighlight(term));
+    node.addEventListener("mouseleave", () => setComparisonKeywordHighlight(""));
+  });
+
+  els.comparisonKeywordClouds?.querySelectorAll(".word-cloud-term").forEach((node) => {
+    const term = node.dataset.comparisonKeywordTerm;
+    const appid = node.dataset.comparisonKeywordAppid;
+    const cloud = clouds.find((entry) => entry.appid === appid);
+    const entry = cloud?.terms.find((termEntry) => termEntry.term === term);
+    if (!entry) return;
+    node.addEventListener("mousemove", (event) => showWordCloudTooltip(event, entry));
+    node.addEventListener("mouseleave", hideWordCloudTooltip);
+  });
+}
+
+function showComparisonScatterTooltip(event, cloud, entry) {
+  const tooltip = ensureSharedTooltip();
+  const share = cloud.reviews.length ? (entry.reviewCount / cloud.reviews.length) * 100 : 0;
+  tooltip.innerHTML = `<strong>${esc(entry.term)}</strong><div>${esc(cloud.name)}</div><div>${fmt(entry.reviewCount)} ${esc(
+    t("reviewCount")
+  )} (${share.toFixed(1)}%)</div><div>${esc(t("summaryPositiveRate"))}: ${renderPositiveRateValue(
+    entry.positiveRate
+  )}</div><div>${fmt(entry.occurrences)} uses</div>`;
+  tooltip.style.display = "block";
+  positionTooltipAwayFromCursor(event, tooltip);
+}
+
+function renderComparisonKeywordScatter(clouds) {
+  if (!els.comparisonKeywordScatter) return;
+  els.comparisonKeywordScatter.innerHTML = "";
+  const points = clouds.flatMap((cloud) =>
+    cloud.terms.map((entry) => ({
+      cloud,
+      entry,
+      share: cloud.reviews.length ? (entry.reviewCount / cloud.reviews.length) * 100 : 0,
+    }))
+  );
+  if (!points.length) {
+    els.comparisonKeywordScatter.innerHTML = `<div class="word-cloud-empty">${esc(t("comparisonKeywordEmpty"))}</div>`;
+    return;
+  }
+
+  const width = 1200;
+  const height = 520;
+  const margin = { top: 20, right: 34, bottom: 56, left: 72 };
+  const plotWidth = width - margin.left - margin.right;
+  const plotHeight = height - margin.top - margin.bottom;
+  const maxShare = Math.max(...points.map((point) => point.share), 1);
+  const rates = points.map((point) => point.entry.positiveRate);
+  const rawMinRate = Math.min(...rates);
+  const rawMaxRate = Math.max(...rates);
+  let minRate = Math.max(0, Math.floor((rawMinRate - 5) / 5) * 5);
+  let maxRate = Math.min(100, Math.ceil((rawMaxRate + 5) / 5) * 5);
+  if (maxRate - minRate < 10) {
+    minRate = Math.max(0, minRate - 5);
+    maxRate = Math.min(100, maxRate + 5);
+  }
+  const rateSpan = Math.max(1, maxRate - minRate);
+  const targetTickCount = 5;
+  const rawStep = rateSpan / Math.max(1, targetTickCount - 1);
+  const niceSteps = [2, 5, 10, 20, 25];
+  const tickStep = niceSteps.find((step) => rawStep <= step) || 25;
+  const tickRates = [];
+  for (let tick = minRate; tick <= maxRate + 0.0001; tick += tickStep) {
+    tickRates.push(Math.min(maxRate, Math.round(tick)));
+  }
+  if (tickRates[tickRates.length - 1] !== maxRate) tickRates.push(maxRate);
+  const svgNs = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNs, "svg");
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+  const grid = document.createElementNS(svgNs, "g");
+  grid.setAttribute("class", "word-cloud-scatter-grid");
+  tickRates.forEach((rate) => {
+    const y = margin.top + plotHeight - ((rate - minRate) / rateSpan) * plotHeight;
+    const line = document.createElementNS(svgNs, "line");
+    line.setAttribute("x1", String(margin.left));
+    line.setAttribute("x2", String(margin.left + plotWidth));
+    line.setAttribute("y1", String(y));
+    line.setAttribute("y2", String(y));
+    if (rate === minRate) line.setAttribute("class", "axis-zero");
+    grid.appendChild(line);
+
+    const label = document.createElementNS(svgNs, "text");
+    label.setAttribute("x", String(margin.left - 10));
+    label.setAttribute("y", String(y + 4));
+    label.setAttribute("text-anchor", "end");
+    label.setAttribute("class", "word-cloud-scatter-label");
+    label.textContent = `${rate}%`;
+    svg.appendChild(label);
+  });
+  svg.appendChild(grid);
+
+  const xAxis = document.createElementNS(svgNs, "line");
+  xAxis.setAttribute("x1", String(margin.left));
+  xAxis.setAttribute("x2", String(margin.left + plotWidth));
+  xAxis.setAttribute("y1", String(margin.top + plotHeight));
+  xAxis.setAttribute("y2", String(margin.top + plotHeight));
+  xAxis.setAttribute("class", "word-cloud-scatter-axis");
+  svg.appendChild(xAxis);
+
+  const yAxis = document.createElementNS(svgNs, "line");
+  yAxis.setAttribute("x1", String(margin.left));
+  yAxis.setAttribute("x2", String(margin.left));
+  yAxis.setAttribute("y1", String(margin.top));
+  yAxis.setAttribute("y2", String(margin.top + plotHeight));
+  yAxis.setAttribute("class", "word-cloud-scatter-axis");
+  svg.appendChild(yAxis);
+
+  [0, 0.25, 0.5, 0.75, 1].forEach((tick) => {
+    const x = margin.left + tick * plotWidth;
+    const label = document.createElementNS(svgNs, "text");
+    label.setAttribute("x", String(x));
+    label.setAttribute("y", String(margin.top + plotHeight + 22));
+    label.setAttribute("text-anchor", "middle");
+    label.setAttribute("class", "word-cloud-scatter-label");
+    label.textContent = `${(maxShare * tick).toFixed(maxShare >= 10 ? 0 : 1)}%`;
+    svg.appendChild(label);
+  });
+
+  const xAxisLabel = document.createElementNS(svgNs, "text");
+  xAxisLabel.setAttribute("x", String(margin.left + plotWidth / 2));
+  xAxisLabel.setAttribute("y", String(height - 6));
+  xAxisLabel.setAttribute("text-anchor", "middle");
+  xAxisLabel.setAttribute("class", "word-cloud-scatter-axis-label");
+  xAxisLabel.textContent = t("portion");
+  svg.appendChild(xAxisLabel);
+
+  const yAxisLabel = document.createElementNS(svgNs, "text");
+  yAxisLabel.setAttribute("x", "16");
+  yAxisLabel.setAttribute("y", String(margin.top + plotHeight / 2));
+  yAxisLabel.setAttribute("text-anchor", "middle");
+  yAxisLabel.setAttribute("transform", `rotate(-90 16 ${margin.top + plotHeight / 2})`);
+  yAxisLabel.setAttribute("class", "word-cloud-scatter-axis-label");
+  yAxisLabel.textContent = t("summaryPositiveRate");
+  svg.appendChild(yAxisLabel);
+
+  points.forEach(({ cloud, entry, share }) => {
+    const x = margin.left + (share / maxShare) * plotWidth;
+    const y = margin.top + plotHeight - ((entry.positiveRate - minRate) / rateSpan) * plotHeight;
+    const point = document.createElementNS(svgNs, "circle");
+    point.dataset.comparisonKeywordTerm = entry.term;
+    point.dataset.comparisonKeywordAppid = cloud.appid;
+    point.setAttribute("cx", String(x));
+    point.setAttribute("cy", String(y));
+    const radius = 4 + Math.min(7, Math.log1p(entry.reviewCount));
+    point.dataset.baseRadius = String(radius);
+    point.setAttribute("r", String(radius));
+    point.setAttribute("fill", cloud.color);
+    point.setAttribute("stroke", "rgba(10, 14, 20, 0.92)");
+    point.setAttribute("stroke-width", "1.25");
+    point.setAttribute("class", "word-cloud-scatter-point comparison-keyword-point");
+    point.addEventListener("mousemove", (event) => showComparisonScatterTooltip(event, cloud, entry));
+    point.addEventListener("mouseleave", hideWordCloudTooltip);
+    point.addEventListener("click", (event) => {
+      event.stopPropagation();
+      void openComparisonKeywordReviews(entry.term, cloud.appid);
+    });
+    svg.appendChild(point);
+  });
+
+  els.comparisonKeywordScatter.appendChild(svg);
+}
+
+function renderComparisonKeywordClouds(clouds) {
+  if (!els.comparisonKeywordClouds) return;
+  hideWordCloudTooltip();
+  if (!clouds.length) {
+    els.comparisonKeywordClouds.innerHTML = `<div class="word-cloud-empty">${esc(t("comparisonKeywordEmpty"))}</div>`;
+    return;
+  }
+  const primaryCloud = clouds[0];
+  const competitorClouds = clouds.slice(1);
+  const renderCard = (cloud) => `<article class="comparison-cloud-card${cloud.isPrimary ? " is-primary" : ""}" style="--game-color:${esc(
+    cloud.color
+  )}"><div class="comparison-cloud-head"><div><p class="eyebrow">${esc(
+    cloud.isPrimary ? t("comparisonKeywordPrimary") : t("comparisonKeywordCompetitors")
+  )}</p><h4>${esc(cloud.name)}</h4></div><span>${fmt(cloud.reviews.length)} ${esc(t("reviewCount"))}</span></div><div class="word-cloud-container comparison-cloud-container">${renderComparisonTermCloudMarkup(
+    cloud
+  )}</div><div class="word-cloud-top-list comparison-cloud-top-list">${renderComparisonTopListMarkup(cloud)}</div></article>`;
+
+  els.comparisonKeywordClouds.innerHTML = `<div class="comparison-cloud-row"><div class="comparison-cloud-primary">${renderCard(
+    primaryCloud
+  )}</div><div class="comparison-cloud-competitors">${competitorClouds.map(renderCard).join("")}</div></div>`;
+
+  bindComparisonKeywordHighlights(clouds);
+}
+
+function renderComparisonKeywords() {
+  if (!els.comparisonPanelKeywords) return;
+  if (els.comparisonTimelineStatus) els.comparisonTimelineStatus.textContent = "";
+  updateToggleButtons(els.comparisonKeywordSentimentToggle, state.comparisonKeywordSentiment, "comparisonKeywordSentiment");
+  updateToggleButtons(els.comparisonKeywordViewToggle, state.comparisonKeywordView, "comparisonKeywordView");
+  if (els.comparisonKeywordLanguageSelection) {
+    populateComparisonKeywordLanguageSelect(els.comparisonKeywordLanguageSelection);
+    els.comparisonKeywordLanguageSelection.value = state.comparisonKeywordLanguage;
+  }
+  if (els.comparisonTopicLanguageSelection) {
+    populateComparisonLanguageSelect(els.comparisonTopicLanguageSelection, state.comparisonTopicLanguage || "all");
+    els.comparisonTopicLanguageSelection.value = state.comparisonTopicLanguage;
+  }
+  state.comparisonKeywordClouds = buildComparisonKeywordClouds();
+  const clouds = state.comparisonKeywordClouds;
+  const displayedTerms = clouds.reduce((sum, cloud) => sum + cloud.terms.length, 0);
+  els.comparisonKeywordStatus.textContent = clouds.length
+    ? interp(t("comparisonKeywordReady"), { terms: fmt(displayedTerms), games: fmt(clouds.length) })
+    : t("comparisonKeywordEmpty");
+  els.comparisonKeywordClouds?.classList.toggle("hidden", state.comparisonKeywordView !== "cloud");
+  els.comparisonKeywordScatter?.classList.toggle("hidden", state.comparisonKeywordView !== "scatter");
+  if (state.comparisonKeywordView === "scatter") {
+    renderComparisonKeywordScatter(clouds);
+    bindComparisonKeywordHighlights(clouds);
+  } else {
+    renderComparisonKeywordClouds(clouds);
+  }
+}
+
+function setComparisonTopicHighlight(topicId) {
+  if (!els.comparisonPanelTopics) return;
+  const activeTopicId = topicId || "";
+  els.comparisonPanelTopics.querySelectorAll("[data-comparison-topic-id]").forEach((node) => {
+    node.classList.toggle("is-term-highlight", Boolean(activeTopicId) && node.dataset.comparisonTopicId === activeTopicId);
+  });
+  els.comparisonPanelTopics.querySelectorAll("[data-comparison-topic-bar]").forEach((node) => {
+    const active = Boolean(activeTopicId) && node.dataset.comparisonTopicBar === activeTopicId;
+    node.classList.toggle("is-term-highlight", active);
+    if (active && node.dataset.highlightFill) node.setAttribute("fill", node.dataset.highlightFill);
+    else if (node.dataset.baseFill) node.setAttribute("fill", node.dataset.baseFill);
+  });
+  els.comparisonPanelTopics.querySelectorAll("[data-comparison-topic-bar-label]").forEach((node) => {
+    node.classList.toggle("is-visible", Boolean(activeTopicId) && node.dataset.comparisonTopicBarLabel === activeTopicId);
+  });
+}
+
+async function openComparisonTopicReviews(topicId, appid) {
+  if (!topicId || !appid) return;
+  await runDataTask(topicText("topicStatusLoading"), async () => {
+    if (state.currentAppId !== appid) {
+      await loadSummary(appid);
+    }
+    state.pageMode = "review";
+    state.analysisTab = "reviews";
+    state.reviewTab = "browse";
+    state.reviewFilters.topic = topicId;
+    if (els.reviewTopicFilter) els.reviewTopicFilter.value = topicId;
+    if (els.reviewLanguageSelection) els.reviewLanguageSelection.value = state.comparisonTopicLanguage || "all";
+    updatePageModeUi();
+    updateWorkspaceTabs();
+    updateReviewTabUi();
+    await refreshScopedData();
+    els.reviewsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+}
+
+function getComparisonTopicTrendLabel(row) {
+  return row.trend === "up" ? topicText("topicTrendUp") : row.trend === "down" ? topicText("topicTrendDown") : topicText("topicTrendFlat");
+}
+
+function buildComparisonTopicMarkupRows(game, topicOrder) {
+  const topicRows = Array.isArray(game.topicRows) ? game.topicRows : [];
+  const rowMap = new Map(topicRows.map((row) => [row.id, row]));
+  const maxReviews = Math.max(...topicRows.map((row) => row.reviewCount), 1);
+  return topicOrder
+    .map((topicId) => {
+      const row =
+        rowMap.get(topicId) || {
+          id: topicId,
+          label: getTopicLabel(topicId),
+          positiveCount: 0,
+          negativeCount: 0,
+          positiveRate: 0,
+          negativeRate: 0,
+          mentionShare: 0,
+          reviewCount: 0,
+          trend: "flat",
+        };
+      const warning = row.reviewCount ? getNegativeMajorityWarning(getTopicRowLabel(row), row.positiveCount, row.negativeCount, 15) : null;
+      return `<button type="button" class="${applyWarningClasses(`chart-row${row.reviewCount ? "" : " is-empty"}`, warning)}" ${
+        row.reviewCount
+          ? `data-warning-target="comparison-topic-${esc(game.appid)}-${esc(row.id)}" data-warning-label="${esc(
+              `${game.name} • ${getTopicRowLabel(row)}`
+            )}" data-warning-surface="topics" data-comparison-topic-appid="${esc(game.appid)}"`
+          : 'disabled aria-disabled="true"'
+      } data-comparison-topic-id="${esc(row.id)}"${
+        row.reviewCount ? "" : ' data-comparison-topic-appid=""'
+      }>${renderWarningBadge(warning)}<div class="chart-labels"><span>${esc(getTopicRowLabel(row))}</span><span>${row.mentionShare.toFixed(
+        1
+      )}%</span></div><div class="chart-meta"><span>${esc(t("summaryPositiveRate"))}: ${renderPositiveRateValue(
+        row.positiveRate
+      )}</span><span>${row.reviewCount ? `${fmt(row.reviewCount)} ${esc(t("reviewCount"))} · ${esc(getComparisonTopicTrendLabel(row))}` : esc(
+        t("comparisonNoMentions")
+      )}</span></div>${renderReviewStatusBarMarkup(row.positiveCount, row.negativeCount, maxReviews, "stacked-track")}</button>`;
+    })
+    .join("");
+}
+
+function showComparisonTopicTooltip(event, game, row) {
+  const tooltip = ensureSharedTooltip();
+  tooltip.innerHTML = `<strong>${esc(getTopicRowLabel(row))}</strong><div>${esc(game.name)}</div><div>${
+    state.comparisonTopicChartMode === "count"
+      ? `${fmt(row.reviewCount)} ${esc(t("comparisonTopicCount"))}`
+      : `${row.mentionShare.toFixed(1)}% ${esc(t("comparisonTopicShare"))}`
+  }</div><div>${fmt(row.reviewCount)} ${esc(t("reviewCount"))}</div><div>${esc(t("summaryPositiveRate"))}: ${renderPositiveRateValue(
+    row.positiveRate
+  )}</div>`;
+  tooltip.style.display = "block";
+  positionTooltipAwayFromCursor(event, tooltip);
+}
+
+function renderComparisonTopicChart(gamesWithTopics, topicOrder) {
+  if (!els.comparisonTopicChart) return;
+  els.comparisonTopicChart.innerHTML = "";
+  const topicMeta = topicOrder.map((topicId) => {
+    const owner = gamesWithTopics.find((game) => game.topicRows.some((row) => row.id === topicId));
+    const row = owner?.topicRows.find((entry) => entry.id === topicId);
+    return {
+      id: topicId,
+      label: row ? getTopicRowLabel(row) : getTopicLabel(topicId),
+    };
+  });
+  if (!topicMeta.length) {
+    els.comparisonTopicChart.innerHTML = `<div class="status-text">${esc(t("comparisonTopicNoMatches"))}</div>`;
+    return;
+  }
+
+  const width = Math.max(920, topicMeta.length * 150);
+  const height = 420;
+  const margin = { top: 20, right: 20, bottom: 110, left: 64 };
+  const plotWidth = width - margin.left - margin.right;
+  const plotHeight = height - margin.top - margin.bottom;
+  const isCountMode = state.comparisonTopicChartMode === "count";
+  const values = gamesWithTopics.flatMap((game) => game.topicRows.map((row) => (isCountMode ? row.reviewCount : row.mentionShare)));
+  const maxValue = Math.max(1, ...values);
+  const tickStep = isCountMode
+    ? getNiceTimelineStep(maxValue, 4)
+    : maxValue <= 10
+      ? 2
+      : maxValue <= 25
+        ? 5
+        : maxValue <= 50
+          ? 10
+          : 20;
+  const chartMax = isCountMode ? Math.max(tickStep * 4, tickStep) : Math.max(tickStep * 4, Math.ceil(maxValue / tickStep) * tickStep);
+  const groupWidth = plotWidth / Math.max(1, topicMeta.length);
+  const innerGap = Math.min(10, groupWidth * 0.1);
+  const rawBarWidth = (groupWidth - innerGap * (gamesWithTopics.length + 1)) / Math.max(1, gamesWithTopics.length);
+  const barWidth = Math.min(34, Math.max(10, rawBarWidth));
+  const svgNs = "http://www.w3.org/2000/svg";
+  const shell = document.createElement("div");
+  shell.className = "comparison-topic-chart-shell";
+  const svg = document.createElementNS(svgNs, "svg");
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  svg.setAttribute("class", "comparison-topic-chart-svg");
+  const defs = document.createElementNS(svgNs, "defs");
+  svg.appendChild(defs);
+
+  [0, 0.25, 0.5, 0.75, 1].forEach((tick) => {
+    const value = chartMax * tick;
+    const y = margin.top + plotHeight - tick * plotHeight;
+    const line = document.createElementNS(svgNs, "line");
+    line.setAttribute("x1", String(margin.left));
+    line.setAttribute("x2", String(margin.left + plotWidth));
+    line.setAttribute("y1", String(y));
+    line.setAttribute("y2", String(y));
+    line.setAttribute("class", `comparison-topic-grid-line${tick === 0 ? " is-zero" : ""}`);
+    svg.appendChild(line);
+
+    const label = document.createElementNS(svgNs, "text");
+    label.setAttribute("x", String(margin.left - 10));
+    label.setAttribute("y", String(y + 4));
+    label.setAttribute("text-anchor", "end");
+    label.setAttribute("class", "comparison-topic-axis-label");
+    label.textContent = isCountMode ? fmt(Math.round(value)) : `${value.toFixed(value < 10 ? 1 : 0)}%`;
+    svg.appendChild(label);
+  });
+
+  const yAxisLabel = document.createElementNS(svgNs, "text");
+  yAxisLabel.setAttribute("x", "20");
+  yAxisLabel.setAttribute("y", String(margin.top + plotHeight / 2));
+  yAxisLabel.setAttribute("text-anchor", "middle");
+  yAxisLabel.setAttribute("transform", `rotate(-90 20 ${margin.top + plotHeight / 2})`);
+  yAxisLabel.setAttribute("class", "comparison-topic-axis-title");
+  yAxisLabel.textContent = isCountMode ? t("comparisonTopicCount") : t("comparisonTopicShare");
+  svg.appendChild(yAxisLabel);
+
+  topicMeta.forEach((topic, topicIndex) => {
+    const rowX = margin.left + groupWidth * topicIndex;
+    const label = document.createElementNS(svgNs, "text");
+    label.setAttribute("x", String(rowX + groupWidth / 2));
+    label.setAttribute("y", String(margin.top + plotHeight + 18));
+    label.setAttribute("text-anchor", "end");
+    label.setAttribute("transform", `rotate(-28 ${rowX + groupWidth / 2} ${margin.top + plotHeight + 18})`);
+    label.setAttribute("class", "comparison-topic-axis-label topic");
+    label.textContent = topic.label;
+    svg.appendChild(label);
+
+    gamesWithTopics.forEach((game, gameIndex) => {
+      const row = game.topicRows.find((entry) => entry.id === topic.id);
+      const value = row ? (isCountMode ? row.reviewCount : row.mentionShare) : 0;
+      const barHeight = (value / chartMax) * plotHeight;
+      const rect = document.createElementNS(svgNs, "rect");
+      const barX = rowX + innerGap + gameIndex * (barWidth + innerGap);
+      const barY = margin.top + plotHeight - barHeight;
+      rect.setAttribute("x", String(barX));
+      rect.setAttribute("y", String(barY));
+      rect.setAttribute("width", String(barWidth));
+      rect.setAttribute("height", String(Math.max(barHeight, 2)));
+      rect.setAttribute("rx", "7");
+      rect.setAttribute("fill", game.color);
+      rect.setAttribute("class", `comparison-topic-bar${row ? "" : " is-empty"}`);
+      rect.dataset.comparisonTopicBar = topic.id;
+      rect.dataset.baseFill = game.color;
+      if (row) {
+        const gradientId = `comparison-topic-gradient-${game.appid}-${topic.id}`.replace(/[^a-zA-Z0-9_-]/g, "-");
+        const positiveOffset = Math.max(0, Math.min(100, row.positiveRate));
+        const gradient = document.createElementNS(svgNs, "linearGradient");
+        gradient.setAttribute("id", gradientId);
+        gradient.setAttribute("x1", "0");
+        gradient.setAttribute("y1", "1");
+        gradient.setAttribute("x2", "0");
+        gradient.setAttribute("y2", "0");
+        const positiveStart = document.createElementNS(svgNs, "stop");
+        positiveStart.setAttribute("offset", "0%");
+        positiveStart.setAttribute("stop-color", "#2dd4bf");
+        const positiveEnd = document.createElementNS(svgNs, "stop");
+        positiveEnd.setAttribute("offset", `${positiveOffset}%`);
+        positiveEnd.setAttribute("stop-color", "#79e39f");
+        const negativeStart = document.createElementNS(svgNs, "stop");
+        negativeStart.setAttribute("offset", `${positiveOffset}%`);
+        negativeStart.setAttribute("stop-color", "#fb7185");
+        const negativeEnd = document.createElementNS(svgNs, "stop");
+        negativeEnd.setAttribute("offset", "100%");
+        negativeEnd.setAttribute("stop-color", "#ff6f7d");
+        gradient.appendChild(positiveStart);
+        gradient.appendChild(positiveEnd);
+        gradient.appendChild(negativeStart);
+        gradient.appendChild(negativeEnd);
+        defs.appendChild(gradient);
+        rect.dataset.highlightFill = `url(#${gradientId})`;
+        rect.addEventListener("mousemove", (event) => showComparisonTopicTooltip(event, game, row));
+        rect.addEventListener("mouseleave", hideWordCloudTooltip);
+        rect.addEventListener("click", () => {
+          void openComparisonTopicReviews(row.id, game.appid);
+        });
+
+        const rateLabel = document.createElementNS(svgNs, "text");
+        rateLabel.setAttribute("x", String(barX + barWidth / 2));
+        rateLabel.setAttribute("y", String(Math.max(margin.top + 11, barY - 6)));
+        rateLabel.setAttribute("text-anchor", "middle");
+        rateLabel.setAttribute("class", "comparison-topic-bar-value");
+        rateLabel.setAttribute("style", `fill:${getAbsolutePositiveRateColor(row.positiveRate)}`);
+        rateLabel.dataset.comparisonTopicBarLabel = topic.id;
+        rateLabel.textContent = `${Math.round(row.positiveRate)}%`;
+        svg.appendChild(rateLabel);
+      }
+      svg.appendChild(rect);
+    });
+  });
+
+  shell.appendChild(svg);
+  els.comparisonTopicChart.appendChild(shell);
+}
+
+function renderComparisonTopicCards(gamesWithTopics, topicOrder) {
+  if (!els.comparisonTopicClouds) return;
+  if (!gamesWithTopics.length || !topicOrder.length) {
+    els.comparisonTopicClouds.innerHTML = `<div class="word-cloud-empty">${esc(t("comparisonTopicNoMatches"))}</div>`;
+    return;
+  }
+  const [primaryGame, ...competitorGames] = gamesWithTopics;
+  const renderCard = (game, isPrimary) => `<article class="comparison-cloud-card comparison-topic-card${isPrimary ? " is-primary" : ""}" style="--game-color:${esc(
+    game.color
+  )}"><div class="comparison-cloud-head"><div><p class="eyebrow">${esc(
+    isPrimary ? t("comparisonKeywordPrimary") : t("comparisonKeywordCompetitors")
+  )}</p><h4>${esc(game.name)}</h4></div><span>${fmt(game.reviews.length)} ${esc(t("reviewCount"))}</span></div><div class="word-cloud-top-list comparison-cloud-top-list comparison-topic-top-list">${buildComparisonTopicMarkupRows(
+    game,
+    topicOrder
+  )}</div></article>`;
+
+  els.comparisonTopicClouds.innerHTML = `<div class="comparison-cloud-row"><div class="comparison-cloud-primary">${renderCard(
+    primaryGame,
+    true
+  )}</div><div class="comparison-cloud-competitors">${competitorGames.map((game) => renderCard(game, false)).join("")}</div></div>`;
+}
+
+async function renderComparisonTopics() {
+  if (!els.comparisonPanelTopics || !els.comparisonTopicChart || !els.comparisonTopicClouds || !els.comparisonTimelineStatus) return;
+  updateToggleButtons(els.comparisonTopicChartModeToggle, state.comparisonTopicChartMode, "comparisonTopicChartMode");
+  if (els.comparisonTopicLanguageSelection) {
+    populateComparisonLanguageSelect(els.comparisonTopicLanguageSelection, state.comparisonTopicLanguage || "all");
+    els.comparisonTopicLanguageSelection.value = state.comparisonTopicLanguage;
+  }
+  const visibleGames = getVisibleComparisonGames();
+  if (!visibleGames.length) {
+    els.comparisonTimelineStatus.textContent = "";
+    els.comparisonTopicChart.innerHTML = `<div class="status-text">${esc(t("comparisonTopicEmpty"))}</div>`;
+    els.comparisonTopicClouds.innerHTML = "";
+    return;
+  }
+
+  els.comparisonTimelineStatus.textContent = topicText("topicStatusLoading");
+  els.comparisonTopicChart.innerHTML = `<div class="status-text">${esc(topicText("topicStatusLoading"))}</div>`;
+  els.comparisonTopicClouds.innerHTML = "";
+
+  const gamesWithTopics = await Promise.all(
+    visibleGames.map(async (game) => ({
+      ...game,
+      reviews: getComparisonReviewsForTopicAnalysis(game),
+      topicRows: await getComparisonTopicRows(game),
+    }))
+  );
+  if (state.comparisonAnalysisTab !== "topics") return;
+  const topicOrder = [];
+  gamesWithTopics.forEach((game) => {
+    game.topicRows.forEach((row) => {
+      if (!topicOrder.includes(row.id)) topicOrder.push(row.id);
+    });
+  });
+
+  els.comparisonTimelineStatus.textContent = topicOrder.length
+    ? interp(t("comparisonTopicReady"), { games: fmt(gamesWithTopics.length), topics: fmt(topicOrder.length) })
+    : t("comparisonTopicNoMatches");
+  renderComparisonTopicChart(gamesWithTopics, topicOrder);
+  renderComparisonTopicCards(gamesWithTopics, topicOrder);
+}
+
+function showComparisonTooltip(event, game, point) {
+  const tooltip = ensureSharedTooltip();
+  tooltip.innerHTML = `<strong>${esc(game.name)}</strong><div>${esc(point.tooltipDate)}</div><div>${fmt(point.total)} ${esc(t("reviewCount"))}</div><div>${esc(t("releaseDay"))}: ${esc(game.releaseLabel)}${
+    game.releaseFallback ? ` (${esc(t("comparisonReleaseFallback"))})` : ""
+  }</div>`;
+  tooltip.style.display = "block";
+  positionTooltipAwayFromCursor(event, tooltip);
+}
+
+function setComparisonHoveredGame(appid) {
+  const nextValue = appid || null;
+  if (state.comparisonHoveredGameId === nextValue) return;
+  state.comparisonHoveredGameId = nextValue;
+  renderComparisonLegend();
+  renderComparisonTimeline();
+}
+
+function renderComparisonTimeline() {
+  if (!els.comparisonTimelineChart || !els.comparisonTimelineStatus) return;
+  const { games, buckets, maxValue } = getComparisonTimelineModel();
+  const visibleGames = games.filter((game) => !state.comparisonHiddenGameIds.has(game.appid));
+  els.comparisonTimelineChart.innerHTML = "";
+  if (els.comparisonMomentumPanel) els.comparisonMomentumPanel.innerHTML = "";
+  hideWordCloudTooltip();
+  if (!games.length || !buckets.length || !visibleGames.length) {
+    const emptyText = state.comparisonGames.length ? "" : t("comparisonNoGames");
+    els.comparisonTimelineStatus.textContent = "";
+    els.comparisonTimelineChart.innerHTML = `<div class="status-text">${esc(emptyText)}</div>`;
+    return;
+  }
+
+  const plotWidth = 960;
+  const plotHeight = 320;
+  const leftPadding = 12;
+  const rightPadding = 12;
+  const topPadding = 16;
+  const bottomPadding = 28;
+  const usableWidth = plotWidth - leftPadding - rightPadding;
+  const usableHeight = plotHeight - topPadding - bottomPadding;
+  const xStep = buckets.length === 1 ? 0 : usableWidth / (buckets.length - 1);
+  const labelStep = Math.max(1, Math.ceil(buckets.length / 10));
+  const svgNs = "http://www.w3.org/2000/svg";
+  const tickStep = getNiceTimelineStep(maxValue, 4);
+  const chartMax = Math.max(tickStep * 4, 1);
+  const quarterValue = tickStep;
+  const halfValue = tickStep * 2;
+  const threeQuarterValue = tickStep * 3;
+
+  const shell = document.createElement("div");
+  shell.className = "timeline-shell timeline-shell-keywords comparison-timeline-shell";
+  const axis = document.createElement("div");
+  axis.className = "timeline-y-axis timeline-y-axis-keywords";
+  axis.innerHTML = `
+    <div class="comparison-axis-scale">
+      <div class="timeline-y-tick comparison-axis-tick" style="top:0%">${fmt(chartMax)}</div>
+      <div class="timeline-y-tick comparison-axis-tick" style="top:25%">${fmt(threeQuarterValue)}</div>
+      <div class="timeline-y-tick comparison-axis-tick" style="top:50%">${fmt(halfValue)}</div>
+      <div class="timeline-y-tick comparison-axis-tick" style="top:75%">${fmt(quarterValue)}</div>
+      <div class="timeline-y-tick comparison-axis-tick is-zero" style="top:100%">0</div>
+    </div>
+  `;
+  const plot = document.createElement("div");
+  plot.className = "timeline-plot timeline-plot-keywords";
+  plot.innerHTML = `
+    <div class="timeline-grid comparison-grid-scale" aria-hidden="true">
+      <div class="timeline-grid-line comparison-grid-line" style="top:0%"></div>
+      <div class="timeline-grid-line comparison-grid-line" style="top:25%"></div>
+      <div class="timeline-grid-line comparison-grid-line" style="top:50%"></div>
+      <div class="timeline-grid-line comparison-grid-line" style="top:75%"></div>
+      <div class="timeline-grid-line comparison-grid-line is-zero" style="top:100%"></div>
+    </div>
+  `;
+  const svg = document.createElementNS(svgNs, "svg");
+  svg.setAttribute("viewBox", `0 0 ${plotWidth} ${plotHeight}`);
+  svg.setAttribute("class", "timeline-line-svg");
+
+  const orderedGames = state.comparisonHoveredGameId
+    ? [
+        ...visibleGames.filter((game) => game.appid !== state.comparisonHoveredGameId),
+        ...visibleGames.filter((game) => game.appid === state.comparisonHoveredGameId),
+      ]
+    : visibleGames;
+
+  orderedGames.forEach((game) => {
+    const isHovered = state.comparisonHoveredGameId === game.appid;
+    const isDimmed = Boolean(state.comparisonHoveredGameId && !isHovered);
+    const visiblePoints = game.points.map((point, pointIndex) => {
+      const x = leftPadding + xStep * pointIndex;
+      const y = topPadding + usableHeight - (point.total / chartMax) * usableHeight;
+      return { ...point, x, y, pointIndex };
+    });
+    const path = document.createElementNS(svgNs, "path");
+    path.setAttribute(
+      "d",
+      visiblePoints.map((point, index) => `${index === 0 ? "M" : "L"} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`).join(" ")
+    );
+    path.setAttribute("fill", "none");
+    path.setAttribute("stroke", game.color);
+    path.setAttribute("stroke-width", isHovered ? "4" : "2.5");
+    path.setAttribute("stroke-linecap", "round");
+    path.setAttribute("stroke-linejoin", "round");
+    path.setAttribute("class", `timeline-line-path${isHovered ? " is-hovered" : ""}${isDimmed ? " is-dimmed" : ""}`);
+    path.addEventListener("mouseenter", () => setComparisonHoveredGame(game.appid));
+    svg.appendChild(path);
+
+    visiblePoints.forEach((point) => {
+      const circle = document.createElementNS(svgNs, "circle");
+      circle.setAttribute("cx", point.x.toFixed(2));
+      circle.setAttribute("cy", point.y.toFixed(2));
+      circle.setAttribute("r", isHovered ? "7.5" : "6");
+      circle.setAttribute("fill", game.color);
+      circle.setAttribute("stroke", "rgba(11, 18, 25, 0.88)");
+      circle.setAttribute("stroke-width", "1.5");
+      circle.setAttribute("class", `timeline-line-point${isHovered ? " is-hovered" : ""}${isDimmed ? " is-dimmed" : ""}`);
+      circle.addEventListener("mouseenter", () => setComparisonHoveredGame(game.appid));
+      circle.addEventListener("mousemove", (event) => showComparisonTooltip(event, game, point));
+      circle.addEventListener("mouseleave", hideWordCloudTooltip);
+      svg.appendChild(circle);
+
+      const hitArea = document.createElementNS(svgNs, "circle");
+      hitArea.setAttribute("cx", point.x.toFixed(2));
+      hitArea.setAttribute("cy", point.y.toFixed(2));
+      hitArea.setAttribute("r", "12");
+      hitArea.setAttribute("fill", "transparent");
+      hitArea.setAttribute("class", "timeline-line-hit");
+      hitArea.addEventListener("mouseenter", () => setComparisonHoveredGame(game.appid));
+      hitArea.addEventListener("mousemove", (event) => showComparisonTooltip(event, game, point));
+      hitArea.addEventListener("mouseleave", hideWordCloudTooltip);
+      svg.appendChild(hitArea);
+    });
+  });
+
+  buckets.forEach((bucket, index) => {
+    if (index % labelStep !== 0 && index !== buckets.length - 1) return;
+    const label = document.createElement("div");
+    label.className = "timeline-line-label";
+    label.textContent = bucket.label;
+    label.style.left = `${((leftPadding + xStep * index) / plotWidth) * 100}%`;
+    plot.appendChild(label);
+  });
+
+  plot.appendChild(svg);
+  shell.appendChild(axis);
+  shell.appendChild(plot);
+  els.comparisonTimelineChart.appendChild(shell);
+  renderComparisonMomentumPanels(visibleGames);
+  els.comparisonTimelineStatus.textContent = "";
+  els.comparisonTimelineChart.onmouseleave = () => {
+    hideWordCloudTooltip();
+    setComparisonHoveredGame(null);
+  };
+}
+
+function normalizeSteamTagKey(value) {
+  return String(value || "").trim().toLocaleLowerCase("en-US").replace(/\s+/g, " ");
+}
+
+function getComparisonPrimaryGame() {
+  return state.comparisonGames.find((game) => game.appid === state.currentAppId) || state.comparisonGames[0] || null;
+}
+
+function getComparisonTagHighlightMap() {
+  const primaryGame = getComparisonPrimaryGame();
+  const sharedByAppId = new Map();
+  if (!primaryGame) return { primaryAppid: "", sharedByAppId };
+
+  const primaryKeys = new Set((primaryGame.steamTags || []).map((tag) => normalizeSteamTagKey(tag)).filter(Boolean));
+  const sharedPrimaryKeys = new Set();
+  sharedByAppId.set(primaryGame.appid, sharedPrimaryKeys);
+
+  state.comparisonGames.forEach((game) => {
+    if (game.appid === primaryGame.appid) return;
+    const sharedKeys = new Set();
+    (game.steamTags || []).forEach((tag) => {
+      const key = normalizeSteamTagKey(tag);
+      if (!key || !primaryKeys.has(key)) return;
+      sharedKeys.add(key);
+      sharedPrimaryKeys.add(key);
+    });
+    sharedByAppId.set(game.appid, sharedKeys);
+  });
+
+  return {
+    primaryAppid: primaryGame.appid,
+    sharedByAppId,
+  };
+}
+
+function renderComparisonSteamTags(game, tagHighlightMap, variant = "game") {
+  const tags = Array.isArray(game.steamTags) ? game.steamTags.filter(Boolean) : [];
+  const rootClass = `comparison-${variant}-tags`;
+  const labelClass = `comparison-${variant}-tags-label`;
+  const listClass = `comparison-${variant}-tag-list`;
+  const emptyClass = `comparison-${variant}-tags-empty`;
+  const chipClass = `comparison-${variant}-tag`;
+  if (!tags.length) {
+    return `<div class="${rootClass}"><div class="${labelClass}">${esc(t("comparisonSteamTags"))}</div><div class="${emptyClass}">${esc(
+      t("comparisonNoSteamTags")
+    )}</div></div>`;
+  }
+  const sharedKeys = tagHighlightMap.sharedByAppId.get(game.appid) || new Set();
+  const chips = tags
+    .map((tag) => {
+      const tagKey = normalizeSteamTagKey(tag);
+      const sharedClass = sharedKeys.has(normalizeSteamTagKey(tag)) ? " is-shared" : "";
+      const highlightClass = state.comparisonHighlightedTag && state.comparisonHighlightedTag === tagKey ? " is-term-highlight" : "";
+      return `<span class="${chipClass}${sharedClass}${highlightClass}" data-comparison-tag-key="${esc(tagKey)}">${esc(tag)}</span>`;
+    })
+    .join("");
+  return `<div class="${rootClass}"><div class="${labelClass}">${esc(t("comparisonSteamTags"))}</div><div class="${listClass}">${chips}</div></div>`;
+}
+
+function setComparisonTagHighlight(tagKey) {
+  state.comparisonHighlightedTag = tagKey || "";
+  if (!els.comparisonMomentumPanel) return;
+  els.comparisonMomentumPanel.querySelectorAll("[data-comparison-tag-key]").forEach((node) => {
+    node.classList.toggle("is-term-highlight", Boolean(state.comparisonHighlightedTag) && node.dataset.comparisonTagKey === state.comparisonHighlightedTag);
+  });
+}
+
+function renderComparisonGamesList() {
+  if (!els.comparisonGamesList) return;
+  const cards = state.comparisonGames.map((game) => {
+    const positive = game.reviews.filter((review) => review.voted_up).length;
+    const negative = Math.max(0, game.reviews.length - positive);
+    const total = Math.max(1, positive + negative);
+    const positiveRate = ((positive / total) * 100).toFixed(1);
+    const mutedClass = state.comparisonHiddenGameIds.has(game.appid) ? " is-muted" : "";
+    return `<div class="comparison-game-card${mutedClass}" style="--game-color:${esc(game.color)}"><button type="button" class="comparison-remove-button" data-comparison-remove="${esc(
+      game.appid
+    )}" aria-label="${esc(interp(t("comparisonRemoveGame"), { name: game.name }))}">×</button><img src="${esc(game.headerImage)}" alt="${esc(
+      game.name
+    )}" loading="lazy" /><div class="comparison-game-body"><div class="comparison-game-title"><span class="timeline-keyword-swatch" style="background:${esc(
+      game.color
+    )}"></span>${esc(game.name)}</div><div class="comparison-game-meta">${esc(t("releaseDay"))}: ${esc(game.releaseLabel)}${
+      game.releaseFallback ? ` · ${esc(t("comparisonReleaseFallback"))}` : ""
+    }</div><div class="comparison-game-meta">${fmt(game.reviews.length)} ${esc(t("reviewCount"))} · ${renderPositiveRateValue(
+      positiveRate
+    )}</div>${renderReviewStatusBarMarkup(positive, negative, positive + negative, "stacked-track")}</div></div>`;
+  });
+  const addTile = `<form id="comparison-form" class="comparison-add-tile"><div class="comparison-add-icon" aria-hidden="true">+</div><div class="search-form comparison-add-body"><input id="comparison-input" type="text" placeholder="${esc(
+    t("appInputPlaceholder")
+  )}" /><button id="comparison-add-button" type="submit" data-i18n="comparisonAddGame">${esc(t("comparisonAddGame"))}</button></div></form>`;
+  els.comparisonGamesList.innerHTML = cards.concat(addTile).join("");
+}
+
+function renderComparisonLegend() {
+  if (!els.comparisonLegend) return;
+  if (!state.comparisonGames.length) {
+    els.comparisonLegend.innerHTML = "";
+    return;
+  }
+  els.comparisonLegend.innerHTML = state.comparisonGames
+    .map((game) => {
+      const activeClass = state.comparisonHiddenGameIds.has(game.appid) ? "" : " active";
+      const hoveredClass = state.comparisonHoveredGameId === game.appid ? " is-hovered" : "";
+      return `<button type="button" class="comparison-legend-chip${activeClass}" data-comparison-legend="${esc(
+        game.appid
+      )}"><span class="comparison-legend-swatch${hoveredClass}" style="background:${esc(game.color)}"></span><span>${esc(game.name)}</span></button>`;
+    })
+    .join("");
+}
+
+function getComparisonInputEl() {
+  return document.getElementById("comparison-input");
+}
+
+function getComparisonAddButtonEl() {
+  return document.getElementById("comparison-add-button");
+}
+
+function renderComparison() {
+  updateToggleButtons(els.comparisonAnalysisTabToggle, state.comparisonAnalysisTab, "comparisonAnalysisTab");
+  updateToggleButtons(els.comparisonTimeRangeToggle, state.comparisonTimeRange, "comparisonTimeRange");
+  els.comparisonTopicChartModeToggle?.classList.toggle("hidden", state.comparisonAnalysisTab !== "topics");
+  els.comparisonPanelTimeline?.classList.toggle("hidden", state.comparisonAnalysisTab !== "timeline");
+  els.comparisonPanelKeywords?.classList.toggle("hidden", state.comparisonAnalysisTab !== "keywords");
+  els.comparisonPanelTopics?.classList.toggle("hidden", state.comparisonAnalysisTab !== "topics");
+  const headingEyebrow = document.querySelector('[data-i18n="comparisonTimelineEyebrow"]');
+  const headingTitle = document.querySelector('[data-i18n="comparisonTimelineTitle"]');
+  if (headingEyebrow) {
+    headingEyebrow.textContent =
+      state.comparisonAnalysisTab === "keywords"
+        ? t("comparisonKeywordEyebrow")
+        : state.comparisonAnalysisTab === "topics"
+          ? t("comparisonTopicEyebrow")
+          : t("comparisonTimelineEyebrow");
+  }
+  if (headingTitle) {
+    headingTitle.textContent =
+      state.comparisonAnalysisTab === "keywords"
+        ? t("comparisonKeywordTitle")
+        : state.comparisonAnalysisTab === "topics"
+          ? t("comparisonTopicTitle")
+          : t("comparisonTimelineTitle");
+  }
+  renderComparisonLegend();
+  if (state.comparisonAnalysisTab === "keywords") renderComparisonKeywords();
+  else if (state.comparisonAnalysisTab === "topics") void renderComparisonTopics();
+  else renderComparisonTimeline();
+  renderComparisonGamesList();
 }
 
 function applyTranslations() {
@@ -4305,8 +6224,11 @@ function applyTranslations() {
   syncReviewBrowserExpandedState();
 
   els.appidInput.placeholder = t("appInputPlaceholder");
+  const comparisonInput = getComparisonInputEl();
+  if (comparisonInput) comparisonInput.placeholder = t("appInputPlaceholder");
   els.reviewSearchInput.placeholder = t("searchPlaceholder");
   els.wordPreferenceInput.placeholder = t("wordPreferencePlaceholder");
+  if (els.comparisonWordPreferenceInput) els.comparisonWordPreferenceInput.placeholder = t("wordPreferencePlaceholder");
   els.timelineKeywordInput.placeholder = t("timelineKeywordPlaceholder");
   if (els.aiAnalysisInput) els.aiAnalysisInput.placeholder = t("aiAnalysisPlaceholder");
   if (els.timeRangeStart) els.timeRangeStart.lang = state.currentUiLanguage === "ja" ? "ja-JP" : "en-CA";
@@ -4324,6 +6246,7 @@ function applyTranslations() {
   renderAiModelOptions();
 
   updateToggleButtons(els.uiLanguageToggle, state.currentUiLanguage, "lang");
+  updatePageModeUi();
   if (els.positiveRateColorToggle) {
     const pill = els.positiveRateColorToggle.querySelector("[data-positive-rate-colors]");
     if (pill) pill.classList.toggle("active", state.showPositiveRateColors);
@@ -4343,6 +6266,7 @@ function applyTranslations() {
   els.reviewMeaningfulButton?.classList.toggle("active", state.reviewFilters.meaningful === "meaningful");
   updateToggleButtons(els.wordSentimentToggle, state.wordCloudSentiment, "wordSentiment");
   if (els.wordViewToggle) updateToggleButtons(els.wordViewToggle, state.wordCloudView, "wordView");
+  updateToggleButtons(els.comparisonKeywordSentimentToggle, state.comparisonKeywordSentiment, "comparisonKeywordSentiment");
   updateReviewTabUi();
   updateWorkspaceTabs();
   updateTimeRangeUi();
@@ -4353,11 +6277,16 @@ function applyTranslations() {
   populateLanguageSelect(els.reviewLanguageSelection);
   populateLanguageSelect(els.playtimeLanguageSelection);
   populateLanguageSelect(els.wordLanguageSelection);
+  if (els.comparisonKeywordLanguageSelection) {
+    populateComparisonKeywordLanguageSelect(els.comparisonKeywordLanguageSelection);
+    els.comparisonKeywordLanguageSelection.value = state.comparisonKeywordLanguage;
+  }
   populateReviewFilterSelects();
   renderPlaytimeCutoffControls();
   updateCacheTimestamp(state.cacheTimestamp);
   renderWordPreferenceList();
   renderRecentApps();
+  renderComparison();
   updateAiAnalysisScope();
   renderAiAnalysisMessages();
 
@@ -4613,6 +6542,44 @@ function getTopicClusterStorageKey(appid) {
   return `topicclusters::${appid}::v${TOPIC_CLUSTER_CACHE_VERSION}`;
 }
 
+function getTitleTopicDictionaryStorageKey(appid) {
+  return `titletopics::${appid}`;
+}
+
+function getCurrentTopicDictionaryHash() {
+  return state.currentTopicDictionaryHash || "base";
+}
+
+function computeTopicDictionaryHash(topics) {
+  return hashText(JSON.stringify((topics || []).map((topic) => normalizeCustomTopicDefinition(topic)).filter(Boolean)));
+}
+
+async function loadTitleTopicDictionary(appid) {
+  if (state.titleTopicDictionaryAppId === appid) return state.titleTopicDictionary;
+  const record = await getRecord(getTitleTopicDictionaryStorageKey(appid));
+  const topics = Array.isArray(record?.value?.topics) ? record.value.topics.map((topic) => normalizeCustomTopicDefinition(topic)).filter(Boolean) : [];
+  state.titleTopicDictionaryAppId = appid;
+  state.titleTopicDictionary = topics;
+  state.titleTopicDictionaryMeta = record?.value?.meta || null;
+  state.currentTopicDictionaryHash = topics.length ? computeTopicDictionaryHash(topics) : "base";
+  return state.titleTopicDictionary;
+}
+
+async function persistTitleTopicDictionary(appid, topics, meta = {}) {
+  const normalizedTopics = (Array.isArray(topics) ? topics : []).map((topic) => normalizeCustomTopicDefinition(topic)).filter(Boolean);
+  state.titleTopicDictionaryAppId = appid;
+  state.titleTopicDictionary = normalizedTopics;
+  state.titleTopicDictionaryMeta = {
+    updatedAt: new Date().toISOString(),
+    ...meta,
+  };
+  state.currentTopicDictionaryHash = normalizedTopics.length ? computeTopicDictionaryHash(normalizedTopics) : "base";
+  await putRecord(getTitleTopicDictionaryStorageKey(appid), {
+    topics: normalizedTopics,
+    meta: state.titleTopicDictionaryMeta,
+  });
+}
+
 function getTopicClusterAnalysisKey() {
   const { start, end } = getDisplayTimeRangeDates();
   const savedStamp =
@@ -4631,31 +6598,53 @@ function getCollectedReviewsCacheKey(lang) {
 }
 
 async function loadTopicTagCache(appid) {
+  await loadTitleTopicDictionary(appid);
   if (state.topicTagCacheAppId === appid) return state.topicTagCache;
   const record = await getRecord(getTopicTagStorageKey(appid));
   state.topicTagCacheAppId = appid;
-  state.topicTagCache = new Map(Object.entries(record?.value || {}));
+  const value = record?.value;
+  const entries =
+    value && typeof value === "object" && value.dictionaryHash
+      ? value.dictionaryHash === getCurrentTopicDictionaryHash()
+        ? value.entries || {}
+        : {}
+      : {};
+  state.topicTagCache = new Map(Object.entries(entries));
   return state.topicTagCache;
 }
 
 async function persistTopicTagCache(appid) {
   if (state.topicTagCacheAppId !== appid) return;
   const serializable = Object.fromEntries(state.topicTagCache.entries());
-  await putRecord(getTopicTagStorageKey(appid), serializable);
+  await putRecord(getTopicTagStorageKey(appid), {
+    dictionaryHash: getCurrentTopicDictionaryHash(),
+    entries: serializable,
+  });
 }
 
 async function loadTopicClusterCache(appid) {
+  await loadTitleTopicDictionary(appid);
   if (state.topicClusterCacheAppId === appid) return state.topicClusterCache;
   const record = await getRecord(getTopicClusterStorageKey(appid));
   state.topicClusterCacheAppId = appid;
-  state.topicClusterCache = new Map(Object.entries(record?.value || {}));
+  const value = record?.value;
+  const entries =
+    value && typeof value === "object" && value.dictionaryHash
+      ? value.dictionaryHash === getCurrentTopicDictionaryHash()
+        ? value.entries || {}
+        : {}
+      : {};
+  state.topicClusterCache = new Map(Object.entries(entries));
   return state.topicClusterCache;
 }
 
 async function persistTopicClusterCache(appid) {
   if (state.topicClusterCacheAppId !== appid) return;
   const serializable = Object.fromEntries(state.topicClusterCache.entries());
-  await putRecord(getTopicClusterStorageKey(appid), serializable);
+  await putRecord(getTopicClusterStorageKey(appid), {
+    dictionaryHash: getCurrentTopicDictionaryHash(),
+    entries: serializable,
+  });
 }
 
 function matchesTopicKeyword(rawText, normalizedText, keyword) {
@@ -4703,8 +6692,7 @@ function attachTopicTag(review, tag) {
   return review;
 }
 
-async function ensureTopicTagsForReviews(reviews, options = {}) {
-  const appid = state.currentAppId;
+async function ensureTopicTagsForAppReviews(appid, reviews, options = {}) {
   if (!appid || !reviews.length) return reviews;
   const cache = await loadTopicTagCache(appid);
   const onProgress = typeof options.onProgress === "function" ? options.onProgress : null;
@@ -4729,6 +6717,10 @@ async function ensureTopicTagsForReviews(reviews, options = {}) {
 
   if (dirty) await persistTopicTagCache(appid);
   return reviews;
+}
+
+async function ensureTopicTagsForReviews(reviews, options = {}) {
+  return ensureTopicTagsForAppReviews(state.currentAppId, reviews, options);
 }
 
 function computeTopicPriority(row) {
@@ -4920,6 +6912,15 @@ async function getGroupDetails(appid, force = false) {
   return xml;
 }
 
+async function getAppSteamTags(appid, force = false) {
+  if (!force && state.appTagCache.has(appid)) return state.appTagCache.get(appid);
+  const url = `${API_BASE}/apptags?appid=${encodeURIComponent(appid)}`;
+  const payload = force ? await fetchJson(url) : await getCachedValue(`apptags::${appid}::v${APP_TAGS_CACHE_VERSION}`, () => fetchJson(url));
+  const tags = Array.isArray(payload?.tags) ? payload.tags.map((tag) => String(tag || "").trim()).filter(Boolean) : [];
+  state.appTagCache.set(appid, tags);
+  return tags;
+}
+
 async function getReviews(appid, lang, cursor = "*", force = false) {
   const key = cacheKey(appid, lang, cursor);
   if (!force && state.reviewCache.has(key)) return state.reviewCache.get(key);
@@ -4999,8 +7000,7 @@ function showPieTooltip(event, row, share) {
     row.total_positive
   ))}</div><div>${t("negativeCount").replace("{count}", fmt(row.total_negative))}</div>`;
   tooltip.style.display = "block";
-  tooltip.style.left = `${event.clientX + 14}px`;
-  tooltip.style.top = `${event.clientY + 14}px`;
+  positionTooltipAwayFromCursor(event, tooltip);
 }
 
 function hidePieTooltip() {
@@ -5218,9 +7218,9 @@ function buildAllowedTermStats(reviews, allowedTerms) {
   return stats;
 }
 
-function getWordCloudBlockedTerms() {
+function getWordCloudBlockedTerms(nameOverride = null) {
   const app = state.appDetails.get(state.currentAppId)?.[state.currentAppId]?.data;
-  const name = app?.name || "";
+  const name = nameOverride ?? app?.name ?? "";
   const tokens = extractWordCloudTokens(name, new Set()).filter(Boolean);
   const blocked = new Set(tokens);
   for (let index = 0; index < tokens.length - 1; index += 1) {
@@ -5252,8 +7252,8 @@ function looksLikeContentTerm(token, blockedTerms) {
   return true;
 }
 
-function extractWordCloudTerms(reviews) {
-  const blockedTerms = getWordCloudBlockedTerms();
+function extractWordCloudTerms(reviews, blockedName = null) {
+  const blockedTerms = getWordCloudBlockedTerms(blockedName);
   const allowedTerms = state.wordCloudPrefs.allowed.filter((term) => !blockedTerms.has(term));
   const docs = new Map();
   const counts = new Map();
@@ -5338,8 +7338,7 @@ function showWordCloudTooltip(event, entry) {
     "summaryPositiveRate"
   )}: ${renderPositiveRateValue(entry.positiveRate)}</div>`;
   tooltip.style.display = "block";
-  tooltip.style.left = `${event.clientX + 14}px`;
-  tooltip.style.top = `${event.clientY + 14}px`;
+  positionTooltipAwayFromCursor(event, tooltip);
 }
 
 function hideWordCloudTooltip() {
@@ -5631,8 +7630,7 @@ function showTopicTooltip(event, row) {
     "summaryPositiveRate"
   )}: ${renderPositiveRateValue(row.positiveRate)}</div>`;
   tooltip.style.display = "block";
-  tooltip.style.left = `${event.clientX + 14}px`;
-  tooltip.style.top = `${event.clientY + 14}px`;
+  positionTooltipAwayFromCursor(event, tooltip);
 }
 
 function renderWordCloud() {
@@ -6344,6 +8342,53 @@ async function collectReviews(lang, force = false, options = {}) {
   return out;
 }
 
+async function collectLifetimeReviewsForAi(options = {}) {
+  if (!state.currentAppId) return [];
+  const onProgress = typeof options.onProgress === "function" ? options.onProgress : null;
+  const memoryKey = `${state.currentAppId}::all::lifetime-ai`;
+  if (state.collectedReviewsCache.has(memoryKey)) {
+    const cached = state.collectedReviewsCache.get(memoryKey);
+    if (onProgress) {
+      onProgress({ totalCollected: cached.length, complete: true });
+      await yieldToUi();
+    }
+    return cached;
+  }
+
+  const out = [];
+  for (const [languageIndex, [, code]] of LANGUAGES.entries()) {
+    throwIfTaskCancelled();
+    const seen = new Set();
+    let cursor = "*";
+    let pagesLoaded = 0;
+    while (!seen.has(cursor)) {
+      throwIfTaskCancelled();
+      seen.add(cursor);
+      const payload = await getReviews(state.currentAppId, code, cursor, false);
+      const reviews = (payload.reviews || []).map((review) => ({ ...review, _appid: state.currentAppId }));
+      out.push(...reviews);
+      pagesLoaded += 1;
+      if (onProgress) {
+        onProgress({
+          languageCode: code,
+          languageName: getLanguageName(code),
+          languageIndex,
+          totalLanguages: LANGUAGES.length,
+          pagesLoaded,
+          reviewsLoaded: reviews.length,
+          totalCollected: out.length,
+        });
+        await yieldToUi();
+      }
+      if (!payload.reviews?.length || !payload.cursor) break;
+      cursor = payload.cursor;
+    }
+  }
+
+  state.collectedReviewsCache.set(memoryKey, out);
+  return out;
+}
+
 function resetReviewViewState() {
   const preservedTopic = state.reviewFilters.topic || "all";
   const preservedMeaningful = state.reviewFilters.meaningful || "all";
@@ -6627,8 +8672,8 @@ function queueWordCloudGeneration(delay = 120) {
   }, delay);
 }
 
-async function updateWordPreference(kind) {
-  const term = normalizePreferenceTerm(els.wordPreferenceInput.value);
+async function updateWordPreferenceFromInput(kind, inputEl = els.wordPreferenceInput) {
+  const term = normalizePreferenceTerm(inputEl?.value);
   if (!term) return;
   if (kind === "allowed") {
     state.wordCloudPrefs.allowed = [...new Set([...state.wordCloudPrefs.allowed, term])];
@@ -6637,10 +8682,15 @@ async function updateWordPreference(kind) {
     state.wordCloudPrefs.banned = [...new Set([...state.wordCloudPrefs.banned, term])];
     state.wordCloudPrefs.allowed = state.wordCloudPrefs.allowed.filter((item) => item !== term);
   }
-  els.wordPreferenceInput.value = "";
+  if (inputEl) inputEl.value = "";
   renderWordPreferenceList();
   await persistWordCloudPrefs();
   queueWordCloudGeneration();
+  if (state.comparisonAnalysisTab === "keywords") renderComparisonKeywords();
+}
+
+async function updateWordPreference(kind) {
+  await updateWordPreferenceFromInput(kind, els.wordPreferenceInput);
 }
 
 async function removeWordPreference(kind, term) {
@@ -6649,6 +8699,7 @@ async function removeWordPreference(kind, term) {
   renderWordPreferenceList();
   await persistWordCloudPrefs();
   queueWordCloudGeneration();
+  if (state.comparisonAnalysisTab === "keywords") renderComparisonKeywords();
 }
 
 async function clearAllWordPreferences() {
@@ -6657,6 +8708,7 @@ async function clearAllWordPreferences() {
   renderWordPreferenceList();
   await persistWordCloudPrefs();
   queueWordCloudGeneration();
+  if (state.comparisonAnalysisTab === "keywords") renderComparisonKeywords();
 }
 
 async function toggleSavedReview(appid, recommendationid, button) {
@@ -6976,12 +9028,14 @@ async function refreshCurrentCache() {
   if (!state.currentAppId) return;
 
   await deletePrefix(`appdetails::${state.currentAppId}`);
+  await deletePrefix(`apptags::${state.currentAppId}`);
   await deletePrefix(`groupdetails::${state.currentAppId}`);
   await deletePrefix(`reviews::${state.currentAppId}::`);
   await deletePrefix(`topictags::${state.currentAppId}::`);
   await deletePrefix(`topicclusters::${state.currentAppId}::`);
 
   state.appDetails.delete(state.currentAppId);
+  state.appTagCache.delete(state.currentAppId);
   state.groupDetails.delete(state.currentAppId);
   state.collectedReviewsCache.clear();
   state.topicTagCacheAppId = null;
@@ -7015,9 +9069,13 @@ async function loadSummary(appid, force = false) {
     if (!API_BASE) throw new Error(t("noProxyConfigured"));
     throwIfTaskCancelled();
 
-      state.currentAppId = appid;
-      state.aiAnalysisMessages = [];
-      state.collectedReviewsCache.clear();
+    state.currentAppId = appid;
+    state.aiAnalysisMessages = [];
+    state.collectedReviewsCache.clear();
+    state.titleTopicDictionaryAppId = null;
+    state.titleTopicDictionary = [];
+    state.titleTopicDictionaryMeta = null;
+    state.currentTopicDictionaryHash = "base";
     state.reviewFilters.topic = "all";
     state.topicLanguage = "all";
     state.topicSource = "all";
@@ -7029,6 +9087,7 @@ async function loadSummary(appid, force = false) {
 
     renderHero(appid, details, group);
     await rememberRecentApp(appid, appData);
+    await loadTitleTopicDictionary(appid);
 
     const rows = [];
     for (const [name, code] of LANGUAGES) {
@@ -7086,6 +9145,8 @@ els.fetchForm.addEventListener("submit", async (event) => {
       els.statusText.textContent = interp(t("resolvedGame"), resolved);
     }
     await runDataTask(t("loadingAppDetails"), () => loadSummary(resolved.appid));
+    state.pageMode = "review";
+    updatePageModeUi();
   } catch (error) {
     els.statusText.textContent = error.message;
     setFetchState("error", error.message, 100);
@@ -7095,14 +9156,188 @@ els.fetchForm.addEventListener("submit", async (event) => {
 });
 
 if (els.recentAppsList) {
-  els.recentAppsList.addEventListener("click", (event) => {
+  els.recentAppsList.addEventListener("click", async (event) => {
     const button = event.target.closest("[data-recent-appid]");
     if (!button) return;
     const appid = button.dataset.recentAppid;
     const recent = state.recentApps.find((entry) => entry.appid === appid);
     if (!appid) return;
+    if (state.pageMode === "comparison") {
+      try {
+        await runDataTask(interp(t("comparisonLoading"), { name: recent?.name || appid }), () => addComparisonGame(appid));
+      } catch (error) {
+        els.comparisonStatus.textContent = `${t("requestFailed")}: ${error.message || error}`;
+        setFetchState("error", els.comparisonStatus.textContent, 100);
+      }
+      return;
+    }
     if (recent?.name) els.appidInput.value = recent.name;
+    state.pageMode = "review";
+    updatePageModeUi();
     void runDataTask(t("loadingAppDetails"), () => loadSummary(appid));
+  });
+}
+
+if (els.pageModeToggle) {
+  els.pageModeToggle.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-page-mode]");
+    if (!button || state.pageMode === button.dataset.pageMode) return;
+    state.pageMode = button.dataset.pageMode;
+    updatePageModeUi();
+  });
+}
+
+if (els.comparisonGamesList) {
+  els.comparisonGamesList.addEventListener("submit", async (event) => {
+    const form = event.target.closest("#comparison-form");
+    if (!form) return;
+    event.preventDefault();
+    const comparisonInput = getComparisonInputEl();
+    const comparisonAddButton = getComparisonAddButtonEl();
+    const value = comparisonInput?.value.trim() || "";
+    if (!value) return;
+    if (comparisonAddButton) comparisonAddButton.disabled = true;
+    try {
+      await runDataTask(interp(t("comparisonLoading"), { name: value }), () => addComparisonGame(value));
+    } catch (error) {
+      els.comparisonStatus.textContent = `${t("requestFailed")}: ${error.message || error}`;
+      setFetchState("error", els.comparisonStatus.textContent, 100);
+    } finally {
+      if (comparisonAddButton) comparisonAddButton.disabled = false;
+    }
+  });
+  els.comparisonGamesList.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-comparison-remove]");
+    if (!button) return;
+    state.comparisonGames = state.comparisonGames.filter((game) => game.appid !== button.dataset.comparisonRemove);
+    state.comparisonHiddenGameIds.delete(button.dataset.comparisonRemove);
+    els.comparisonStatus.textContent = "";
+    renderComparison();
+  });
+}
+
+if (els.comparisonLegend) {
+  els.comparisonLegend.addEventListener("mouseover", (event) => {
+    const button = event.target.closest("[data-comparison-legend]");
+    if (!button) return;
+    setComparisonHoveredGame(button.dataset.comparisonLegend);
+  });
+  els.comparisonLegend.addEventListener("mouseleave", () => {
+    setComparisonHoveredGame(null);
+  });
+  els.comparisonLegend.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-comparison-legend]");
+    if (!button) return;
+    const appid = button.dataset.comparisonLegend;
+    if (!appid) return;
+    if (state.comparisonHiddenGameIds.has(appid)) state.comparisonHiddenGameIds.delete(appid);
+    else state.comparisonHiddenGameIds.add(appid);
+    renderComparison();
+  });
+}
+
+if (els.comparisonAnalysisTabToggle) {
+  els.comparisonAnalysisTabToggle.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-comparison-analysis-tab]");
+    if (!button || state.comparisonAnalysisTab === button.dataset.comparisonAnalysisTab) return;
+    state.comparisonAnalysisTab = button.dataset.comparisonAnalysisTab;
+    renderComparison();
+  });
+}
+
+if (els.comparisonTimeRangeToggle) {
+  els.comparisonTimeRangeToggle.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-comparison-time-range]");
+    if (!button || state.comparisonTimeRange === button.dataset.comparisonTimeRange) return;
+    state.comparisonTimeRange = button.dataset.comparisonTimeRange;
+    renderComparison();
+  });
+}
+
+if (els.comparisonTopicChartModeToggle) {
+  els.comparisonTopicChartModeToggle.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-comparison-topic-chart-mode]");
+    if (!button || state.comparisonTopicChartMode === button.dataset.comparisonTopicChartMode) return;
+    state.comparisonTopicChartMode = button.dataset.comparisonTopicChartMode;
+    void renderComparisonTopics();
+  });
+}
+
+if (els.comparisonKeywordSentimentToggle) {
+  els.comparisonKeywordSentimentToggle.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-comparison-keyword-sentiment]");
+    if (!button || state.comparisonKeywordSentiment === button.dataset.comparisonKeywordSentiment) return;
+    state.comparisonKeywordSentiment = button.dataset.comparisonKeywordSentiment;
+    renderComparisonKeywords();
+  });
+}
+
+if (els.comparisonKeywordViewToggle) {
+  els.comparisonKeywordViewToggle.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-comparison-keyword-view]");
+    if (!button || state.comparisonKeywordView === button.dataset.comparisonKeywordView) return;
+    state.comparisonKeywordView = button.dataset.comparisonKeywordView;
+    renderComparisonKeywords();
+  });
+}
+
+els.comparisonKeywordLanguageSelection?.addEventListener("change", () => {
+  state.comparisonKeywordLanguage = els.comparisonKeywordLanguageSelection.value || "all";
+  renderComparisonKeywords();
+});
+
+els.comparisonTopicLanguageSelection?.addEventListener("change", () => {
+  state.comparisonTopicLanguage = els.comparisonTopicLanguageSelection.value || "all";
+  void renderComparisonTopics();
+});
+
+els.comparisonWordAllowButton?.addEventListener("click", async () => {
+  await updateWordPreferenceFromInput("allowed", els.comparisonWordPreferenceInput);
+});
+
+els.comparisonWordBanButton?.addEventListener("click", async () => {
+  await updateWordPreferenceFromInput("banned", els.comparisonWordPreferenceInput);
+});
+
+els.comparisonWordPreferenceList?.addEventListener("click", async (event) => {
+  const clearButton = event.target.closest("[data-clear-word-prefs]");
+  if (clearButton) {
+    await clearAllWordPreferences();
+    return;
+  }
+  const button = event.target.closest("[data-pref-term]");
+  if (!button) return;
+  await removeWordPreference(button.dataset.prefType, button.dataset.prefTerm);
+});
+
+if (els.comparisonPanelKeywords) {
+  els.comparisonPanelKeywords.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-comparison-keyword-term]");
+    if (!button) return;
+    void openComparisonKeywordReviews(button.dataset.comparisonKeywordTerm, button.dataset.comparisonKeywordAppid);
+  });
+}
+
+if (els.comparisonPanelTopics) {
+  els.comparisonPanelTopics.addEventListener("mouseover", (event) => {
+    const target = event.target.closest("[data-comparison-topic-id], [data-comparison-topic-bar]");
+    if (!target) return;
+    setComparisonTopicHighlight(target.dataset.comparisonTopicId || target.dataset.comparisonTopicBar || "");
+  });
+  els.comparisonPanelTopics.addEventListener("mouseout", (event) => {
+    const target = event.target.closest("[data-comparison-topic-id], [data-comparison-topic-bar]");
+    if (!target) return;
+    const related = event.relatedTarget?.closest?.("[data-comparison-topic-id], [data-comparison-topic-bar]");
+    const currentTopic = target.dataset.comparisonTopicId || target.dataset.comparisonTopicBar || "";
+    const nextTopic = related ? related.dataset.comparisonTopicId || related.dataset.comparisonTopicBar || "" : "";
+    if (currentTopic && currentTopic === nextTopic) return;
+    setComparisonTopicHighlight(nextTopic);
+  });
+  els.comparisonPanelTopics.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-comparison-topic-id]");
+    if (!button) return;
+    if (!button.dataset.comparisonTopicAppid) return;
+    void openComparisonTopicReviews(button.dataset.comparisonTopicId, button.dataset.comparisonTopicAppid);
   });
 }
 
@@ -7188,6 +9423,10 @@ els.aiFeatureWordCloudButton?.addEventListener("click", () => {
 
 els.aiFeatureReviewFilterButton?.addEventListener("click", () => {
   jumpToAiFeature("reviews");
+});
+
+els.aiFeatureTopicsButton?.addEventListener("click", () => {
+  jumpToAiFeature("topics");
 });
 
 document.addEventListener("click", (event) => {
@@ -7444,17 +9683,41 @@ els.wordAiSuggestButton?.addEventListener("click", async () => {
   const originalText = els.wordAiSuggestButton.textContent;
   els.wordAiSuggestButton.disabled = true;
   els.wordAiSuggestButton.textContent = t("wordAiSuggestLoading");
-  state.aiAssistant.generating = true;
-  refreshAiAssistantSprite();
+  setAiAssistantGenerating(true);
   try {
     await requestAiWordCloudSuggestions();
   } catch (error) {
     els.wordCloudStatus.textContent = `${t("wordAiSuggestFailed")} ${error.message || error}`;
   } finally {
-    state.aiAssistant.generating = false;
-    refreshAiAssistantSprite();
+    setAiAssistantGenerating(false);
     els.wordAiSuggestButton.disabled = false;
     els.wordAiSuggestButton.textContent = originalText || t("wordAiSuggest");
+  }
+});
+els.topicAiEnhanceButton?.addEventListener("click", async () => {
+  const originalText = els.topicAiEnhanceButton.textContent;
+  els.topicAiEnhanceButton.disabled = true;
+  els.topicAiEnhanceButton.textContent = t("topicAiEnhanceLoading");
+  setAiAssistantGenerating(true);
+  try {
+    const result = await runDataTask(t("topicAiEnhanceLoading"), () => requestAiEnhancedTopics());
+    if (result?.topics?.length) {
+      await runDataTask(t("topicAiEnhanceLoading"), () => applyEnhancedTopicDictionary(result.topics, result.sourceReviewCount));
+      els.topicStatus.textContent = interp(t("topicAiEnhanceReady"), {
+        reviews: fmt(result.sourceReviewCount),
+        topics: fmt(result.topics.length),
+      });
+    } else {
+      els.topicStatus.textContent = t("topicAiEnhanceNoChanges");
+    }
+  } catch (error) {
+    if (!isAbortError(error)) {
+      els.topicStatus.textContent = `${t("topicAiEnhanceFailed")} ${error.message || error}`;
+    }
+  } finally {
+    setAiAssistantGenerating(false);
+    els.topicAiEnhanceButton.disabled = false;
+    els.topicAiEnhanceButton.textContent = originalText || t("aiFeatureTopics");
   }
 });
 els.wordPreferenceList.addEventListener("click", async (event) => {
@@ -7475,14 +9738,36 @@ els.momentumPanel?.addEventListener("mousemove", (event) => {
 els.momentumPanel?.addEventListener("mouseleave", () => {
   hideSharedTooltip();
 });
+els.comparisonMomentumPanel?.addEventListener("mousemove", (event) => {
+  const bar = event.target.closest("[data-momentum-tooltip-label]");
+  if (!bar) return;
+  showMomentumBarTooltip(event, bar.dataset.momentumTooltipLabel, Number(bar.dataset.momentumTooltipCount || 0));
+});
+els.comparisonMomentumPanel?.addEventListener("mouseover", (event) => {
+  const tag = event.target.closest("[data-comparison-tag-key]");
+  if (!tag) return;
+  setComparisonTagHighlight(tag.dataset.comparisonTagKey || "");
+});
+els.comparisonMomentumPanel?.addEventListener("mouseout", (event) => {
+  const tag = event.target.closest("[data-comparison-tag-key]");
+  if (!tag) return;
+  const related = event.relatedTarget?.closest?.("[data-comparison-tag-key]");
+  const currentKey = tag.dataset.comparisonTagKey || "";
+  const nextKey = related?.dataset?.comparisonTagKey || "";
+  if (currentKey && currentKey === nextKey) return;
+  setComparisonTagHighlight(nextKey);
+});
+els.comparisonMomentumPanel?.addEventListener("mouseleave", () => {
+  setComparisonTagHighlight("");
+  hideSharedTooltip();
+});
 document.addEventListener("mousemove", (event) => {
   const badge = event.target.closest("[data-warning-title]");
   if (!badge || !state.showWarnings) return;
   const tooltip = ensureSharedTooltip();
   tooltip.innerHTML = `<strong>${esc(badge.dataset.warningTitle || "")}</strong><div>${esc(badge.dataset.warningReason || "")}</div>`;
   tooltip.style.display = "block";
-  tooltip.style.left = `${event.clientX + 14}px`;
-  tooltip.style.top = `${event.clientY + 14}px`;
+  positionTooltipAwayFromCursor(event, tooltip);
 });
 document.addEventListener("mouseout", (event) => {
   if (event.target.closest("[data-warning-title]")) hideSharedTooltip();

@@ -7,15 +7,33 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <div class="site-shell">
-      <header class="topbar">
+    <header class="topbar">
+      <div class="topbar-inner">
         <div class="brand-block">
           <div class="eyebrow" data-i18n="brandEyebrow">Steam review intelligence</div>
           <h1 data-i18n="brandTitle">Steam Review Analyzer</h1>
         </div>
-        <div class="toolbar">
+        <div class="toolbar toolbar-center">
+          <form id="fetch-form" class="search-form">
+            <div class="search-input-shell">
+              <input id="appid-input" type="text" placeholder="Enter Steam AppID or game name" />
+              <button id="fetch-button" class="search-submit-button" type="submit" aria-label="Fetch reviews">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M10.5 4a6.5 6.5 0 1 0 4.03 11.6l4.43 4.44 1.41-1.42-4.43-4.43A6.5 6.5 0 0 0 10.5 4Zm0 2a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Z"></path>
+                </svg>
+              </button>
+            </div>
+          </form>
+          <nav class="page-nav" aria-label="Page mode">
+            <div id="page-mode-toggle" class="lang-toggle review-toggle-group page-nav-toggle" aria-label="Page mode">
+              <button class="lang-pill" type="button" data-page-mode="review" data-i18n="pageModeReview">Review</button>
+              <button class="lang-pill" type="button" data-page-mode="comparison" data-i18n="pageModeComparison">Comparison</button>
+            </div>
+          </nav>
+        </div>
+        <div class="toolbar toolbar-right">
           <div class="toolbar-label">
-            <span data-i18n="uiLanguage">UI Language</span>
+            <span data-i18n="displayOptions">Display</span>
             <div class="toolbar-toggles">
               <button id="positive-rate-color-toggle" class="lang-toggle" type="button" aria-label="Toggle positive-rate colors">
                 <span class="lang-pill" data-positive-rate-colors="on" data-i18n="positiveRateColors">Rate Color</span>
@@ -32,18 +50,17 @@
               </button>
             </div>
           </div>
-          <form id="fetch-form" class="search-form">
-            <input id="appid-input" type="text" placeholder="Enter Steam AppID or game name" />
-            <button id="fetch-button" type="submit" data-i18n="fetchReviews">Fetch Reviews</button>
-          </form>
         </div>
-      </header>
+      </div>
+    </header>
+
+    <div class="site-shell">
 
       <section id="recent-apps-panel" class="recent-apps-panel hidden">
         <div id="recent-apps-list" class="recent-apps-list"></div>
       </section>
 
-      <main class="layout">
+      <main id="review-page" class="layout">
         <section id="fetch-state-panel" class="fetch-state-panel">
           <div class="fetch-state-row">
             <strong id="fetch-state-title" data-i18n="fetchIdleTitle">Ready</strong>
@@ -297,6 +314,7 @@
                     <button class="lang-pill" type="button" data-topic-chart-view="line" data-i18n="chartLine">Line Plot</button>
                   </div>
                 </div>
+                <button id="topic-ai-enhance-button" class="hidden ai-feature-button" type="button" data-i18n="aiFeatureTopics">AI Enhanced Topics</button>
               </div>
               <div id="topic-chart" class="topic-chart"></div>
               <div id="topic-details" class="topic-details"></div>
@@ -373,6 +391,97 @@
         </section>
 
       </main>
+      <main id="comparison-page" class="layout comparison-page hidden">
+        <section class="panel comparison-games-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow" data-i18n="comparisonGamesEyebrow">Loaded Titles</p>
+            </div>
+            <div id="comparison-status" class="status-text"></div>
+          </div>
+          <div id="comparison-games-list" class="comparison-games-list"></div>
+        </section>
+
+        <section class="comparison-grid">
+          <article class="panel workspace-panel comparison-chart-panel">
+            <div class="workspace-tabs comparison-workspace-tabs" id="comparison-analysis-tab-toggle" aria-label="Comparison analysis tabs">
+              <button class="workspace-tab" type="button" data-comparison-analysis-tab="timeline" data-i18n="comparisonTabTimeline">Timeline</button>
+              <button class="workspace-tab" type="button" data-comparison-analysis-tab="keywords" data-i18n="comparisonTabKeywords">Compare Keywords</button>
+              <button class="workspace-tab" type="button" data-comparison-analysis-tab="topics" data-i18n="comparisonTabTopics">Compare Topics</button>
+            </div>
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow" data-i18n="comparisonTimelineEyebrow">Normalized Timeline</p>
+                <h3 data-i18n="comparisonTimelineTitle">Total Reviews by Release Day</h3>
+              </div>
+              <div class="comparison-panel-actions">
+                <div id="comparison-time-range-toggle" class="lang-toggle review-toggle-group" aria-label="Comparison time span">
+                  <button class="lang-pill" type="button" data-comparison-time-range="week" data-i18n="timeSpanWeek">1 Week</button>
+                  <button class="lang-pill" type="button" data-comparison-time-range="fortnight" data-i18n="timeSpanFortnight">2 Weeks</button>
+                  <button class="lang-pill" type="button" data-comparison-time-range="month" data-i18n="timeSpanMonth">1 Month</button>
+                  <button class="lang-pill" type="button" data-comparison-time-range="year" data-i18n="timeSpanYear">1 Year</button>
+                  <button class="lang-pill" type="button" data-comparison-time-range="all" data-i18n="timeSpanLifetime">Lifetime</button>
+                </div>
+                <div id="comparison-topic-chart-mode-toggle" class="lang-toggle review-toggle-group hidden" aria-label="Comparison topic chart mode">
+                  <button class="lang-pill" type="button" data-comparison-topic-chart-mode="share" data-i18n="comparisonTopicChartShare">Share</button>
+                  <button class="lang-pill" type="button" data-comparison-topic-chart-mode="count" data-i18n="comparisonTopicChartCount">Count</button>
+                </div>
+                <div id="comparison-timeline-status" class="status-text"></div>
+              </div>
+            </div>
+            <div id="comparison-legend" class="comparison-legend"></div>
+            <section id="comparison-panel-timeline">
+              <div id="comparison-timeline-chart" class="timeline-chart comparison-timeline-chart"></div>
+              <div id="comparison-momentum-panel" class="comparison-momentum-panel"></div>
+            </section>
+            <section id="comparison-panel-keywords" class="comparison-keyword-panel hidden">
+              <div class="word-cloud-controls comparison-keyword-controls">
+                <label class="control-field">
+                  <span data-i18n="language">Language</span>
+                  <select id="comparison-keyword-language-selection"></select>
+                </label>
+                <div class="control-field">
+                  <span data-i18n="wordCloudSentiment">Sentiment</span>
+                  <div id="comparison-keyword-sentiment-toggle" class="lang-toggle review-toggle-group" aria-label="Comparison keyword sentiment">
+                    <button class="lang-pill" type="button" data-comparison-keyword-sentiment="all" data-i18n="sentimentAll">All</button>
+                    <button class="lang-pill" type="button" data-comparison-keyword-sentiment="positive" data-i18n="filterPositive">Positive</button>
+                    <button class="lang-pill" type="button" data-comparison-keyword-sentiment="negative" data-i18n="filterNegative">Negative</button>
+                  </div>
+                </div>
+                <div class="control-field word-cloud-view-control">
+                  <span data-i18n="wordCloudView">View</span>
+                  <div id="comparison-keyword-view-toggle" class="lang-toggle review-toggle-group" aria-label="Comparison keyword view">
+                    <button class="lang-pill" type="button" data-comparison-keyword-view="cloud" data-i18n="wordCloudGraph">Word Cloud</button>
+                    <button class="lang-pill" type="button" data-comparison-keyword-view="scatter" data-i18n="scatterPlot">Scatter Plot</button>
+                  </div>
+                </div>
+              </div>
+              <div class="word-cloud-preferences comparison-word-preferences">
+                <label class="control-field word-cloud-preference-input">
+                  <span data-i18n="wordPreferenceLabel">Word Preference</span>
+                  <input id="comparison-word-preference-input" type="text" placeholder="term or phrase" />
+                </label>
+                <button id="comparison-word-allow-button" type="button" data-i18n="allowWord">Allow</button>
+                <button id="comparison-word-ban-button" type="button" data-i18n="banWord">Ban</button>
+              </div>
+              <div id="comparison-word-preference-list" class="word-preference-list"></div>
+              <div id="comparison-keyword-status" class="status-text"></div>
+              <div id="comparison-keyword-clouds" class="comparison-keyword-clouds"></div>
+              <div id="comparison-keyword-scatter" class="word-cloud-scatter comparison-keyword-scatter hidden"></div>
+            </section>
+            <section id="comparison-panel-topics" class="comparison-topic-panel hidden">
+              <div class="word-cloud-controls comparison-topic-controls">
+                <label class="control-field">
+                  <span data-i18n="language">Language</span>
+                  <select id="comparison-topic-language-selection"></select>
+                </label>
+              </div>
+              <div id="comparison-topic-chart" class="topic-chart comparison-topic-chart"></div>
+              <div id="comparison-topic-clouds" class="comparison-keyword-clouds comparison-topic-clouds"></div>
+            </section>
+          </article>
+        </section>
+      </main>
     </div>
     <div id="ai-assistant-anchor" class="ai-assistant-anchor">
       <div id="ai-feature-rail" class="ai-feature-rail" aria-label="AI enhancement shortcuts">
@@ -381,6 +490,9 @@
         </div>
         <div class="ai-feature-shortcut">
           <button id="ai-feature-wordcloud-button" class="ai-feature-button" type="button"></button>
+        </div>
+        <div class="ai-feature-shortcut">
+          <button id="ai-feature-topics-button" class="ai-feature-button" type="button"></button>
         </div>
       </div>
       <button
