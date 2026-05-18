@@ -404,6 +404,34 @@ const I18N = {
     topicAiEnhanceFailed: "AI topic enhancement failed.",
     aiTemplatePillar: "What's the pillar of the game?",
     aiTemplateFeature: "What's the most requested feature?",
+    reviewTabRequests: "AI Requests",
+    reviewRequestsPromptLabel: "Custom Request Scope",
+    reviewRequestsPlaceholder: "combat systems, movement, bosses",
+    reviewRequestsGenerate: "Generate",
+    reviewRequestsLoading: "Generating requested feature list from reviews...",
+    reviewRequestsTitle: "Top Requested Features",
+    reviewRequestsEmpty: "Connect AI and open this tab to generate requested features from the reviews.",
+    reviewRequestsNeedConnection: "Connect AI first to generate requested features.",
+    reviewRequestsNeedApp: "Load a game first to generate requested features.",
+    reviewRequestsNoReviews: "No reviews are available in the current time range for this request list.",
+    reviewRequestsCached: "Cached request list",
+    reviewRequestsLive: "Fresh request list",
+    reviewRequestsFailed: "Requested feature generation failed.",
+    reviewRequestsSummaryDefault: "Top 10 requested features from the current review scope.",
+    reviewRequestsSummaryCustom: 'Top requested features scoped to "{scope}".',
+    reviewRequestsEvidence: "Grounded in {reviews} reviews, {requests} request-like reviews, and {snippets} representative excerpts.",
+    reviewRequestsCount: "{count} supporting reviews",
+    reviewRequestsDetailsShow: "Show details",
+    reviewRequestsDetailsHide: "Hide details",
+    reviewRequestsDetailsSignals: "Signals",
+    reviewRequestsDetailsProfile: "Evidence profile",
+    reviewRequestsDetailsTerms: "Matched terms",
+    reviewRequestsDetailsClusters: "Recurring patterns",
+    reviewRequestsDetailsQuotes: "Supporting quotes",
+    reviewRequestsStatMatches: "{count} matches",
+    reviewRequestsStatNegative: "{count} negative",
+    reviewRequestsStatPositive: "{count} positive",
+    reviewRequestsClusterNegativeSkew: "{rate}% negative skew",
     aiTemplateTrend: "What's the noteworthy trend in the recent reviews?",
     aiTemplateSales: "How to improve sales?",
     aiAnalysisAsk: "Ask AI",
@@ -742,6 +770,34 @@ const I18N = {
     topicAiEnhanceFailed: "AIトピック強化に失敗しました。",
     aiTemplatePillar: "このゲームの柱は何？",
     aiTemplateFeature: "最も要望が多い機能は？",
+    reviewTabRequests: "AI要望抽出",
+    reviewRequestsPromptLabel: "要望の絞り込み条件",
+    reviewRequestsPlaceholder: "戦闘システム、移動、ボス",
+    reviewRequestsGenerate: "生成",
+    reviewRequestsLoading: "レビューから要望機能リストを生成中...",
+    reviewRequestsTitle: "要望が多い機能",
+    reviewRequestsEmpty: "AIを接続してこのタブを開くと、レビューから要望機能を生成します。",
+    reviewRequestsNeedConnection: "要望機能の生成には先にAIを接続してください。",
+    reviewRequestsNeedApp: "先にゲームを読み込んでから要望機能を生成してください。",
+    reviewRequestsNoReviews: "現在の期間では、この要望リストに使えるレビューがありません。",
+    reviewRequestsCached: "キャッシュ済み要望リスト",
+    reviewRequestsLive: "最新要望リスト",
+    reviewRequestsFailed: "要望機能の生成に失敗しました。",
+    reviewRequestsSummaryDefault: "現在のレビュー範囲から要望が多い機能トップ10。",
+    reviewRequestsSummaryCustom: "「{scope}」に絞った要望機能リスト。",
+    reviewRequestsEvidence: "{reviews}件のレビュー、{requests}件の要望系レビュー、{snippets}件の代表抜粋を根拠にしています。",
+    reviewRequestsCount: "裏付けレビュー {count}件",
+    reviewRequestsDetailsShow: "詳細を表示",
+    reviewRequestsDetailsHide: "詳細を隠す",
+    reviewRequestsDetailsSignals: "根拠シグナル",
+    reviewRequestsDetailsProfile: "根拠プロフィール",
+    reviewRequestsDetailsTerms: "一致した用語",
+    reviewRequestsDetailsClusters: "繰り返しパターン",
+    reviewRequestsDetailsQuotes: "裏付け引用",
+    reviewRequestsStatMatches: "{count}件一致",
+    reviewRequestsStatNegative: "否定的 {count}件",
+    reviewRequestsStatPositive: "肯定的 {count}件",
+    reviewRequestsClusterNegativeSkew: "否定寄り {rate}%",
     aiTemplateTrend: "最近のレビューで注目すべき傾向は？",
     aiTemplateSales: "売上を改善するには？",
     aiAnalysisAsk: "AIに質問",
@@ -1036,6 +1092,8 @@ const state = {
   reviewSort: "date",
   reviewFilters: { sentiment: "all", saved: "all", playtime: "all", length: "all", topic: "all", meaningful: "all" },
   reviewTab: "browse",
+  reviewRequestsScope: "",
+  reviewRequestsResult: null,
   reviewMeaningfulCache: new Map(),
   savedReviews: [],
   playtimeCutoffs: [...DEFAULT_PLAYTIME_CUTOFFS],
@@ -1130,6 +1188,7 @@ const els = {
   reviewBrowserExpandButton: document.getElementById("review-browser-expand-button"),
   analysisPanelTimeline: document.getElementById("analysis-panel-timeline"),
   analysisPanelTopics: document.getElementById("analysis-panel-topics"),
+  analysisPanelRequests: document.getElementById("analysis-panel-requests"),
   dataPanelDistribution: document.getElementById("data-panel-distribution"),
   dataPanelMomentum: document.getElementById("data-panel-momentum"),
   dataPanelPlaytime: document.getElementById("data-panel-playtime"),
@@ -1185,6 +1244,12 @@ const els = {
   reviewSortToggle: document.getElementById("review-sort-toggle"),
   reviewSentimentToggle: document.getElementById("review-sentiment-toggle"),
   reviewSavedToggle: document.getElementById("review-saved-toggle"),
+  reviewRequestsPanel: document.getElementById("review-requests-panel"),
+  reviewRequestsLanguageSelection: document.getElementById("review-requests-language-selection"),
+  reviewRequestsInput: document.getElementById("review-requests-input"),
+  reviewRequestsGenerateButton: document.getElementById("review-requests-generate-button"),
+  reviewRequestsStatus: document.getElementById("review-requests-status"),
+  reviewRequestsList: document.getElementById("review-requests-list"),
   reviewMeaningfulButton: document.getElementById("review-meaningful-button"),
   reviewPlaytimeFilter: document.getElementById("review-playtime-filter"),
   reviewLengthFilter: document.getElementById("review-length-filter"),
@@ -3275,6 +3340,7 @@ function updateWorkspaceTabs() {
   els.analysisPanelReviews.classList.toggle("hidden", state.analysisTab !== "reviews");
   els.analysisPanelTimeline.classList.toggle("hidden", state.analysisTab !== "timeline");
   els.analysisPanelTopics.classList.toggle("hidden", state.analysisTab !== "topics");
+  els.analysisPanelRequests.classList.toggle("hidden", state.analysisTab !== "requests");
   if (state.analysisTab !== "reviews" && state.reviewBrowserExpanded) {
     state.reviewBrowserExpanded = false;
   }
@@ -3290,6 +3356,9 @@ function updateWorkspaceTabs() {
   }
   if (state.analysisTab === "topics" && state.currentAppId && state.topicLastRenderKey !== getTopicClusterAnalysisKey()) {
     void runDataTask(topicText("topicStatusLoading"), () => renderTopicClusters());
+  }
+  if (state.analysisTab === "requests" && state.currentAppId && !state.reviewRequestsResult) {
+    void runDataTask(t("reviewRequestsLoading"), () => loadReviewRequests(state.reviewRequestsScope || ""));
   }
 }
 
@@ -4030,6 +4099,55 @@ function buildAiThemeCandidates(reviews, focus) {
     .sort((left, right) => right.mentions - left.mentions);
 }
 
+function buildRequestTopicQuoteBundles(reviews, topicRows, focus, maxTopics = 6, maxQuotesPerTopic = 3) {
+  const topicThemes = buildAiThemeCandidates(reviews, focus)
+    .filter((entry) => entry.requestCount > 0 || entry.mentions >= 2)
+    .slice(0, maxTopics);
+  const topicRowById = new Map(topicRows.map((row) => [row.id, row]));
+  return topicThemes
+    .map((entry) => {
+      const row = topicRowById.get(entry.topicId);
+      const quotes = reviews
+        .filter((review) => review._topics?.includes(entry.topicId))
+        .map((review) => {
+          const detail = scoreReviewForAi(review, focus);
+          const topicKeywordMatches = (review._topicMatches?.[entry.topicId] || []).slice(0, 4);
+          const requestBonus = matchesAnyPattern(String(review.review || ""), AI_REQUEST_PATTERNS) ? 1.2 : 0;
+          return {
+            review,
+            score: detail.score + requestBonus + topicKeywordMatches.length * 0.15,
+            topicKeywordMatches,
+          };
+        })
+        .filter((candidate) => candidate.score > 0)
+        .sort(
+          (left, right) =>
+            right.score - left.score ||
+            getReviewLength(right.review) - getReviewLength(left.review) ||
+            (right.review.timestamp_created || 0) - (left.review.timestamp_created || 0)
+        )
+        .slice(0, maxQuotesPerTopic)
+        .map((candidate) => ({
+          id: candidate.review.recommendationid,
+          language: getLanguageName(candidate.review.language),
+          sentiment: candidate.review.voted_up ? t("positive") : t("negative"),
+          matchedKeywords: candidate.topicKeywordMatches,
+          snippet: trimReviewSnippet(candidate.review.review, 170),
+        }));
+      return {
+        topicId: entry.topicId,
+        topic: row?.label || entry.label,
+        color: row?.color || "",
+        reviewCount: Math.round(entry.mentions),
+        requestCount: entry.requestCount,
+        positiveRate: Number(entry.positiveRate.toFixed(1)),
+        negativeRate: Number(entry.negativeRate.toFixed(1)),
+        quotes,
+      };
+    })
+    .filter((entry) => entry.quotes.length);
+}
+
 function selectPatternReviews(reviews, patterns, limit = 8) {
   return reviews
     .filter((review) => matchesAnyPattern(String(review.review || ""), patterns))
@@ -4138,6 +4256,500 @@ function normalizeTopicEnhancementResponse(payload) {
         .filter((topic) => topic && baseIds.has(topic.id))
     : [];
   return topics;
+}
+
+function normalizeReviewRequestScope(scope) {
+  return String(scope || "").trim();
+}
+
+function getReviewRequestsCacheKey(scope = "", lang = "all") {
+  return [
+    "reviewrequests",
+    "v4",
+    state.currentAppId,
+    state.ai.model,
+    state.currentUiLanguage,
+    lang,
+    state.timeRange.mode,
+    state.timeRange.start || "",
+    state.timeRange.end || "",
+    getCurrentTopicDictionaryHash(),
+    hashText(normalizeReviewRequestScope(scope).toLowerCase() || "__default__"),
+  ].join("::");
+}
+
+function getReviewRequestExpandLabel(expanded) {
+  return expanded ? t("reviewRequestsDetailsHide") : t("reviewRequestsDetailsShow");
+}
+
+function buildLocalSupportQuotesForRequestItem(item, reviews) {
+  if (!Array.isArray(reviews) || !reviews.length) return { matchedReviewCount: 0, quotes: [] };
+  const topicId = String(item.topicId || "").trim();
+  const topicLabel = String(item.topic || "").trim().toLowerCase();
+  const featureTerms = normalizeAiQuestionTerms(`${item.feature || item.name || ""} ${item.details || item.reason || ""}`);
+  const keywordCounts = new Map();
+  const clusterCounts = new Map();
+  const scored = reviews
+    .map((review) => {
+      const reviewTopics = Array.isArray(review._topics) ? review._topics : [];
+      const topicNames = reviewTopics.map((entry) => getTopicLabel(entry).toLowerCase());
+      const snippet = String(review.review || "");
+      const lowered = snippet.toLowerCase();
+      const topicMatch = (topicId && reviewTopics.includes(topicId)) || (topicLabel && topicNames.includes(topicLabel));
+      const featureMatches = featureTerms.filter((term) => lowered.includes(term));
+      const topicKeywordMatches = topicId ? (review._topicMatches?.[topicId] || []).map((term) => String(term || "").toLowerCase()) : [];
+      const requestMatch = matchesAnyPattern(snippet, AI_REQUEST_PATTERNS);
+      const score = (topicMatch ? 2.8 : 0) + featureMatches.length * 1.2 + (requestMatch ? 0.8 : 0);
+      return {
+        review,
+        topicMatch,
+        featureMatches,
+        topicKeywordMatches,
+        score,
+      };
+    })
+    .filter((entry) => entry.topicMatch || entry.featureMatches.length >= 1)
+    .sort(
+      (left, right) =>
+        right.score - left.score ||
+        right.featureMatches.length - left.featureMatches.length ||
+        getReviewLength(right.review) - getReviewLength(left.review) ||
+        (right.review.timestamp_created || 0) - (left.review.timestamp_created || 0)
+    );
+  let positiveCount = 0;
+  let negativeCount = 0;
+  const languages = new Set();
+  scored.forEach((entry) => {
+    if (entry.review.voted_up) positiveCount += 1;
+    else negativeCount += 1;
+    languages.add(getLanguageName(entry.review.language));
+    const termSet = [...new Set([...entry.featureMatches, ...entry.topicKeywordMatches])].slice(0, 6);
+    termSet.forEach((term) => {
+      const key = String(term || "").trim().toLowerCase();
+      if (!key) return;
+      keywordCounts.set(key, (keywordCounts.get(key) || 0) + 1);
+    });
+    const clusterTerms = termSet.slice(0, 3);
+    const clusterLabel = clusterTerms.length ? clusterTerms.join(" / ") : topicLabel || topicId || "general";
+    const cluster = clusterCounts.get(clusterLabel) || { label: clusterLabel, count: 0, positive: 0, negative: 0 };
+    cluster.count += 1;
+    if (entry.review.voted_up) cluster.positive += 1;
+    else cluster.negative += 1;
+    clusterCounts.set(clusterLabel, cluster);
+  });
+  const seenIds = new Set();
+  const quotes = [];
+  scored.forEach((entry) => {
+    if (quotes.length >= 4) return;
+    const id = String(entry.review.recommendationid || "");
+    if (id && seenIds.has(id)) return;
+    if (id) seenIds.add(id);
+    quotes.push({
+      id,
+      language: getLanguageName(entry.review.language),
+      sentiment: entry.review.voted_up ? t("positive") : t("negative"),
+      matchedKeywords: entry.featureMatches.slice(0, 4),
+      snippet: trimReviewSnippet(entry.review.review, 170),
+    });
+  });
+  return {
+    matchedReviewCount: scored.length,
+    positiveCount,
+    negativeCount,
+    languages: [...languages].slice(0, 4),
+    matchedTerms: [...keywordCounts.entries()]
+      .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+      .slice(0, 8)
+      .map(([term, count]) => ({ term, count })),
+    recurringClusters: [...clusterCounts.values()]
+      .sort((left, right) => right.count - left.count || right.negative - left.negative)
+      .slice(0, 4)
+      .map((cluster) => ({
+        label: cluster.label,
+        count: cluster.count,
+        negativeRate: cluster.count ? Number(((cluster.negative / cluster.count) * 100).toFixed(1)) : 0,
+      })),
+    quotes,
+  };
+}
+
+function enrichReviewRequestItemsWithLocalEvidence(items, reviews) {
+  return (Array.isArray(items) ? items : []).map((item) => {
+    const localEvidence = buildLocalSupportQuotesForRequestItem(item, reviews);
+    const signals = Array.isArray(item.signals) ? [...item.signals] : [];
+    if (localEvidence.matchedReviewCount) {
+      signals.push(`${fmt(localEvidence.matchedReviewCount)} matching reviews found in current scope.`);
+    }
+    return {
+      ...item,
+      signals: [...new Set(signals)].slice(0, 4),
+      localMatchedReviewCount: localEvidence.matchedReviewCount,
+      localPositiveCount: localEvidence.positiveCount || 0,
+      localNegativeCount: localEvidence.negativeCount || 0,
+      localLanguages: localEvidence.languages || [],
+      localMatchedTerms: localEvidence.matchedTerms || [],
+      localRecurringClusters: localEvidence.recurringClusters || [],
+      localQuotes: localEvidence.quotes,
+    };
+  });
+}
+
+function buildReviewRequestDetailData(item, result, topicLabel) {
+  const bundles = Array.isArray(result?.topicQuoteBundles) ? result.topicQuoteBundles : [];
+  const representativeReviews = Array.isArray(result?.representativeReviews) ? result.representativeReviews : [];
+  const normalizedTopicId = String(item.topicId || "").trim();
+  const normalizedTopicLabel = String(topicLabel || item.topic || "").trim().toLowerCase();
+  const bundle =
+    bundles.find((entry) => String(entry.topicId || "").trim() === normalizedTopicId) ||
+    bundles.find((entry) => String(entry.topic || "").trim().toLowerCase() === normalizedTopicLabel) ||
+    null;
+  const detailText = String(item.details || item.reason || item.why || "").trim();
+  const featureTerms = normalizeAiQuestionTerms(item.feature || item.name || "");
+  const signals = [];
+  (Array.isArray(item.signals) ? item.signals : []).forEach((signal) => {
+    const text = String(signal || "").trim();
+    if (text && !signals.includes(text)) signals.push(text);
+  });
+  if (bundle?.requestCount) signals.push(`${fmt(bundle.requestCount)} request-like reviews align with this topic.`);
+  if (bundle?.reviewCount) signals.push(`${fmt(bundle.reviewCount)} tagged reviews mention this topic in current scope.`);
+  if (bundle && Number.isFinite(bundle.negativeRate)) signals.push(`Negative rate around ${bundle.negativeRate.toFixed(1)}% inside this topic.`);
+  const dedupedSignals = [...new Set(signals)].slice(0, 4);
+  const quotes = [];
+  const seenQuoteIds = new Set();
+  const pushQuote = (quote, fallbackId = "") => {
+    const snippet = String(quote?.snippet || "").trim();
+    if (!snippet) return;
+    const id = String(quote?.id || fallbackId || "").trim();
+    if (id && seenQuoteIds.has(id)) return;
+    if (!id && quotes.some((entry) => entry.snippet === snippet)) return;
+    if (id) seenQuoteIds.add(id);
+    quotes.push({
+      id,
+      language: quote.language,
+      sentiment: quote.sentiment,
+      matchedKeywords: quote.matchedKeywords || quote.matchedAspects || [],
+      snippet,
+    });
+  };
+  (Array.isArray(item.localQuotes) ? item.localQuotes : []).forEach((quote) => {
+    if (quotes.length >= 4) return;
+    pushQuote(quote);
+  });
+  (bundle?.quotes || []).forEach((quote) => {
+    if (quotes.length >= 4) return;
+    pushQuote(quote);
+  });
+  representativeReviews.forEach((quote) => {
+    if (quotes.length >= 4) return;
+    const topics = Array.isArray(quote.topics) ? quote.topics.map((topic) => String(topic || "").toLowerCase()) : [];
+    const snippet = String(quote.snippet || "").trim();
+    const matchesTopic = normalizedTopicLabel && topics.includes(normalizedTopicLabel);
+    const matchesFeature = featureTerms.length && featureTerms.some((term) => snippet.toLowerCase().includes(term));
+    if (!matchesTopic && !matchesFeature) return;
+    pushQuote(
+      {
+        id: quote.id,
+        language: quote.language,
+        sentiment: quote.sentiment,
+        matchedKeywords: quote.matchedAspects || [],
+        snippet,
+      },
+      quote.id
+    );
+  });
+  return {
+    detailText,
+    signals: dedupedSignals,
+    profile: {
+      matchedReviewCount: Number(item.localMatchedReviewCount || 0),
+      positiveCount: Number(item.localPositiveCount || 0),
+      negativeCount: Number(item.localNegativeCount || 0),
+      languages: Array.isArray(item.localLanguages) ? item.localLanguages : [],
+    },
+    matchedTerms: Array.isArray(item.localMatchedTerms) ? item.localMatchedTerms : [],
+    recurringClusters: Array.isArray(item.localRecurringClusters) ? item.localRecurringClusters : [],
+    quotes: quotes.slice(0, 4),
+  };
+}
+
+function buildFeatureRequestListMarkup(items) {
+  if (!items?.length) {
+    return `<div class="status-text">${esc(t("reviewRequestsNoReviews"))}</div>`;
+  }
+  const topicRows = computeTopicRows(state.reviewBaseReviews || []);
+  const topicById = new Map(topicRows.map((row) => [row.id, row]));
+  const topicByLabel = new Map(topicRows.map((row) => [row.label.toLowerCase(), row]));
+  return items
+    .map((item, index) => {
+      const count = Number(item.supportingReviewCount || item.reviewCount || 0);
+      const topicRow =
+        topicById.get(String(item.topicId || "").trim()) ||
+        topicByLabel.get(String(item.topic || "").trim().toLowerCase()) ||
+        null;
+      const topicLabel = topicRow?.label || item.topic || "";
+      const topicStyle = topicRow?.color ? ` style="--topic-color:${esc(topicRow.color)}"` : "";
+      const priorityClass = ["high", "medium", "low"].includes(String(item.priority || "").toLowerCase()) ? String(item.priority).toLowerCase() : "";
+      const detail = buildReviewRequestDetailData(item, state.reviewRequestsResult, topicLabel);
+      const hasDetails = Boolean(
+        detail.detailText ||
+          detail.signals.length ||
+          detail.profile?.matchedReviewCount ||
+          detail.matchedTerms.length ||
+          detail.recurringClusters.length ||
+          detail.quotes.length
+      );
+      const expanded = Boolean(item.expanded);
+      const bullets = []
+        .concat(topicLabel ? [`<span class="topic-chip topic-request-topic"${topicStyle}>${esc(topicLabel)}</span>`] : [])
+        .concat(priorityClass ? [`<span class="topic-priority ${esc(priorityClass)}">${esc(priorityClass)}</span>`] : [])
+        .join("");
+      const detailMarkup = hasDetails
+        ? `<button class="review-request-expand" type="button" data-review-request-expand="${index}" data-expanded="${expanded ? "true" : "false"}">${esc(
+            getReviewRequestExpandLabel(expanded)
+          )}</button>
+          <div class="review-request-details${expanded ? "" : " hidden"}">
+            ${detail.detailText ? `<p class="review-request-detail-copy">${esc(detail.detailText)}</p>` : ""}
+            ${
+              detail.signals.length
+                ? `<div class="review-request-detail-section"><h5>${esc(t("reviewRequestsDetailsSignals"))}</h5><ul>${detail.signals
+                    .map((signal) => `<li>${esc(signal)}</li>`)
+                    .join("")}</ul></div>`
+                : ""
+            }
+            ${
+              detail.profile?.matchedReviewCount
+                ? `<div class="review-request-detail-section"><h5>${esc(t("reviewRequestsDetailsProfile"))}</h5><div class="review-request-detail-stats">
+                    <span class="review-request-stat">${esc(interp(t("reviewRequestsStatMatches"), { count: fmt(detail.profile.matchedReviewCount) }))}</span>
+                    <span class="review-request-stat">${esc(interp(t("reviewRequestsStatNegative"), { count: fmt(detail.profile.negativeCount) }))}</span>
+                    <span class="review-request-stat">${esc(interp(t("reviewRequestsStatPositive"), { count: fmt(detail.profile.positiveCount) }))}</span>
+                    ${
+                      detail.profile.languages.length
+                        ? `<span class="review-request-stat">${esc(detail.profile.languages.join(", "))}</span>`
+                        : ""
+                    }
+                  </div></div>`
+                : ""
+            }
+            ${
+              detail.matchedTerms.length
+                ? `<div class="review-request-detail-section"><h5>${esc(t("reviewRequestsDetailsTerms"))}</h5><div class="review-request-detail-tags">${detail.matchedTerms
+                    .map((entry) => `<span class="review-request-detail-tag">${esc(entry.term)} <strong>${esc(fmt(entry.count))}</strong></span>`)
+                    .join("")}</div></div>`
+                : ""
+            }
+            ${
+              detail.recurringClusters.length
+                ? `<div class="review-request-detail-section"><h5>${esc(t("reviewRequestsDetailsClusters"))}</h5><div class="review-request-detail-clusters">${detail.recurringClusters
+                    .map(
+                      (cluster) => `<article class="review-request-cluster"><div class="review-request-cluster-head"><span>${esc(
+                        cluster.label
+                      )}</span><span>${esc(fmt(cluster.count))}</span></div><p>${esc(
+                        interp(t("reviewRequestsClusterNegativeSkew"), { rate: cluster.negativeRate.toFixed(1) })
+                      )}</p></article>`
+                    )
+                    .join("")}</div></div>`
+                : ""
+            }
+            ${
+              detail.quotes.length
+                ? `<div class="review-request-detail-section"><h5>${esc(t("reviewRequestsDetailsQuotes"))}</h5><div class="review-request-detail-quotes">${detail.quotes
+                    .map(
+                      (quote) => `<article class="review-request-quote"><div class="review-request-quote-meta"><span>${esc(
+                        quote.language || ""
+                      )}</span><span>${esc(quote.sentiment || "")}</span></div><p>${esc(quote.snippet || "")}</p></article>`
+                    )
+                    .join("")}</div></div>`
+                : ""
+            }
+          </div>`
+        : "";
+      return `<article class="review-request-card">
+        <div class="review-request-rank">${index + 1}</div>
+        <div class="review-request-body">
+          <div class="review-request-head"><h4>${esc(item.feature || item.name || "")}</h4><span>${esc(interp(t("reviewRequestsCount"), { count: fmt(count) }))}</span></div>
+          <p>${esc(item.reason || item.why || "")}</p>
+          <div class="review-request-meta">${bullets}</div>
+          ${detailMarkup}
+        </div>
+      </article>`;
+    })
+    .join("");
+}
+
+function renderReviewRequestsPanel() {
+  if (!els.reviewRequestsPanel || !els.reviewRequestsList || !els.reviewRequestsStatus) return;
+  if (els.reviewRequestsInput) els.reviewRequestsInput.value = state.reviewRequestsScope || "";
+  if (els.reviewRequestsLanguageSelection) {
+    const value = els.reviewRequestsLanguageSelection.value || "all";
+    els.reviewRequestsLanguageSelection.value = value;
+  }
+  if (!state.currentAppId) {
+    els.reviewRequestsStatus.textContent = t("reviewRequestsNeedApp");
+    els.reviewRequestsList.innerHTML = `<div class="status-text">${esc(t("reviewRequestsNeedApp"))}</div>`;
+    return;
+  }
+  if (!state.ai.connected) {
+    els.reviewRequestsStatus.textContent = t("reviewRequestsNeedConnection");
+    els.reviewRequestsList.innerHTML = `<div class="status-text">${esc(t("reviewRequestsEmpty"))}</div>`;
+    return;
+  }
+  if (!state.reviewRequestsResult) {
+    els.reviewRequestsStatus.textContent = t("reviewRequestsLoading");
+    els.reviewRequestsList.innerHTML = `<div class="status-text">${esc(t("reviewRequestsLoading"))}</div>`;
+    return;
+  }
+  const summary = state.reviewRequestsResult.scope
+    ? interp(t("reviewRequestsSummaryCustom"), { scope: state.reviewRequestsResult.scope })
+    : t("reviewRequestsSummaryDefault");
+  const meta = `${state.reviewRequestsResult.cached ? t("reviewRequestsCached") : t("reviewRequestsLive")} - ${summary}`;
+  els.reviewRequestsStatus.textContent = meta;
+  els.reviewRequestsList.innerHTML = `<div class="review-request-summary">${esc(summary)}</div>${buildFeatureRequestListMarkup(state.reviewRequestsResult.items)}`;
+}
+
+function normalizeReviewRequestItems(items) {
+  const seen = new Set();
+  const normalized = (Array.isArray(items) ? items : [])
+    .map((item) => {
+      const feature = String(item.feature || item.name || "").trim();
+      const key = feature.toLowerCase();
+      if (!feature || seen.has(key)) return null;
+      seen.add(key);
+      return {
+        feature,
+        reason: String(item.reason || item.why || "").trim(),
+        supportingReviewCount: Math.max(0, Number(item.supportingReviewCount || item.reviewCount || 0)),
+        topic: String(item.topic || "").trim(),
+        topicId: String(item.topicId || "").trim(),
+        priority: String(item.priority || "").trim().toLowerCase(),
+        details: String(item.details || "").trim(),
+        signals: Array.isArray(item.signals) ? item.signals.map((entry) => String(entry || "").trim()).filter(Boolean).slice(0, 4) : [],
+        expanded: false,
+      };
+    })
+    .filter((item) => item && item.feature);
+  if (!normalized.length) return [];
+  const stronger = normalized.filter((item) => item.supportingReviewCount >= 2);
+  if (stronger.length >= 10) return stronger.slice(0, 10);
+  const backfill = normalized.filter((item) => !stronger.includes(item) && item.supportingReviewCount >= 1);
+  return [...stronger, ...backfill].slice(0, 10);
+}
+
+async function buildReviewRequestsEvidence(scope = "", lang = "all") {
+  const reviews = filterReviewsByActiveTimeRange(await collectReviews(lang));
+  if (!reviews.length) return null;
+  await ensureTopicTagsForReviews(reviews);
+  const topicRows = computeTopicRows(reviews);
+  const requestLikeReviews = reviews.filter((review) => matchesAnyPattern(String(review.review || ""), AI_REQUEST_PATTERNS));
+  const sourceReviews = requestLikeReviews.length ? requestLikeReviews : reviews;
+  const focusQuestion = normalizeReviewRequestScope(scope)
+    ? `What feature requests do players have regarding ${normalizeReviewRequestScope(scope)}?`
+    : "What are the top requested features from these reviews?";
+  const focus = inferAiQuestionFocus(focusQuestion, topicRows);
+  const scopedSnippets = selectRepresentativeAiReviews(sourceReviews, focus);
+  const inferredThemes = buildAiThemeCandidates(sourceReviews, focus)
+    .filter((entry) => entry.requestCount > 0 || entry.mentions >= 2)
+    .slice(0, 8)
+    .map((entry) => ({
+      topic: entry.label,
+      mentions: Number(entry.mentions.toFixed(1)),
+      requestCount: entry.requestCount,
+      positiveRate: Number(entry.positiveRate.toFixed(1)),
+    }));
+  const topicQuoteBundles = buildRequestTopicQuoteBundles(sourceReviews, topicRows, focus);
+  const payload = {
+    app: getCurrentAppMetadata(),
+    answerLanguage: getAiAnalysisTargetLanguage(),
+    scope: normalizeReviewRequestScope(scope),
+    timeRange: {
+      mode: state.timeRange.mode,
+      label: getActiveTimeRangeLabel(),
+      ...getDisplayTimeRangeDates(),
+    },
+    language: lang === "all" ? "All" : getLanguageName(lang),
+    totals: {
+      reviewCount: reviews.length,
+      requestLikeReviewCount: requestLikeReviews.length,
+    },
+    currentTopics: topicRows.slice(0, 8).map((row) => ({
+      id: row.id,
+      topic: row.label,
+      color: row.color,
+      requestCountHint: inferredThemes.find((entry) => entry.topic === row.label)?.requestCount || 0,
+    })),
+    focus: {
+      questionTerms: focus.questionTerms,
+      aspects: focus.aspects,
+      focusTopics: focus.focusTopicIds.map((topicId) => getTopicLabel(topicId)),
+      specificity: focus.specificity,
+    },
+    inferredThemes,
+    topicQuoteBundles,
+    representativeReviews: scopedSnippets.combined,
+    representativeReviewsDirect: scopedSnippets.direct,
+    representativeReviewsFallback: scopedSnippets.fallback,
+  };
+  Object.defineProperty(payload, "__sourceReviews", {
+    value: sourceReviews,
+    enumerable: false,
+  });
+  return payload;
+}
+
+async function requestAiReviewRequests(scope = "", lang = "all") {
+  if (!API_BASE) throw new Error(t("noProxyConfigured"));
+  if (!state.currentAppId) throw new Error(t("reviewRequestsNeedApp"));
+  if (!state.ai.connected || !state.ai.apiKey || !state.ai.model) throw new Error(t("reviewRequestsNeedConnection"));
+  const normalizedScope = normalizeReviewRequestScope(scope);
+  const cacheKey = getReviewRequestsCacheKey(normalizedScope, lang);
+  const cached = await getRecord(cacheKey);
+  if (cached && Date.now() - cached.storedAt <= AI_ANALYSIS_CACHE_TTL) {
+    return {
+      ...cached.value,
+      cached: true,
+    };
+  }
+  const evidence = await buildReviewRequestsEvidence(normalizedScope, lang);
+  if (!evidence) throw new Error(t("reviewRequestsNoReviews"));
+  const payload = await postJson(`${API_BASE}/reviews/requested-features`, {
+    apiKey: state.ai.apiKey,
+    baseUrl: state.ai.baseUrl,
+    model: state.ai.model,
+    answerLanguage: evidence.answerLanguage,
+    evidence,
+  });
+  const normalizedItems = enrichReviewRequestItemsWithLocalEvidence(
+    normalizeReviewRequestItems(payload.items),
+    evidence.__sourceReviews || []
+  );
+  const result = {
+    scope: normalizedScope,
+    items: normalizedItems,
+    meta: interp(t("reviewRequestsEvidence"), {
+      reviews: fmt(evidence.totals.reviewCount),
+      requests: fmt(evidence.totals.requestLikeReviewCount),
+      snippets: fmt(evidence.representativeReviews.length),
+    }),
+    topicQuoteBundles: evidence.topicQuoteBundles || [],
+    representativeReviews: evidence.representativeReviews || [],
+    cached: false,
+  };
+  await putRecord(cacheKey, result);
+  return result;
+}
+
+async function loadReviewRequests(scope = "", force = false) {
+  const normalizedScope = normalizeReviewRequestScope(scope);
+  state.reviewRequestsScope = normalizedScope;
+  if (els.reviewRequestsInput) els.reviewRequestsInput.value = normalizedScope;
+  if (force) {
+    const cacheKey = getReviewRequestsCacheKey(normalizedScope, els.reviewRequestsLanguageSelection?.value || "all");
+    await putRecord(cacheKey, null);
+  }
+  state.reviewRequestsResult = null;
+  renderReviewRequestsPanel();
+  const result = await requestAiReviewRequests(normalizedScope, els.reviewRequestsLanguageSelection?.value || "all");
+  state.reviewRequestsResult = result;
+  renderReviewRequestsPanel();
 }
 
 async function resetTopicCachesForApp(appid) {
@@ -6221,12 +6833,16 @@ function applyTranslations() {
       ? (node.dataset.expanded === "true" ? "詳細を隠す" : "詳細を表示")
       : (node.dataset.expanded === "true" ? "Hide details" : "Show details");
   });
+  document.querySelectorAll(".review-request-expand").forEach((node) => {
+    node.textContent = getReviewRequestExpandLabel(node.dataset.expanded === "true");
+  });
   syncReviewBrowserExpandedState();
 
   els.appidInput.placeholder = t("appInputPlaceholder");
   const comparisonInput = getComparisonInputEl();
   if (comparisonInput) comparisonInput.placeholder = t("appInputPlaceholder");
   els.reviewSearchInput.placeholder = t("searchPlaceholder");
+  if (els.reviewRequestsInput) els.reviewRequestsInput.placeholder = t("reviewRequestsPlaceholder");
   els.wordPreferenceInput.placeholder = t("wordPreferencePlaceholder");
   if (els.comparisonWordPreferenceInput) els.comparisonWordPreferenceInput.placeholder = t("wordPreferencePlaceholder");
   els.timelineKeywordInput.placeholder = t("timelineKeywordPlaceholder");
@@ -6275,6 +6891,7 @@ function applyTranslations() {
   updateAiUi();
 
   populateLanguageSelect(els.reviewLanguageSelection);
+  populateLanguageSelect(els.reviewRequestsLanguageSelection);
   populateLanguageSelect(els.playtimeLanguageSelection);
   populateLanguageSelect(els.wordLanguageSelection);
   if (els.comparisonKeywordLanguageSelection) {
@@ -8393,6 +9010,8 @@ function resetReviewViewState() {
   const preservedTopic = state.reviewFilters.topic || "all";
   const preservedMeaningful = state.reviewFilters.meaningful || "all";
   state.activeSearchRegex = null;
+  state.reviewRequestsResult = null;
+  if (state.reviewTab !== "requests") state.reviewRequestsScope = "";
   state.reviewBaseReviews = [];
   state.reviewSourceReviews = [];
   state.reviewDisplayedReviews = [];
@@ -8984,6 +9603,7 @@ async function refreshScopedData() {
   renderTimelineChart(allReviews);
   renderDistributionChart(state.summaryRows);
   populateLanguageSelect(els.reviewLanguageSelection);
+  populateLanguageSelect(els.reviewRequestsLanguageSelection);
   populateLanguageSelect(els.playtimeLanguageSelection);
   populateLanguageSelect(els.wordLanguageSelection);
   populateLanguageSelect(els.topicLanguageSelection);
@@ -9799,6 +10419,9 @@ els.reviewTabToggle.addEventListener("click", async (event) => {
 els.reviewLanguageSelection.addEventListener("change", () => {
   void runDataTask(t("searchLoading"), () => loadReviewBrowserForLanguage());
 });
+els.reviewRequestsLanguageSelection?.addEventListener("change", () => {
+  void runDataTask(t("reviewRequestsLoading"), () => loadReviewRequests(state.reviewRequestsScope || ""));
+});
 if (els.topicLanguageSelection) {
   els.topicLanguageSelection.addEventListener("change", async () => {
     state.topicLanguage = els.topicLanguageSelection.value || "all";
@@ -9827,6 +10450,17 @@ if (els.topicChartViewToggle) {
 }
 els.reviewSearchButton.addEventListener("click", () => {
   void runDataTask(t("searchLoading"), () => runReviewSearch());
+});
+els.reviewRequestsGenerateButton?.addEventListener("click", () => {
+  void runDataTask(t("reviewRequestsLoading"), () => loadReviewRequests(els.reviewRequestsInput?.value || ""));
+});
+els.reviewRequestsList?.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-review-request-expand]");
+  if (!button || !state.reviewRequestsResult?.items?.length) return;
+  const index = Number(button.dataset.reviewRequestExpand);
+  if (!Number.isInteger(index) || !state.reviewRequestsResult.items[index]) return;
+  state.reviewRequestsResult.items[index].expanded = !state.reviewRequestsResult.items[index].expanded;
+  renderReviewRequestsPanel();
 });
 els.reviewBrowserExpandButton?.addEventListener("click", () => {
   toggleReviewBrowserExpanded();

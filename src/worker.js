@@ -521,6 +521,81 @@ async function enhanceTopicDictionary(request) {
   });
 }
 
+async function generateRequestedFeatures(request) {
+  const body = await request.json();
+  const apiKey = String(body.apiKey || "").trim();
+  const model = String(body.model || "").trim();
+  const answerLanguage = String(body.answerLanguage || "English").trim();
+  const baseUrl = String(body.baseUrl || "https://generativelanguage.googleapis.com/v1beta").trim().replace(/\/+$/, "");
+  const evidence = body.evidence && typeof body.evidence === "object" ? body.evidence : null;
+
+  if (!apiKey) return jsonResponse({ error: "Missing API key" }, 400);
+  if (!model) return jsonResponse({ error: "Missing model" }, 400);
+  if (!evidence) return jsonResponse({ error: "Missing evidence" }, 400);
+  if (!baseUrl.startsWith("https://")) return jsonResponse({ error: "AI base URL must use HTTPS" }, 400);
+
+  const modelName = model.startsWith("models/") ? model : `models/${model}`;
+  const prompt = [
+    `Answer language: ${answerLanguage}`,
+    "",
+    "Evidence JSON:",
+    JSON.stringify(evidence),
+  ].join("\n");
+
+  const response = await fetch(`${baseUrl}/${modelName}:generateContent`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-goog-api-key": apiKey,
+    },
+    body: JSON.stringify({
+      systemInstruction: {
+        parts: [
+          {
+            text:
+              `You rank the most requested features or improvements from Steam reviews. ` +
+              `Use only the provided evidence. Prioritize repeated requests, repeated complaints that imply a missing feature, and concentrated friction. ` +
+              `Use evidence.topicQuoteBundles as the main cross-topic summary, then use representativeReviews as supporting direct quotes. ` +
+              `If scope is provided, keep the results tightly scoped to that request and do not drift into adjacent topics. ` +
+              `Return JSON only in this exact shape: ` +
+              `{"items":[{"feature":"short name","reason":"one short sentence","details":"two short sentences max","signals":["short signal","short signal"],"supportingReviewCount":12,"topic":"topic label","topicId":"existing topic id or empty string","priority":"high|medium|low"}]}. ` +
+              `Aim for 10 distinct items whenever the evidence plausibly supports 10 grounded requests. Return fewer only when fewer than 10 distinct grounded requests remain after deduping overlaps and removing speculation. ` +
+              `Do not pad to 10. Omit speculative or near-duplicate items. ` +
+              `Prefer signals supported by multiple topic bundles or multiple quotes inside a bundle over one-off complaints. ` +
+              `Prefer topicId values from evidence.currentTopics when they fit, otherwise use empty string. ` +
+              `supportingReviewCount should be a grounded estimate from the evidence, not an invented precise claim. ` +
+              `Keep feature names concise and practical for a product team. Keep each signal under 10 words and return 2 to 4 signals per item when possible.`,
+          },
+        ],
+      },
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: prompt }],
+        },
+      ],
+      generationConfig: {
+        temperature: 0.15,
+      },
+    }),
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    return jsonResponse({ error: payload.error?.message || `AI request failed: ${response.status}` }, response.status);
+  }
+
+  const rawText = payload.candidates?.[0]?.content?.parts?.map((part) => part.text || "").join("").trim() || "";
+  const parsed = parseModelJsonPayload(rawText);
+  if (!parsed || !Array.isArray(parsed.items)) {
+    return jsonResponse({ error: "AI returned invalid JSON for requested features" }, 502);
+  }
+
+  return jsonResponse({
+    items: parsed.items,
+  });
+}
+
 async function classifyMeaningfulReviews(request) {
   const body = await request.json();
   const apiKey = String(body.apiKey || "").trim();
@@ -695,6 +770,10 @@ async function handleApi(request) {
 
   if (url.pathname === "/api/topics/enhance" && request.method === "POST") {
     return enhanceTopicDictionary(request);
+  }
+
+  if (url.pathname === "/api/reviews/requested-features" && request.method === "POST") {
+    return generateRequestedFeatures(request);
   }
 
   if (url.pathname === "/api/reviews/meaningful" && request.method === "POST") {

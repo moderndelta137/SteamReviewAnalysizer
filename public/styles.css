@@ -3737,6 +3737,200 @@ body.ai-connected .review-translate-button::before {
   width: 100%;
 }
 
+.review-requests-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.review-requests-controls {
+  grid-template-columns: fit-content(220px) minmax(420px, 1fr) 132px;
+  margin-bottom: 0;
+  align-items: end;
+}
+
+.review-requests-controls > .control-field:first-child {
+  width: 220px;
+}
+
+.review-requests-list {
+  display: grid;
+  gap: 12px;
+}
+
+.review-request-summary {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.review-request-card {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.review-request-rank {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  font-weight: 800;
+  background: rgba(102, 192, 244, 0.16);
+  color: var(--text);
+}
+
+.review-request-body {
+  display: grid;
+  gap: 8px;
+}
+
+.review-request-head {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.review-request-head h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.review-request-body p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.review-request-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.review-request-expand {
+  justify-self: start;
+  padding: 6px 12px;
+  border: 1px solid rgba(102, 192, 244, 0.22);
+  border-radius: 999px;
+  background: rgba(102, 192, 244, 0.08);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.review-request-details {
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid rgba(102, 192, 244, 0.16);
+  border-radius: 14px;
+  background: rgba(8, 18, 28, 0.7);
+}
+
+.review-request-detail-copy,
+.review-request-quote p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.review-request-detail-section {
+  display: grid;
+  gap: 8px;
+}
+
+.review-request-detail-section h5,
+.review-request-quote-meta {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text);
+}
+
+.review-request-detail-section ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+}
+
+.review-request-detail-stats,
+.review-request-detail-tags,
+.review-request-detail-clusters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.review-request-stat,
+.review-request-detail-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  font-size: 0.8rem;
+}
+
+.review-request-detail-tag strong {
+  color: var(--accent);
+}
+
+.review-request-detail-clusters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.review-request-cluster {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.review-request-cluster-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--text);
+  font-size: 0.82rem;
+}
+
+.review-request-cluster p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.review-request-detail-quotes {
+  display: grid;
+  gap: 8px;
+}
+
+.review-request-quote {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.review-request-quote-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.review-request-meta .topic-chip.topic-request-topic {
+  border-color: color-mix(in srgb, var(--topic-color, rgba(102, 192, 244, 0.3)) 55%, transparent);
+  color: var(--topic-color, var(--accent));
+  background: color-mix(in srgb, var(--topic-color, rgba(102, 192, 244, 0.14)) 18%, transparent);
+}
+
 .review-toolbar button {
   align-self: end;
 }
@@ -4132,6 +4326,14 @@ body.ai-connected .review-translate-button::before {
 
   .review-toolbar-language > .control-field {
     flex: 1 1 100%;
+  }
+
+  .review-requests-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .review-requests-controls > .control-field:first-child {
+    width: 100%;
   }
 
   #saved-reviews-clear-button {

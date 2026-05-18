@@ -125,6 +125,7 @@
               <button class="workspace-tab" type="button" data-analysis-tab="reviews" data-i18n="reviewTabBrowse">Review Browser</button>
               <button class="workspace-tab" type="button" data-analysis-tab="timeline" data-i18n="reviewTimeline">Timeline</button>
               <button class="workspace-tab" type="button" data-analysis-tab="topics" data-i18n="topicClusters">Topic Clusters</button>
+              <button class="workspace-tab" type="button" data-analysis-tab="requests" data-i18n="reviewTabRequests">AI Requests</button>
             </div>
 
             <section id="analysis-panel-wordcloud" class="workspace-body">
@@ -318,6 +319,30 @@
               </div>
               <div id="topic-chart" class="topic-chart"></div>
               <div id="topic-details" class="topic-details"></div>
+            </section>
+
+            <section id="analysis-panel-requests" class="workspace-body hidden">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow" data-i18n="reviewBrowserEyebrow">Review Analysis</p>
+                  <h3 data-i18n="reviewRequestsTitle">Top Requested Features</h3>
+                </div>
+                <div id="review-requests-status" class="status-text"></div>
+              </div>
+              <div id="review-requests-panel" class="review-requests-panel">
+                <div class="review-toolbar review-toolbar-search review-requests-controls">
+                  <label class="control-field">
+                    <span data-i18n="language">Language</span>
+                    <select id="review-requests-language-selection"></select>
+                  </label>
+                  <label class="control-field review-search">
+                    <span data-i18n="reviewRequestsPromptLabel">Custom Request Scope</span>
+                    <input id="review-requests-input" type="text" placeholder="combat systems, movement, bosses" />
+                  </label>
+                  <button id="review-requests-generate-button" type="button" data-i18n="reviewRequestsGenerate">Generate</button>
+                </div>
+                <div id="review-requests-list" class="review-requests-list"></div>
+              </div>
             </section>
           </article>
 
