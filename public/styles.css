@@ -55,11 +55,14 @@ select,
 textarea {
   font: inherit;
   font-family: "Segoe UI", "Segoe UI Emoji", "Segoe UI Symbol", "Apple Color Emoji", "Noto Color Emoji", "Helvetica Neue", Arial, sans-serif;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .control-field {
   display: grid;
   gap: 6px;
+  min-width: 0;
   color: var(--muted);
   font-size: 0.86rem;
 }
@@ -483,14 +486,67 @@ body.loading-active {
   position: relative;
   flex: 0 0 300px;
   max-width: 300px;
+  cursor: grab;
+  transition: border-color 140ms ease, box-shadow 140ms ease, opacity 140ms ease, transform 140ms ease;
 }
 
-.comparison-game-card img {
+.comparison-game-card:active {
+  cursor: grabbing;
+}
+
+.comparison-game-card.is-dragging {
+  opacity: 0.38;
+  transform: scale(0.985);
+}
+
+.comparison-game-card.is-drag-over-before,
+.comparison-game-card.is-drag-over-after {
+  border-color: rgba(255, 209, 102, 0.78);
+  box-shadow: inset 3px 0 0 var(--game-color, #66c0f4), 0 0 0 2px rgba(255, 209, 102, 0.24);
+}
+
+.comparison-game-card.is-drag-over-before::before,
+.comparison-game-card.is-drag-over-after::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  border-radius: 999px;
+  background: #ffd166;
+  box-shadow: 0 0 10px rgba(255, 209, 102, 0.7);
+}
+
+.comparison-game-card.is-drag-over-before::before {
+  left: -7px;
+}
+
+.comparison-game-card.is-drag-over-after::before {
+  right: -7px;
+}
+
+.comparison-game-card.is-loading {
+  cursor: progress;
+  overflow: hidden;
+}
+
+.comparison-game-card.is-loading img {
+  opacity: 0.72;
+}
+
+.comparison-game-card img,
+.comparison-game-thumb-placeholder {
   width: 100%;
   aspect-ratio: 460 / 215;
   object-fit: cover;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.04);
+}
+
+.comparison-game-thumb-placeholder {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--game-color, #66c0f4) 24%, transparent), transparent),
+    rgba(255, 255, 255, 0.05);
 }
 
 .comparison-game-body {
@@ -517,6 +573,23 @@ body.loading-active {
 
 .comparison-game-body .stacked-track {
   margin-top: 2px;
+}
+
+.comparison-load-progress {
+  height: 8px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--game-color, #66c0f4) 42%, rgba(255, 255, 255, 0.08));
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.comparison-load-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--game-color, #66c0f4), #ffd166);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--game-color, #66c0f4) 42%, transparent);
+  transition: width 180ms ease;
 }
 
 .comparison-momentum-tags {
@@ -706,6 +779,11 @@ body.loading-active {
   gap: 14px;
 }
 
+.comparison-whitespace-panel {
+  display: grid;
+  gap: 14px;
+}
+
 .comparison-keyword-controls {
   grid-template-columns: 220px minmax(0, 1fr) auto;
   margin-top: 4px;
@@ -714,6 +792,44 @@ body.loading-active {
 .comparison-topic-controls {
   grid-template-columns: 220px;
   margin-top: 4px;
+}
+
+.comparison-whitespace-controls {
+  grid-template-columns: 260px 260px auto;
+  justify-content: start;
+  margin-top: 4px;
+}
+
+.comparison-whitespace-controls button {
+  align-self: end;
+  min-height: 38px;
+  white-space: nowrap;
+}
+
+.comparison-whitespace-ai-custom {
+  display: grid;
+  grid-template-columns: 260px 260px auto;
+  justify-content: start;
+  gap: 12px;
+}
+
+.comparison-whitespace-ai-custom.has-y-custom:not(.has-x-custom)::before {
+  content: "";
+}
+
+.comparison-whitespace-custom-field {
+  width: 260px;
+}
+
+.comparison-whitespace-ai-custom textarea {
+  width: 100%;
+  min-height: 86px;
+  resize: vertical;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(13, 21, 29, 0.88);
+  color: var(--text);
+  padding: 12px 14px;
 }
 
 .comparison-word-preferences {
@@ -843,6 +959,46 @@ body.loading-active {
   cursor: default;
 }
 
+.comparison-distribution-list {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(360px, 1fr);
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+.comparison-distribution-card {
+  grid-template-rows: auto auto;
+  align-self: start;
+  min-width: 360px;
+}
+
+.comparison-distribution-rows {
+  display: grid;
+  gap: 10px;
+}
+
+.comparison-distribution-rows .chart-row {
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+}
+
+.comparison-distribution-rows .playtime-row {
+  grid-template-columns: 96px minmax(0, 1fr);
+}
+
+.comparison-distribution-rows .chart-row.is-term-highlight {
+  border-color: rgba(255, 214, 102, 0.95);
+  box-shadow: inset 0 0 0 1px rgba(255, 214, 102, 0.5);
+}
+
+.comparison-distribution-rows .word-cloud-empty {
+  min-height: 180px;
+}
+
 .comparison-topic-chart-shell {
   overflow-x: auto;
   padding-bottom: 4px;
@@ -907,6 +1063,245 @@ body.loading-active {
 
 .comparison-topic-bar-value.is-visible {
   opacity: 1;
+}
+
+.comparison-whitespace-chart {
+  min-height: 520px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.comparison-whitespace-svg {
+  display: block;
+  width: 100%;
+  min-width: 820px;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 45%),
+    rgba(255, 255, 255, 0.02);
+}
+
+.comparison-whitespace-grid-line {
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 1;
+}
+
+.comparison-whitespace-grid-line.is-zero {
+  stroke: rgba(255, 255, 255, 0.24);
+  stroke-width: 2;
+}
+
+.comparison-whitespace-axis-label {
+  fill: #9fc0dd;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.comparison-whitespace-point {
+  cursor: pointer;
+  transition: opacity 140ms ease, filter 140ms ease;
+}
+
+.comparison-whitespace-point:hover,
+.comparison-whitespace-point.is-selected {
+  filter: drop-shadow(0 0 9px color-mix(in srgb, var(--game-color, #66c0f4) 78%, white));
+}
+
+.comparison-whitespace-thumb-frame {
+  transition: stroke-width 140ms ease, filter 140ms ease;
+}
+
+.comparison-whitespace-thumb-image {
+  pointer-events: none;
+}
+
+.comparison-whitespace-point:hover .comparison-whitespace-thumb-frame,
+.comparison-whitespace-point.is-selected .comparison-whitespace-thumb-frame {
+  stroke-width: 4;
+}
+
+.comparison-whitespace-point-label {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 800;
+  paint-order: stroke;
+  stroke: rgba(5, 8, 12, 0.9);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.comparison-whitespace-details {
+  display: grid;
+  gap: 14px;
+}
+
+.comparison-whitespace-card-row {
+  display: flex;
+  gap: 14px;
+  min-width: 0;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+.comparison-whitespace-card {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  min-width: 320px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--game-color, #66c0f4) 36%, var(--line));
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--game-color, #66c0f4) 10%, transparent), transparent 45%),
+    rgba(255, 255, 255, 0.03);
+}
+
+.comparison-whitespace-card.is-selected {
+  box-shadow: inset 3px 0 0 var(--game-color, #66c0f4);
+}
+
+.comparison-whitespace-open-card {
+  min-width: 0;
+}
+
+.comparison-whitespace-opportunity-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.comparison-whitespace-opportunity-grid section {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.comparison-whitespace-opportunity-grid span,
+.comparison-whitespace-section-label {
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.comparison-whitespace-opportunity-grid p {
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.comparison-whitespace-feature-pillars,
+.comparison-whitespace-suggested-list {
+  display: grid;
+  gap: 8px;
+}
+
+.comparison-whitespace-feature-pillars > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.comparison-whitespace-feature-pillars > div span {
+  padding: 7px 10px;
+  border: 1px solid rgba(102, 192, 244, 0.24);
+  border-radius: 999px;
+  background: rgba(102, 192, 244, 0.08);
+  color: #d7ebf8;
+  font-size: 0.94rem;
+  font-weight: 750;
+}
+
+.comparison-whitespace-suggested-title {
+  display: grid;
+  grid-template-columns: minmax(140px, 0.32fr) minmax(0, 1fr) auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 9px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.comparison-whitespace-suggested-title span {
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.comparison-whitespace-suggested-title em {
+  color: #9fe7c2;
+  font-style: normal;
+  font-size: 0.76rem;
+  white-space: nowrap;
+}
+
+.comparison-whitespace-suggested-title button {
+  padding: 7px 10px;
+  border: 1px solid rgba(102, 192, 244, 0.32);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(102, 192, 244, 0.18), rgba(26, 159, 255, 0.14));
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.comparison-whitespace-suggested-title button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.comparison-whitespace-connect-ai {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.comparison-whitespace-card h4,
+.comparison-whitespace-card p {
+  margin: 0;
+}
+
+.comparison-whitespace-score-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.comparison-whitespace-score-grid > div {
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.comparison-whitespace-score-grid span {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.comparison-whitespace-score-grid strong {
+  color: var(--text);
+  font-size: 1.35rem;
+}
+
+.comparison-whitespace-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.comparison-whitespace-evidence span {
+  padding: 5px 8px;
+  border: 1px solid color-mix(in srgb, var(--game-color, #66c0f4) 28%, rgba(255, 255, 255, 0.1));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--game-color, #66c0f4) 12%, rgba(255, 255, 255, 0.04));
+  color: #d7ebf8;
+  font-size: 0.74rem;
 }
 
 .positive-rate-value {
@@ -1008,6 +1403,25 @@ body.loading-active {
   background: rgba(13, 21, 29, 0.88);
   color: var(--text);
   padding: 12px 14px;
+}
+
+.control-field select,
+.word-cloud-controls select,
+.review-toolbar select,
+.ai-settings-panel select {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 34px;
+}
+
+.word-cloud-controls label,
+.review-toolbar .control-field,
+.topic-controls .control-field,
+.review-requests-controls .control-field,
+.ai-settings-panel .control-field {
+  min-width: 0;
 }
 
 .search-form input {
@@ -1794,6 +2208,11 @@ body.loading-active {
   margin-bottom: 12px;
 }
 
+.word-cloud-controls.comparison-whitespace-controls {
+  grid-template-columns: 260px 260px auto;
+  justify-content: start;
+}
+
 .word-cloud-view-control {
   justify-self: end;
 }
@@ -1936,6 +2355,12 @@ body.loading-active {
 }
 
 .comparison-topic-card {
+  grid-template-rows: auto auto;
+  height: auto;
+  align-self: start;
+}
+
+.comparison-distribution-card {
   grid-template-rows: auto auto;
   height: auto;
   align-self: start;
@@ -3224,7 +3649,9 @@ body.ai-connected .ai-analysis-templates button,
 body.ai-connected .ai-analysis-form button,
 body.ai-connected .ai-analysis-expand,
 body.ai-connected .ai-feature-button,
-body.ai-connected .review-translate-button {
+body.ai-connected .review-translate-button,
+body.ai-connected .comparison-whitespace-ai-custom textarea,
+body.ai-connected .comparison-whitespace-panel.is-ai-custom .comparison-whitespace-controls select {
   position: relative;
   border-color: rgba(126, 246, 255, 0.72);
   box-shadow:
@@ -3244,10 +3671,23 @@ body.ai-connected .ai-chat-close-button {
     rgba(255, 255, 255, 0.04);
 }
 
+body.ai-connected .comparison-whitespace-panel.is-ai-custom .comparison-whitespace-controls select,
+body.ai-connected .comparison-whitespace-ai-custom textarea {
+  background-color: rgba(13, 21, 29, 0.88);
+  color: var(--text);
+}
+
+body.ai-connected .comparison-whitespace-panel.is-ai-custom .comparison-whitespace-controls select option {
+  background: #0d151d;
+  color: var(--text);
+}
+
 body.ai-connected .ai-analysis-templates button,
 body.ai-connected .ai-analysis-expand,
 body.ai-connected .review-translate-button,
-body.ai-connected .ai-assistant-status {
+body.ai-connected .ai-assistant-status,
+body.ai-connected .comparison-whitespace-ai-custom textarea,
+body.ai-connected .comparison-whitespace-panel.is-ai-custom .comparison-whitespace-controls select {
   background:
     linear-gradient(135deg, rgba(58, 95, 255, 0.12), rgba(0, 231, 255, 0.08)),
     rgba(255, 255, 255, 0.04);
@@ -4263,6 +4703,29 @@ body.ai-connected .review-translate-button::before {
 
   .comparison-cloud-card {
     min-width: min(320px, 86vw);
+  }
+
+  .comparison-whitespace-controls,
+  .comparison-whitespace-ai-custom,
+  .comparison-whitespace-details {
+    grid-template-columns: 1fr;
+  }
+
+  .comparison-whitespace-card {
+    min-width: min(320px, 86vw);
+  }
+
+  .comparison-whitespace-opportunity-grid,
+  .comparison-whitespace-suggested-title {
+    grid-template-columns: 1fr;
+  }
+
+  .comparison-whitespace-chart {
+    min-height: 420px;
+  }
+
+  .comparison-whitespace-svg {
+    min-width: 720px;
   }
 
   .comparison-momentum-track {

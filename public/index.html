@@ -433,6 +433,8 @@
               <button class="workspace-tab" type="button" data-comparison-analysis-tab="timeline" data-i18n="comparisonTabTimeline">Timeline</button>
               <button class="workspace-tab" type="button" data-comparison-analysis-tab="keywords" data-i18n="comparisonTabKeywords">Compare Keywords</button>
               <button class="workspace-tab" type="button" data-comparison-analysis-tab="topics" data-i18n="comparisonTabTopics">Compare Topics</button>
+              <button class="workspace-tab" type="button" data-comparison-analysis-tab="distributions" data-i18n="comparisonTabDistributions">Compare Distributions</button>
+              <button class="workspace-tab" type="button" data-comparison-analysis-tab="whitespace" data-i18n="comparisonTabWhitespace">Blue Ocean</button>
             </div>
             <div class="panel-heading">
               <div>
@@ -447,9 +449,17 @@
                   <button class="lang-pill" type="button" data-comparison-time-range="year" data-i18n="timeSpanYear">1 Year</button>
                   <button class="lang-pill" type="button" data-comparison-time-range="all" data-i18n="timeSpanLifetime">Lifetime</button>
                 </div>
+                <div id="comparison-keyword-scale-toggle" class="lang-toggle review-toggle-group hidden" aria-label="Comparison keyword bar scale">
+                  <button class="lang-pill" type="button" data-comparison-keyword-scale="shared" data-i18n="comparisonKeywordScaleShared">Shared Max</button>
+                  <button class="lang-pill" type="button" data-comparison-keyword-scale="individual" data-i18n="comparisonKeywordScaleIndividual">Individual Max</button>
+                </div>
                 <div id="comparison-topic-chart-mode-toggle" class="lang-toggle review-toggle-group hidden" aria-label="Comparison topic chart mode">
                   <button class="lang-pill" type="button" data-comparison-topic-chart-mode="share" data-i18n="comparisonTopicChartShare">Share</button>
                   <button class="lang-pill" type="button" data-comparison-topic-chart-mode="count" data-i18n="comparisonTopicChartCount">Count</button>
+                </div>
+                <div id="comparison-distribution-type-toggle" class="lang-toggle review-toggle-group hidden" aria-label="Comparison distribution type">
+                  <button class="lang-pill" type="button" data-comparison-distribution-type="language" data-i18n="language">Language</button>
+                  <button class="lang-pill" type="button" data-comparison-distribution-type="playtime" data-i18n="hoursPlayed">Playtime</button>
                 </div>
                 <div id="comparison-timeline-status" class="status-text"></div>
               </div>
@@ -503,6 +513,34 @@
               </div>
               <div id="comparison-topic-chart" class="topic-chart comparison-topic-chart"></div>
               <div id="comparison-topic-clouds" class="comparison-keyword-clouds comparison-topic-clouds"></div>
+            </section>
+            <section id="comparison-panel-whitespace" class="comparison-whitespace-panel hidden">
+              <div class="word-cloud-controls comparison-whitespace-controls">
+                <label class="control-field">
+                  <span data-i18n="comparisonWhitespaceXAxis">X Axis</span>
+                  <select id="comparison-whitespace-x-axis"></select>
+                </label>
+                <label class="control-field">
+                  <span data-i18n="comparisonWhitespaceYAxis">Y Axis</span>
+                  <select id="comparison-whitespace-y-axis"></select>
+                </label>
+                <button id="comparison-whitespace-generate" class="comparison-whitespace-generate-button" type="button" data-i18n="comparisonWhitespaceGenerate">Generate</button>
+              </div>
+              <div id="comparison-whitespace-ai-custom" class="comparison-whitespace-ai-custom hidden">
+                <label id="comparison-whitespace-x-custom-field" class="control-field comparison-whitespace-custom-field hidden">
+                  <span data-i18n="comparisonWhitespaceCustomX">Custom X Definition</span>
+                  <textarea id="comparison-whitespace-x-prompt" rows="3"></textarea>
+                </label>
+                <label id="comparison-whitespace-y-custom-field" class="control-field comparison-whitespace-custom-field hidden">
+                  <span data-i18n="comparisonWhitespaceCustomY">Custom Y Definition</span>
+                  <textarea id="comparison-whitespace-y-prompt" rows="3"></textarea>
+                </label>
+              </div>
+              <div id="comparison-whitespace-chart" class="comparison-whitespace-chart"></div>
+              <div id="comparison-whitespace-details" class="comparison-whitespace-details"></div>
+            </section>
+            <section id="comparison-panel-distributions" class="comparison-distribution-panel hidden">
+              <div id="comparison-distribution-list" class="comparison-distribution-list"></div>
             </section>
           </article>
         </section>

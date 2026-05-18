@@ -1,0 +1,5 @@
+{
+  "debugPortAddress": "127.0.0.1:63761",
+  "defaultEntrypointService": "assets:rpc-proxy:md",
+  "userWorkerService": "core:user:md"
+}
