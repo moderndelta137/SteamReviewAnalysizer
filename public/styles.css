@@ -12,6 +12,7 @@
   --shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
   --ai-glow-angle: 0deg;
   --desktop-layout-zoom: 0.9;
+  --font-ui: "Segoe UI", "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 }
 
 @property --ai-glow-angle {
@@ -28,7 +29,7 @@ html,
 body {
   margin: 0;
   min-height: 100%;
-  font-family: "Segoe UI", "Segoe UI Emoji", "Segoe UI Symbol", "Apple Color Emoji", "Noto Color Emoji", "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-ui);
   background:
     radial-gradient(circle at top left, rgba(26, 159, 255, 0.22), transparent 28%),
     radial-gradient(circle at top right, rgba(102, 192, 244, 0.14), transparent 24%),
@@ -54,7 +55,7 @@ input,
 select,
 textarea {
   font: inherit;
-  font-family: "Segoe UI", "Segoe UI Emoji", "Segoe UI Symbol", "Apple Color Emoji", "Noto Color Emoji", "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-ui);
   min-width: 0;
   max-width: 100%;
 }
@@ -4876,5 +4877,452 @@ body.ai-connected .review-translate-button::before {
     bottom: 10px;
     width: calc(100vw - 20px);
     height: min(82vh, 700px);
+  }
+}
+
+@media (max-width: 720px) {
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  body {
+    font-size: 15px;
+  }
+
+  .site-shell {
+    width: min(100% - 20px, 1480px);
+    padding: 12px 0 32px;
+  }
+
+  .layout {
+    gap: 12px;
+  }
+
+  .topbar {
+    padding: 0 10px;
+  }
+
+  .topbar-inner {
+    min-height: 0;
+    gap: 10px;
+    padding: 10px 0 12px;
+  }
+
+  .brand-block {
+    gap: 4px;
+  }
+
+  .brand-block h1 {
+    font-size: 1.2rem;
+    line-height: 1.1;
+  }
+
+  .brand-block .eyebrow,
+  .eyebrow {
+    letter-spacing: 0.08em;
+  }
+
+  .toolbar,
+  .toolbar-center,
+  .toolbar-right,
+  .toolbar-toggles,
+  .fetch-buttons,
+  .custom-time-range,
+  .time-range-group {
+    width: 100%;
+  }
+
+  .toolbar-toggles {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .topbar .toolbar-toggles > .lang-toggle {
+    width: 100%;
+  }
+
+  .topbar .toolbar-toggles > .lang-toggle .lang-pill {
+    min-width: 0;
+    width: 100%;
+    padding-inline: 8px;
+    font-size: 0.74rem;
+  }
+
+  .search-form {
+    flex-basis: 100%;
+  }
+
+  .search-form input {
+    min-height: 44px;
+    font-size: 0.95rem;
+  }
+
+  .page-nav,
+  .page-nav-toggle {
+    width: 100%;
+  }
+
+  .page-nav-toggle {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border: 1px solid rgba(102, 192, 244, 0.18);
+    border-radius: 10px;
+    background: rgba(10, 18, 28, 0.7);
+  }
+
+  .page-nav-toggle .lang-pill {
+    width: auto;
+    min-width: 0;
+    min-height: 42px;
+  }
+
+  .fetch-state-panel,
+  .deploy-note,
+  .hero-panel,
+  .panel,
+  .control-strip {
+    border-radius: 16px;
+  }
+
+  .fetch-state-panel {
+    position: static;
+    padding: 10px;
+  }
+
+  .fetch-state-row,
+  .panel-heading,
+  .review-results-head,
+  .comparison-momentum-head {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .fetch-controls-row {
+    padding: 10px;
+  }
+
+  .fetch-buttons {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .custom-time-range {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .review-toggle-group {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .review-toggle-group .lang-pill {
+    flex: 1 0 max-content;
+    min-width: 84px;
+    white-space: nowrap;
+  }
+
+  .workspace-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 10px 10px 0;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .workspace-tab {
+    flex: 0 0 auto;
+    min-height: 42px;
+    padding: 10px 12px;
+    border-radius: 10px 10px 0 0;
+    white-space: nowrap;
+  }
+
+  .workspace-body,
+  .panel {
+    padding: 12px;
+  }
+
+  .workspace-panel {
+    padding-top: 0;
+  }
+
+  .app-hero {
+    min-height: 220px;
+    padding: 18px;
+  }
+
+  .hero-copy h2,
+  .panel-heading h3 {
+    letter-spacing: 0;
+    line-height: 1.15;
+  }
+
+  .word-cloud-container {
+    min-height: 220px;
+    padding: 12px;
+    gap: 10px 12px;
+  }
+
+  .word-cloud-empty {
+    min-height: 180px;
+    padding: 14px;
+  }
+
+  .word-cloud-controls,
+  .word-cloud-preferences,
+  .timeline-keyword-controls,
+  .topic-controls,
+  .review-toolbar,
+  .review-toolbar-filters,
+  .review-toolbar-select-filters,
+  .review-requests-controls,
+  .comparison-keyword-controls,
+  .comparison-topic-controls,
+  .comparison-whitespace-controls,
+  .comparison-whitespace-ai-custom {
+    grid-template-columns: 1fr;
+  }
+
+  .word-cloud-view-control,
+  .panel-heading-toggle,
+  .timeline-heading-tools {
+    justify-self: stretch;
+    justify-items: stretch;
+  }
+
+  .review-toolbar-language {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .review-toolbar-language > .control-field,
+  .review-requests-controls > .control-field:first-child,
+  .comparison-whitespace-custom-field {
+    width: 100%;
+    flex-basis: auto;
+  }
+
+  .review-card {
+    border-radius: 14px;
+  }
+
+  .review-body,
+  .review-request-card {
+    grid-template-columns: 1fr;
+  }
+
+  .review-request-rank {
+    width: 38px;
+    height: 38px;
+  }
+
+  .chart-row,
+  .playtime-row,
+  .review-status-row,
+  .comparison-distribution-rows .playtime-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .timeline-chart,
+  .comparison-timeline-chart,
+  .chart-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .timeline-chart svg,
+  .comparison-timeline-chart svg {
+    min-width: 640px;
+  }
+
+  .comparison-games-list {
+    gap: 10px;
+    scroll-snap-type: x proximity;
+  }
+
+  .comparison-game-card,
+  .comparison-add-tile {
+    flex-basis: min(280px, 78vw);
+    max-width: min(280px, 78vw);
+    scroll-snap-align: start;
+  }
+
+  .comparison-panel-actions {
+    justify-content: stretch;
+  }
+
+  .comparison-panel-actions > * {
+    width: 100%;
+  }
+
+  .comparison-legend {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .comparison-legend-chip {
+    flex: 0 0 auto;
+  }
+
+  .comparison-momentum-track,
+  .comparison-cloud-competitors,
+  .comparison-distribution-list,
+  .comparison-whitespace-card-row {
+    scroll-snap-type: x proximity;
+  }
+
+  .comparison-momentum-col,
+  .comparison-cloud-competitors .comparison-cloud-card,
+  .comparison-distribution-card,
+  .comparison-whitespace-card {
+    flex-basis: min(300px, 82vw);
+    width: min(300px, 82vw);
+    min-width: min(300px, 82vw);
+    scroll-snap-align: start;
+  }
+
+  .comparison-cloud-card {
+    padding: 12px;
+  }
+
+  .comparison-cloud-head {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .comparison-cloud-head h4 {
+    white-space: normal;
+  }
+
+  .comparison-cloud-container {
+    height: 140px;
+    padding: 10px;
+  }
+
+  .comparison-topic-chart-svg {
+    min-width: 680px;
+  }
+
+  .comparison-whitespace-chart {
+    min-height: 360px;
+  }
+
+  .comparison-whitespace-svg {
+    min-width: 680px;
+  }
+
+  .comparison-whitespace-opportunity-grid,
+  .comparison-whitespace-score-grid,
+  .comparison-whitespace-suggested-title {
+    grid-template-columns: 1fr;
+  }
+
+  .ai-assistant-anchor {
+    left: 8px;
+    bottom: 8px;
+  }
+
+  .ai-assistant-button,
+  .ai-assistant-status {
+    width: 104px;
+    min-width: 104px;
+    max-width: 104px;
+  }
+
+  .ai-chat-popup {
+    left: 0;
+    bottom: 156px;
+    width: calc(100vw - 16px);
+    height: min(70vh, 640px);
+  }
+
+  .ai-chat-popup.expanded,
+  .review-browser-expanded {
+    left: 8px;
+    bottom: 8px;
+    width: calc(100vw - 16px);
+    height: min(84vh, 680px);
+  }
+}
+
+@media (max-width: 520px) {
+  .site-shell {
+    width: min(100% - 14px, 1480px);
+  }
+
+  .toolbar-toggles {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar .toolbar-toggles > .lang-toggle .lang-pill {
+    font-size: 0.78rem;
+  }
+
+  .loading-dialog {
+    width: calc(100vw - 20px);
+    padding: 20px 16px;
+    border-radius: 18px;
+  }
+
+  .fetch-state-panel,
+  .deploy-note,
+  .hero-panel,
+  .panel,
+  .control-strip {
+    border-radius: 14px;
+  }
+
+  .workspace-body,
+  .panel {
+    padding: 10px;
+  }
+
+  .workspace-panel {
+    padding-top: 0;
+  }
+
+  .workspace-tab {
+    max-width: 72vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .lang-pill {
+    min-width: 58px;
+    padding: 7px 9px;
+  }
+
+  .review-toggle-group .lang-pill {
+    min-width: 76px;
+  }
+
+  .word-cloud-term {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .comparison-game-card,
+  .comparison-add-tile,
+  .comparison-momentum-col,
+  .comparison-cloud-competitors .comparison-cloud-card,
+  .comparison-distribution-card,
+  .comparison-whitespace-card {
+    flex-basis: min(280px, 86vw);
+    width: min(280px, 86vw);
+    min-width: min(280px, 86vw);
+  }
+
+  .comparison-topic-chart-svg,
+  .comparison-whitespace-svg,
+  .timeline-chart svg,
+  .comparison-timeline-chart svg {
+    min-width: 560px;
   }
 }

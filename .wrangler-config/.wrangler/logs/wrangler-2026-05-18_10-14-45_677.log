@@ -1,0 +1,164 @@
+
+--- 2026-05-18T10:14:45.887Z debug
+🪵  Writing logs to "D:\Projects\SteamReviewAnalysizer\.wrangler-config\.wrangler\logs\wrangler-2026-05-18_10-14-45_677.log"
+---
+
+--- 2026-05-18T10:14:45.887Z debug
+.env file not found at "D:\Projects\SteamReviewAnalysizer\.env". Continuing... For more details, refer to https://developers.cloudflare.com/workers/wrangler/system-environment-variables/
+---
+
+--- 2026-05-18T10:14:45.889Z debug
+.env file not found at "D:\Projects\SteamReviewAnalysizer\.env.local". Continuing... For more details, refer to https://developers.cloudflare.com/workers/wrangler/system-environment-variables/
+---
+
+--- 2026-05-18T10:14:45.898Z log
+
+ ⛅️ wrangler 4.84.1 (update available 4.92.0)
+─────────────────────────────────────────────
+---
+
+--- 2026-05-18T10:14:45.901Z debug
+Metrics dispatcher: Posting data {"deviceId":"f534afe1-a9ac-419b-a573-5a6210db960b","event":"wrangler command started","timestamp":1779099285901,"properties":{"amplitude_session_id":1779099285898,"amplitude_event_id":0,"wranglerVersion":"4.84.1","wranglerMajorVersion":4,"wranglerMinorVersion":84,"wranglerPatchVersion":1,"osPlatform":"Windows","osVersion":"Windows 11 Enterprise","nodeVersion":22,"packageManager":"npm","isFirstUsage":false,"configFileType":"none","isCI":false,"isPagesCI":false,"isWorkersCI":false,"isInteractive":true,"hasAssets":false,"agent":null,"argsUsed":["port"],"argsCombination":"port","sanitizedCommand":"dev","sanitizedArgs":{}}}
+---
+
+--- 2026-05-18T10:14:45.958Z debug
+setting config
+---
+
+--- 2026-05-18T10:14:45.959Z debug
+Updating config... undefined undefined
+---
+
+--- 2026-05-18T10:14:46.010Z debug
+local dev variables file not found at ".dev.vars". Continuing... For more details, refer to https://developers.cloudflare.com/workers/wrangler/system-environment-variables/
+---
+
+--- 2026-05-18T10:14:46.010Z debug
+.env file not found at "D:\Projects\SteamReviewAnalysizer\.env". Continuing... For more details, refer to https://developers.cloudflare.com/workers/wrangler/system-environment-variables/
+---
+
+--- 2026-05-18T10:14:46.010Z debug
+.env file not found at "D:\Projects\SteamReviewAnalysizer\.env.local". Continuing... For more details, refer to https://developers.cloudflare.com/workers/wrangler/system-environment-variables/
+---
+
+--- 2026-05-18T10:14:46.012Z log
+Your Worker has access to the following bindings:
+---
+
+--- 2026-05-18T10:14:46.012Z log
+Binding            Resource      Mode
+---
+
+--- 2026-05-18T10:14:46.012Z log
+env.ASSETS         Assets        local
+---
+
+--- 2026-05-18T10:14:46.012Z log
+
+---
+
+--- 2026-05-18T10:14:46.141Z debug
+RemoteRuntimeController teardown beginning...
+---
+
+--- 2026-05-18T10:14:46.141Z debug
+RemoteRuntimeController teardown complete
+---
+
+--- 2026-05-18T10:14:46.162Z log
+⎔ Starting local server...
+---
+
+--- 2026-05-18T10:14:46.240Z debug
+[InspectorProxyWorker] handleProxyControllerIncomingMessage {"type":"reloadStart"}
+---
+
+--- 2026-05-18T10:14:46.370Z debug
+[InspectorProxyWorker] handleProxyControllerIncomingMessage {"type":"reloadComplete","proxyData":{"userWorkerUrl":{"protocol":"http:","hostname":"127.0.0.1","port":"50604"},"userWorkerInspectorUrl":{"protocol":"ws:","hostname":"127.0.0.1","port":"50601","pathname":"/core:user:md"},"userWorkerInnerUrlOverrides":{"protocol":"http:"},"headers":{"MF-Proxy-Shared-Secret":"99d832a1-2ea0-47d1-8316-93f2ce6a3191"},"liveReload":false,"proxyLogsToController":false}}
+---
+
+--- 2026-05-18T10:14:46.372Z debug
+[InspectorProxyWorker] reconnectRuntimeWebSocket
+---
+
+--- 2026-05-18T10:14:46.372Z debug
+[InspectorProxyWorker] NEW RUNTIME WEBSOCKET http://127.0.0.1:50601/core:user:md
+---
+
+--- 2026-05-18T10:14:46.373Z debug
+[InspectorProxyWorker] SEND TO DEVTOOLS {"method":"Runtime.executionContextsCleared"}
+---
+
+--- 2026-05-18T10:14:46.375Z debug
+[InspectorProxyWorker] RUNTIME WEBSOCKET OPENED
+---
+
+--- 2026-05-18T10:14:46.376Z debug
+[InspectorProxyWorker] SEND TO RUNTIME {"method":"Runtime.enable","id":100000001}
+---
+
+--- 2026-05-18T10:14:46.377Z debug
+[InspectorProxyWorker] SEND TO RUNTIME {"method":"Network.enable","id":100000002}
+---
+
+--- 2026-05-18T10:14:46.378Z debug
+[InspectorProxyWorker] RUNTIME INCOMING MESSAGE {
+  method: 'Runtime.executionContextCreated',
+  params: {
+    context: {
+      id: 435761793,
+      origin: '',
+      name: 'Worker',
+      uniqueId: '-2386371644403268222.5913396622752796850'
+    }
+  }
+}
+---
+
+--- 2026-05-18T10:14:46.379Z debug
+[InspectorProxyWorker] RUNTIME INCOMING MESSAGE { id: 100000001, result: {} }
+---
+
+--- 2026-05-18T10:14:46.379Z debug
+[InspectorProxyWorker] RUNTIME INCOMING MESSAGE { id: 100000002, method: 'Network.enable', result: {} }
+---
+
+--- 2026-05-18T10:14:56.384Z debug
+[InspectorProxyWorker] SEND TO RUNTIME {"method":"Runtime.getIsolateId","id":100000003}
+---
+
+--- 2026-05-18T10:14:56.386Z debug
+[InspectorProxyWorker] RUNTIME INCOMING MESSAGE { id: 100000003, result: { id: '872ec1407860dcb9' } }
+---
+
+--- 2026-05-18T10:15:06.395Z debug
+[InspectorProxyWorker] SEND TO RUNTIME {"method":"Runtime.getIsolateId","id":100000004}
+---
+
+--- 2026-05-18T10:15:06.396Z debug
+[InspectorProxyWorker] RUNTIME INCOMING MESSAGE { id: 100000004, result: { id: '872ec1407860dcb9' } }
+---
+
+--- 2026-05-18T10:15:16.402Z debug
+[InspectorProxyWorker] SEND TO RUNTIME {"method":"Runtime.getIsolateId","id":100000005}
+---
+
+--- 2026-05-18T10:15:16.403Z debug
+[InspectorProxyWorker] RUNTIME INCOMING MESSAGE { id: 100000005, result: { id: '872ec1407860dcb9' } }
+---
+
+--- 2026-05-18T10:15:23.304Z debug
+[InspectorProxyWorker] RUNTIME WEBSOCKET ERROR {
+  message: 'internal error; reference = 05ovorligmf5o1g71h3149qg',
+  name: 'Error',
+  stack: 'Error: internal error; reference = 05ovorligmf5o1g71h3149qg'
+}
+---
+
+--- 2026-05-18T10:15:23.305Z debug
+[InspectorProxyWorker] 'runtime websocket' error {
+  message: 'internal error; reference = 05ovorligmf5o1g71h3149qg',
+  name: 'Error',
+  stack: 'Error: internal error; reference = 05ovorligmf5o1g71h3149qg'
+}
+---
